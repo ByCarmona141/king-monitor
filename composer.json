@@ -1,0 +1,32 @@
+{
+    "name": "bycarmona141/king-monitor",
+    "description": "API requests and errors monitor",
+    "autoload": {
+        "psr-4": {
+            "ByCarmona141\\KingMonitor\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ByCarmona141\\KingMonitor\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "ByCarmona141"
+        }
+    ],
+    "require-dev": {
+        "orchestra/testbench": "^8.24"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ByCarmona141\\KingMonitor\\KingMonitorServiceProvider"
+            ],
+            "aliases": {
+                "KingMonitor": "ByCarmona141\\KingMonitor\\Facades\\KingMonitor"
+            }
+        }
+    }
+}
