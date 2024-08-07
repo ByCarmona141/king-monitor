@@ -1,6 +1,7 @@
 {
     "name": "bycarmona141/king-monitor",
     "description": "API requests and errors monitor",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "ByCarmona141\\KingMonitor\\": "src/"
