@@ -2,8 +2,6 @@
 
 namespace ByCarmona141\KingMonitor;
 
-use Illuminate\Http\Request;
-
 use ByCarmona141\KingMonitor\Models\KingMonitor as KingMonitorModel;
 
 class KingMonitor {
@@ -16,9 +14,19 @@ class KingMonitor {
     }
 
     /*********************************************** MONITOR ***********************************************/
-    public function monitor(Request $request) {
+    public function monitor($response, $tuple = NULL, $withoutResource = FALSE) {
         $kingMonitor = new KingMonitorModel();
-        return $kingMonitor->monitor($request,$request->origin, $request->tuple);
+        return $kingMonitor->monitor($response, $tuple, $withoutResource);
+    }
+
+    public function monitorError($king_type_error_id, $error = NULL, $message = NULL) {
+        $kingMonitor = new KingMonitorModel();
+        return $kingMonitor->monitorError($king_type_error_id, $error, $message);
+    }
+
+    public function monitorErrorUnauthenticated($king_type_error_id, $error = NULL, $message = NULL) {
+        $kingMonitor = new KingMonitorModel();
+        return $kingMonitor->monitorErrorUnauthenticated($king_type_error_id, $error, $message);
     }
 
     /****************************************************************** STATISTICS USER ******************************************************************/
