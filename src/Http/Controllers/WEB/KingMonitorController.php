@@ -12,7 +12,6 @@ use ByCarmona141\KingMonitor\Facades\KingMonitor;
 class KingMonitorController extends Controller {
     public function index() {
         return view('king-monitor::monitor');
-        return KingMonitor::hello();
     }
 //    public function index(Request $request) {
 //        // Obtenemos las estadisticas del monitor

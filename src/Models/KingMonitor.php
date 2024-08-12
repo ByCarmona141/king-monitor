@@ -3218,7 +3218,7 @@ class KingMonitor extends Model {
                 }
             }
 
-            return KingMonitorResource::make($king_monitors);
+            return $king_monitors;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3295,7 +3295,7 @@ class KingMonitor extends Model {
                 }
             }
 
-            return KingMonitorErrorResource::make($king_monitor_errors);
+            return $king_monitor_errors;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3348,7 +3348,7 @@ class KingMonitor extends Model {
                 $king_monitor_alert->save();
             }
 
-            return KingMonitorErrorResource::make($king_monitor_errors);
+            return $king_monitor_errors;
         } catch (Exception $e) {
             return $e->getMessage();
         }

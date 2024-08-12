@@ -2,7 +2,6 @@
 
 namespace ByCarmona141\KingMonitor\Http\Controllers\API;
 
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Mail;
 
@@ -16,7 +15,7 @@ class KingMonitorMailController extends Controller {
 
         // Para poder mandar el correo electronico
         // vista, informacion, body
-        Mail::send('mail.template', $data, function ($body) use ($data) {
+        Mail::send('king-monitor::mail.template', $data, function ($body) use ($data) {
             // Cuerpo del envio de correo electronico
             // To - para quien
             // From - desde donde
@@ -61,7 +60,7 @@ class KingMonitorMailController extends Controller {
 
         // Para poder mandar el correo electronico
         // vista, informacion, body
-        Mail::send('mail.alert', $data, function ($body) use ($data) {
+        Mail::send('king-monitor::mail.alert', $data, function ($body) use ($data) {
             // Cuerpo del envio de correo electronico
             // To - para quien
             // From - desde donde
@@ -106,7 +105,7 @@ class KingMonitorMailController extends Controller {
 
         // Para poder mandar el correo electronico
         // vista, informacion, body
-        Mail::send('mail.alert', $data, function ($body) use ($data) {
+        Mail::send('king-monitor::mail.alert', $data, function ($body) use ($data) {
             // Cuerpo del envio de correo electronico
             // To - para quien
             // From - desde donde
@@ -149,7 +148,7 @@ class KingMonitorMailController extends Controller {
 
         // Para poder mandar el correo electronico
         // vista, informacion, body
-        Mail::send('mail.alert', $data, function ($body) use ($data) {
+        Mail::send('king-monitor::mail.alert', $data, function ($body) use ($data) {
             // Cuerpo del envio de correo electronico
             // To - para quien
             // From - desde donde
