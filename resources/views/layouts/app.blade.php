@@ -2,15 +2,11 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>
-            @if (isset($title))
-                {{$title}}
-            @else
-                {{ config('app.name', 'Laravel') }}
-            @endif
+            @yield('title')
         </title>
 
         <script src="https://cdn.tailwindcss.com"></script>
@@ -27,25 +23,15 @@
 {{--            @include('king-monitor::layouts.navigation')--}}
 
             <!-- Page Heading -->
-            @if (isset($header))
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endif
+            @yield('header')
 
             <!-- Page Content -->
             <main>
-                @if (isset($slot))
-                    {{ $slot }}
-                @endif
+                @yield('content')
             </main>
         </div>
 
         {{-- script --}}
-        @if (isset($script))
-            {{ $script }}
-        @endif
+        @yield('script')
     </body>
 </html>
