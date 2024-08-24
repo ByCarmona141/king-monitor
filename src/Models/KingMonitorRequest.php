@@ -915,11 +915,11 @@ class KingMonitorRequest extends Model {
     public function userRequestHistoricalQuarter($kingUserId) {
         try {
             $response = [
-                'total' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
+                'total' => KingMonitor::whereBetween('created_at', [
                     Carbon::now()->startOfQuarter(),
                     Carbon::now()->endOfQuarter()
                 ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
+                'details' => KingMonitor::whereBetween('created_at', [
                     Carbon::now()->startOfQuarter(),
                     Carbon::now()->endOfQuarter()
                 ])->where('king_user_id', '=', $kingUserId)->select(
@@ -1031,11 +1031,11 @@ class KingMonitorRequest extends Model {
     public function requestHistoricalQuarter() {
         try {
             $response = [
-                'total' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
+                'total' => KingMonitor::whereBetween('created_at', [
                     Carbon::now()->startOfQuarter(),
                     Carbon::now()->endOfQuarter()
                 ])->count(), // Total de peticiones
-                'details' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
+                'details' => KingMonitor::whereBetween('created_at', [
                     Carbon::now()->startOfQuarter(),
                     Carbon::now()->endOfQuarter()
                 ])->select(
