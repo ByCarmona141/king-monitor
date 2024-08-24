@@ -2669,23 +2669,23 @@ class KingMonitor extends Model {
     public function userHistoricalQuarter($kingUserId) {
         try {
             $response = [
-                'total' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
+                'total' => KingMonitor::whereBetween('created_at', [
                         Carbon::now()->startOfQuarter(),
                         Carbon::now()->endOfQuarter()
                     ])->where('king_user_id', '=', $kingUserId)->count() +
-                    KingMonitorError::where('method', '=', 'GET')->whereBetween('created_at', [
+                    KingMonitorError::whereBetween('created_at', [
                         Carbon::now()->startOfQuarter(),
                         Carbon::now()->endOfQuarter()
                     ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones y errores del usuario
                 'details' => [
-                    'request' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
+                    'request' => KingMonitor::whereBetween('created_at', [
                         Carbon::now()->startOfQuarter(),
                         Carbon::now()->endOfQuarter()
                     ])->where('king_user_id', '=', $kingUserId)->select(
                         DB::raw('DATE_FORMAT(created_at, "%d") as day'),
                         DB::raw('count(*) as total')
                     )->groupBy('day')->orderBy('day')->get(),
-                    'error' => KingMonitorError::where('method', '=', 'GET')->whereBetween('created_at', [
+                    'error' => KingMonitorError::whereBetween('created_at', [
                         Carbon::now()->startOfQuarter(),
                         Carbon::now()->endOfQuarter()
                     ])->where('king_user_id', '=', $kingUserId)->select(
@@ -2985,23 +2985,23 @@ class KingMonitor extends Model {
     public function historicalQuarter() {
         try {
             $response = [
-                'total' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
+                'total' => KingMonitor::whereBetween('created_at', [
                         Carbon::now()->startOfQuarter(),
                         Carbon::now()->endOfQuarter()
                     ])->count() +
-                    KingMonitorError::where('method', '=', 'GET')->whereBetween('created_at', [
+                    KingMonitorError::whereBetween('created_at', [
                         Carbon::now()->startOfQuarter(),
                         Carbon::now()->endOfQuarter()
                     ])->count(), // Total de peticiones y errores
                 'details' => [
-                    'request' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
+                    'request' => KingMonitor::whereBetween('created_at', [
                         Carbon::now()->startOfQuarter(),
                         Carbon::now()->endOfQuarter()
                     ])->select(
                         DB::raw('DATE_FORMAT(created_at, "%d") as day'),
                         DB::raw('count(*) as total')
                     )->groupBy('day')->orderBy('day')->get(),
-                    'error' => KingMonitorError::where('method', '=', 'GET')->whereBetween('created_at', [
+                    'error' => KingMonitorError::whereBetween('created_at', [
                         Carbon::now()->startOfQuarter(),
                         Carbon::now()->endOfQuarter()
                     ])->select(
@@ -3238,7 +3238,7 @@ class KingMonitor extends Model {
             $king_monitor_errors->token = (request()->header() === NULL) ? NULL : request()->bearerToken();
             $king_monitor_errors->ip = request()->getClientIp(); // Crypt::encryptString($request->getClientIp());
             $king_monitor_errors->params = (request()->input() === NULL || request()->input() === []) ? NULL : json_encode(request()->input()); // Crypt::encryptString(json_encode($request->input()));
-            $king_monitor_errors->code = ($error === NULL) ? NULL : (($error->getStatusCode() == NULL) ? NULL : $error->getStatusCode()); // Codigo HTTP
+            $king_monitor_errors->code = ($error === NULL) ? 500 : ((!method_exists($error, 'getStatusCode')) ? 500 : $error->getStatusCode()); // Codigo HTTP
             $king_monitor_errors->error = ($error === NULL) ? NULL : $error->getCode(); // Crypt::encryptString(json_encode($request->input()));
             $king_monitor_errors->message = ($message === NULL) ? (($error === NULL) ? NULL : $error->getMessage()) : $message; // Crypt::encryptString(json_encode($request->input()));
             // ($error === NULL) ? (($message === NULL) ? NULL : $message) : $error->getMessage();
