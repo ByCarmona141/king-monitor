@@ -12,7 +12,7 @@ return new class extends Migration {
 
         Schema::create('king_monitor_alerts', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('king_user_id')->constrained()->comment('Usuario al que pertenece la alerta');
+            $table->bigInteger('king_user_id')->nullable()->constrained()->comment('Usuario al que pertenece la alerta');
             $table->text('token')->nullable()->comment('token con el cual se realiza la accion');
             $table->string('ip', 255)->comment('ip de la accion');
             $table->string('description', 255)->nullable()->comment('Descripcion de la alerta del usuario');
