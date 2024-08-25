@@ -4,6 +4,7 @@ namespace ByCarmona141\KingMonitor\Models;
 
 use Carbon\Carbon;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -778,5 +779,905 @@ class KingMonitorUserExceeded extends Model {
         ];
 
         return response()->json($response);
+    }
+
+    /****************************************************************** HISTORICAL ******************************************************************/
+    /****************************************************************** USER HISTORICAL ******************************************************************/
+    // ---------------------------------------------------------------- USER REQUEST HISTORICAL ----------------------------------------------------------------
+    // Historico de peticiones del usuario (today)
+    public function userRequestHistoricalToday($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->select(
+                    DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
+                    DB::raw('count(*) as total')
+                )->groupBy('hour')->orderBy('hour')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (week)
+    public function userRequestHistoricalWeek($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ])->where('king_user_id', '=', $kingUserId)->select(
+                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                    DB::raw('count(*) as total')
+                )->groupBy('day')->orderBy('day')->get(),
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (month)
+    public function userRequestHistoricalMonth($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->select(
+                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                    DB::raw('count(*) as total')
+                )->groupBy('day')->orderBy('day')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (quarter)
+    public function userRequestHistoricalQuarter($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
+                    Carbon::now()->startOfQuarter(),
+                    Carbon::now()->endOfQuarter()
+                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
+                    Carbon::now()->startOfQuarter(),
+                    Carbon::now()->endOfQuarter()
+                ])->where('king_user_id', '=', $kingUserId)->select(
+                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                    DB::raw('count(*) as total')
+                )->groupBy('day')->orderBy('day')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (year)
+    public function userRequestHistoricalYear($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->select(
+                    DB::raw('DATE_FORMAT(created_at, "%M") as month'),
+                    DB::raw('count(*) as total')
+                )->groupBy('month')->orderBy('month')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (total)
+    public function userRequestHistoricalTotal($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 1)->all()->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 1)->select(
+                    DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
+                    DB::raw('count(*) as total')
+                )->groupBy('year')->orderBy('year')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // ---------------------------------------------------------------- USER ERROR HISTORICAL ----------------------------------------------------------------
+    // Historico de peticiones del usuario (today)
+    public function userErrorHistoricalToday($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->select(
+                    DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
+                    DB::raw('count(*) as total')
+                )->groupBy('hour')->orderBy('hour')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (week)
+    public function userErrorHistoricalWeek($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ])->where('king_user_id', '=', $kingUserId)->select(
+                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                    DB::raw('count(*) as total')
+                )->groupBy('day')->orderBy('day')->get(),
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (month)
+    public function userErrorHistoricalMonth($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->select(
+                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                    DB::raw('count(*) as total')
+                )->groupBy('day')->orderBy('day')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (quarter)
+    public function userErrorHistoricalQuarter($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
+                    Carbon::now()->startOfQuarter(),
+                    Carbon::now()->endOfQuarter()
+                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
+                    Carbon::now()->startOfQuarter(),
+                    Carbon::now()->endOfQuarter()
+                ])->where('king_user_id', '=', $kingUserId)->select(
+                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                    DB::raw('count(*) as total')
+                )->groupBy('day')->orderBy('day')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (year)
+    public function userErrorHistoricalYear($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->select(
+                    DB::raw('DATE_FORMAT(created_at, "%M") as month'),
+                    DB::raw('count(*) as total')
+                )->groupBy('month')->orderBy('month')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (total)
+    public function userErrorHistoricalTotal($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 2)->all()->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 2)->select(
+                    DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
+                    DB::raw('count(*) as total')
+                )->groupBy('year')->orderBy('year')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // ---------------------------------------------------------------- USER HISTORICAL ----------------------------------------------------------------
+    // Historico de peticiones del usuario (today)
+    public function userHistoricalToday($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
+                'details' => [
+                    'request' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->select(
+                        DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('hour')->orderBy('hour')->get(),
+                    'error' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->select(
+                        DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('hour')->orderBy('hour')->get()
+                ]
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (week)
+    public function userHistoricalWeek($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::whereBetween('created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
+                'details' => [
+                    'request' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
+                        Carbon::now()->startOfWeek(),
+                        Carbon::now()->endOfWeek()
+                    ])->where('king_user_id', '=', $kingUserId)->select(
+                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('day')->orderBy('day')->get(),
+                    'error' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
+                        Carbon::now()->startOfWeek(),
+                        Carbon::now()->endOfWeek()
+                    ])->where('king_user_id', '=', $kingUserId)->select(
+                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('day')->orderBy('day')->get()
+                ]
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (month)
+    public function userHistoricalMonth($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
+                'details' => [
+                    'request' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->select(
+                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('day')->orderBy('day')->get(),
+                    'error' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->select(
+                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('day')->orderBy('day')->get()
+                ]
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (quarter)
+    public function userHistoricalQuarter($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::whereBetween('created_at', [
+                    Carbon::now()->startOfQuarter(),
+                    Carbon::now()->endOfQuarter()
+                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
+                'details' => [
+                    'request' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
+                        Carbon::now()->startOfQuarter(),
+                        Carbon::now()->endOfQuarter()
+                    ])->where('king_user_id', '=', $kingUserId)->select(
+                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('day')->orderBy('day')->get(),
+                    'error' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
+                        Carbon::now()->startOfQuarter(),
+                        Carbon::now()->endOfQuarter()
+                    ])->where('king_user_id', '=', $kingUserId)->select(
+                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('day')->orderBy('day')->get()
+                ]
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (year)
+    public function userHistoricalYear($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->count(), // Total de peticiones del usuario
+                'details' => [
+                    'request' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->select(
+                        DB::raw('DATE_FORMAT(created_at, "%M") as month'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('month')->orderBy('month')->get(),
+                    'error' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->select(
+                        DB::raw('DATE_FORMAT(created_at, "%M") as month'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('month')->orderBy('month')->get()
+                ]
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones del usuario (total)
+    public function userHistoricalTotal($kingUserId) {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::all()->count(), // Total de peticiones del usuario
+                'details' => [
+                    'request' => KingMonitorUserExceeded::where('type', '=', 1)->select(
+                        DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('year')->orderBy('year')->get(),
+                    'error' => KingMonitorUserExceeded::where('type', '=', 2)->select(
+                        DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('year')->orderBy('year')->get()
+                ]
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /****************************************************************** HISTORICAL ******************************************************************/
+    // ---------------------------------------------------------------- REQUEST HISTORICAL ----------------------------------------------------------------
+    // Historico de peticiones por dia dividido en horas (today)
+    public function requestHistoricalToday() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->count(), // Total de peticiones
+                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->select(
+                    DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
+                    DB::raw('count(*) as total')
+                )->groupBy('hour')->orderBy('hour')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por semana dividido en dias (week)
+    public function requestHistoricalWeek() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ])->count(), // Total de peticiones
+                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ])->select(
+                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                    DB::raw('count(*) as total')
+                )->groupBy('day')->orderBy('day')->get(),
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por mes dividido en dias (month)
+    public function requestHistoricalMonth() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(), // Total de peticiones
+                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->select(
+                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                    DB::raw('count(*) as total')
+                )->groupBy('day')->orderBy('day')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por trimestre dividido en dias (quarter)
+    public function requestHistoricalQuarter() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
+                    Carbon::now()->startOfQuarter(),
+                    Carbon::now()->endOfQuarter()
+                ])->count(), // Total de peticiones
+                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
+                    Carbon::now()->startOfQuarter(),
+                    Carbon::now()->endOfQuarter()
+                ])->select(
+                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                    DB::raw('count(*) as total')
+                )->groupBy('day')->orderBy('day')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por año dividido en dias (year)
+    public function requestHistoricalYear() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->select(
+                    DB::raw('DATE_FORMAT(created_at, "%M") as month'),
+                    DB::raw('count(*) as total')
+                )->groupBy('month')->orderBy('month')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por total dividido en años (total)
+    public function requestHistoricalTotal() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 1)->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 1)->select(
+                    DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
+                    DB::raw('count(*) as total')
+                )->groupBy('year')->orderBy('year')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // ---------------------------------------------------------------- ERROR HISTORICAL ----------------------------------------------------------------
+    // Historico de peticiones por dia dividido en horas (today)
+    public function errorHistoricalToday() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->count(), // Total de peticiones
+                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->select(
+                    DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
+                    DB::raw('count(*) as total')
+                )->groupBy('hour')->orderBy('hour')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por semana dividido en dias (week)
+    public function errorHistoricalWeek() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ])->count(), // Total de peticiones
+                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ])->select(
+                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                    DB::raw('count(*) as total')
+                )->groupBy('day')->orderBy('day')->get(),
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por mes dividido en dias (month)
+    public function errorHistoricalMonth() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(), // Total de peticiones
+                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->select(
+                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                    DB::raw('count(*) as total')
+                )->groupBy('day')->orderBy('day')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por trimestre dividido en dias (quarter)
+    public function errorHistoricalQuarter() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
+                    Carbon::now()->startOfQuarter(),
+                    Carbon::now()->endOfQuarter()
+                ])->count(), // Total de peticiones
+                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
+                    Carbon::now()->startOfQuarter(),
+                    Carbon::now()->endOfQuarter()
+                ])->select(
+                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                    DB::raw('count(*) as total')
+                )->groupBy('day')->orderBy('day')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por año dividido en dias (year)
+    public function errorHistoricalYear() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->select(
+                    DB::raw('DATE_FORMAT(created_at, "%M") as month'),
+                    DB::raw('count(*) as total')
+                )->groupBy('month')->orderBy('month')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por total dividido en años (total)
+    public function errorHistoricalTotal() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::where('type', '=', 2)->count(), // Total de peticiones del usuario
+                'details' => KingMonitorUserExceeded::where('type', '=', 2)->select(
+                    DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
+                    DB::raw('count(*) as total')
+                )->groupBy('year')->orderBy('year')->get()
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // ---------------------------------------------------------------- HISTORICAL ----------------------------------------------------------------
+    // Historico de peticiones por dia dividido en horas (today)
+    public function historicalToday() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->count(), // Total de peticiones
+                'details' => [
+                    'request' =>  KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->select(
+                        DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('hour')->orderBy('hour')->get(),
+                    'error' =>  KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->select(
+                        DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('hour')->orderBy('hour')->get()
+                ]
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por semana dividido en dias (week)
+    public function historicalWeek() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::whereBetween('created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ])->count(), // Total de peticiones
+                'details' => [
+                    'request' =>  KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
+                        Carbon::now()->startOfWeek(),
+                        Carbon::now()->endOfWeek()
+                    ])->select(
+                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('day')->orderBy('day')->get(),
+                    'error' =>  KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
+                        Carbon::now()->startOfWeek(),
+                        Carbon::now()->endOfWeek()
+                    ])->select(
+                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('day')->orderBy('day')->get()
+                ]
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por mes dividido en dias (month)
+    public function historicalMonth() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(), // Total de peticiones
+                'details' => [
+                    'request' =>  KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->select(
+                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('day')->orderBy('day')->get(),
+                    'error' =>  KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->select(
+                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('day')->orderBy('day')->get()
+                ]
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por trimestre dividido en dias (quarter)
+    public function historicalQuarter() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::whereBetween('created_at', [
+                    Carbon::now()->startOfQuarter(),
+                    Carbon::now()->endOfQuarter()
+                ])->count(), // Total de peticiones
+                'details' => [
+                    'request' =>  KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
+                        Carbon::now()->startOfQuarter(),
+                        Carbon::now()->endOfQuarter()
+                    ])->select(
+                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('day')->orderBy('day')->get(),
+                    'error' =>  KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
+                        Carbon::now()->startOfQuarter(),
+                        Carbon::now()->endOfQuarter()
+                    ])->select(
+                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('day')->orderBy('day')->get()
+                ]
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por año dividido en dias (year)
+    public function historicalYear() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->count(), // Total de peticiones del usuario
+                'details' => [
+                    'request' =>  KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->select(
+                        DB::raw('DATE_FORMAT(created_at, "%M") as month'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('month')->orderBy('month')->get(),
+                    'error' =>  KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->select(
+                        DB::raw('DATE_FORMAT(created_at, "%M") as month'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('month')->orderBy('month')->get()
+                ]
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de peticiones por total dividido en años (total)
+    public function historicalTotal() {
+        try {
+            $response = [
+                'total' => KingMonitorUserExceeded::all()->count(), // Total de peticiones del usuario
+                'details' => [
+                    'request' =>  KingMonitorUserExceeded::where('type', '=', 1)->select(
+                        DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('year')->orderBy('year')->get(),
+                    'error' =>  KingMonitorUserExceeded::where('type', '=', 2)->select(
+                        DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
+                        DB::raw('count(*) as total')
+                    )->groupBy('year')->orderBy('year')->get()
+                ]
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /****************************************************************** HISTORICAL ******************************************************************/
+    public function userRequestHistorical($kingUserId) {
+        try {
+            $today = $this->userRequestHistoricalToday($kingUserId);
+            $week = $this->userRequestHistoricalWeek($kingUserId);
+            $month = $this->userRequestHistoricalMonth($kingUserId);
+            $quarter = $this->userRequestHistoricalQuarter($kingUserId);
+            $year = $this->userRequestHistoricalYear($kingUserId);
+            $total = $this->userRequestHistoricalTotal($kingUserId);
+
+            $response = [
+                'today' => $today->original,
+                'week' => $week->original,
+                'month' => $month->original,
+                'quarter' => $quarter->original,
+                'year' => $year->original,
+                'total' => $total->original,
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function requestHistorical() {
+        try {
+            $today = $this->requestHistoricalToday();
+            $week = $this->requestHistoricalWeek();
+            $month = $this->requestHistoricalMonth();
+            $quarter = $this->requestHistoricalQuarter();
+            $year = $this->requestHistoricalYear();
+            $total = $this->requestHistoricalTotal();
+
+            $response = [
+                'today' => $today->original,
+                'week' => $week->original,
+                'month' => $month->original,
+                'quarter' => $quarter->original,
+                'year' => $year->original,
+                'total' => $total->original,
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function userErrorHistorical($kingUserId) {
+        try {
+            $today = $this->userErrorHistoricalToday($kingUserId);
+            $week = $this->userErrorHistoricalWeek($kingUserId);
+            $month = $this->userErrorHistoricalMonth($kingUserId);
+            $quarter = $this->userErrorHistoricalQuarter($kingUserId);
+            $year = $this->userErrorHistoricalYear($kingUserId);
+            $total = $this->userErrorHistoricalTotal($kingUserId);
+
+            $response = [
+                'today' => $today->original,
+                'week' => $week->original,
+                'month' => $month->original,
+                'quarter' => $quarter->original,
+                'year' => $year->original,
+                'total' => $total->original,
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function errorHistorical() {
+        try {
+            $today = $this->errorHistoricalToday();
+            $week = $this->errorHistoricalWeek();
+            $month = $this->errorHistoricalMonth();
+            $quarter = $this->errorHistoricalQuarter();
+            $year = $this->errorHistoricalYear();
+            $total = $this->errorHistoricalTotal();
+
+            $response = [
+                'today' => $today->original,
+                'week' => $week->original,
+                'month' => $month->original,
+                'quarter' => $quarter->original,
+                'year' => $year->original,
+                'total' => $total->original,
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function historical() {
+        try {
+            $response = [
+                'request' => $this->requestHistorical()->original,
+                'errors' => $this->errorHistorical()->original,
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function userHistorical($kingUserId) {
+        try {
+            $response = [
+                'request' => $this->userRequestHistorical($kingUserId)->original,
+                'errors' => $this->userErrorHistorical($kingUserId)->original,
+            ];
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
     }
 }

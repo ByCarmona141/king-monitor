@@ -88,6 +88,7 @@ class KingMonitor extends Model {
         return $fechaActual->diffInSeconds($fechaInicial);
     }
 
+    /****************************************************************** KING_MONITORS ******************************************************************/
     /****************************************************************** STATISTICS ******************************************************************/
     /****************************************************************** USER STATISTICS ******************************************************************/
     // ---------------------------------------------------------------- USER STATISTICS TODAY ----------------------------------------------------------------
@@ -873,6 +874,7 @@ class KingMonitor extends Model {
         }
     }
 
+    /****************************************************************** KING_MONITOR_ERRORS ******************************************************************/
     /****************************************************************** ERROR STATISTICS ******************************************************************/
     /****************************************************************** USER ERROR STATISTICS ******************************************************************/
     // ---------------------------------------------------------------- USER ERROR STATISTICS TODAY ----------------------------------------------------------------
@@ -1320,7 +1322,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // Usuario con la mayor cantidad de peticiones (today)
+    // Usuario con la mayor cantidad de peticiones y errores (today)
     public function statisticsFrequentUserToday() {
         try {
             $response = [
@@ -1414,6 +1416,7 @@ class KingMonitor extends Model {
         }
     }
 
+    // Estadisticas de los metodos HTTP (week)
     public function methodStatisticsWeek() {
         try {
             $response = [
@@ -1465,6 +1468,7 @@ class KingMonitor extends Model {
         }
     }
 
+    // Usuario con la mayor cantidad de peticiones y errores (week)
     public function statisticsFrequentUserWeek() {
         try {
             $response = [
@@ -1531,7 +1535,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // Usuario con la mayor cantidad de peticiones (month)
+    // Usuario con la mayor cantidad de peticiones y errores (month)
     public function statisticsFrequentUserMonth() {
         try {
             $response = [
@@ -1743,7 +1747,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // Usuario con la mayor cantidad de peticiones (year)
+    // Usuario con la mayor cantidad de peticiones y errores (year)
     public function statisticsFrequentUserYear() {
         try {
             $response = [
@@ -1815,6 +1819,7 @@ class KingMonitor extends Model {
     }
 
     /****************************************************************** STATISTICS ******************************************************************/
+    // Desglose de estadisticas de peticiones del usuario
     public function userRequestStatistics($kingUserId) {
         try {
             $king = new KingMonitorRequest();
@@ -1826,6 +1831,7 @@ class KingMonitor extends Model {
         }
     }
 
+    // Desglose de estadisticas de errores del usuario
     public function userErrorStatistics($kingUserId) {
         try {
             $king = new KingMonitorError();
@@ -1837,6 +1843,7 @@ class KingMonitor extends Model {
         }
     }
 
+    // Desglose de estadisticas de peticiones
     public function requestStatistics() {
         try {
             $king = new KingMonitorRequest();
@@ -1848,6 +1855,7 @@ class KingMonitor extends Model {
         }
     }
 
+    // Desglose de estadisticas de errores
     public function errorStatistics() {
         try {
             $king = new KingMonitorError();
@@ -1859,6 +1867,7 @@ class KingMonitor extends Model {
         }
     }
 
+    // Desglose de estadisticas de peticiones y errores del usuario
     public function userStatistics($kingUserId) {
         try {
             $response = [
@@ -1872,6 +1881,7 @@ class KingMonitor extends Model {
         }
     }
 
+    // Desglose de estadisticas de peticiones y errores
     public function statistics() {
         try {
             $response = [
@@ -1885,6 +1895,7 @@ class KingMonitor extends Model {
         }
     }
 
+    /****************************************************************** KINGMONITOR_USER_EXCEEDED ******************************************************************/
     /****************************************************************** USER STATISTICS EXCEEDED ******************************************************************/
     // ---------------------------------------------------------------- USER REQUEST STATISTICS EXCEEDED ----------------------------------------------------------------
     // Estadisticas del usuario que excede el limite de peticiones (today)
@@ -1959,7 +1970,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // ---------------------------------------------------------------- STATISTICS EXCEEDED ERROR ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER ERROR STATISTICS EXCEEDED ----------------------------------------------------------------
     // Estadisticas del usuario que excede el limite de errores (today)
     public function userErrorStatisticsExceededToday($kingUserId) {
         try {
@@ -2033,7 +2044,7 @@ class KingMonitor extends Model {
     }
 
     // ---------------------------------------------------------------- USER STATISTICS EXCEEDED ----------------------------------------------------------------
-    // Estadisticas del usuario que excede el limite (today)
+    // Estadisticas de errores y peticiones del usuario que excede el limite (today)
     public function userStatisticsExceededToday($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2045,7 +2056,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // Estadisticas del usuario que excede el limite (week)
+    // Estadisticas de errores y peticiones del usuario que excede el limite (week)
     public function userStatisticsExceededWeek($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2057,7 +2068,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // Estadisticas del usuario que excede el limite (month)
+    // Estadisticas de errores y peticiones del usuario que excede el limite (month)
     public function userStatisticsExceededMonth($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2069,7 +2080,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // Estadisticas del usuario que excede el limite (quarter)
+    // Estadisticas de errores y peticiones del usuario que excede el limite (quarter)
     public function userStatisticsExceededQuarter($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2081,7 +2092,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // Estadisticas del usuario que excede el limite (year)
+    // Estadisticas de errores y peticiones del usuario que excede el limite (year)
     public function userStatisticsExceededYear($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2093,7 +2104,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // Estadisticas del usuario que excede el limite (total)
+    // Estadisticas de errores y peticiones del usuario que excede el limite (total)
     public function userStatisticsExceededTotal($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2106,7 +2117,7 @@ class KingMonitor extends Model {
     }
 
     // ---------------------------------------------------------------- STATISTICS EXCEEDED ----------------------------------------------------------------
-    // Estadisticas del usuario que excede el limite (today)
+    // Desglose de estadisticas de peticiones excedidas del usuario
     public function userRequestStatisticsExceeded($kingUserId) {
         try {
             $today = $this->userRequestStatisticsToday($kingUserId);
@@ -2131,6 +2142,7 @@ class KingMonitor extends Model {
         }
     }
 
+    // Desglose de estadisticas de errores excedidos del usuario
     public function userErrorStatisticsExceeded($kingUserId) {
         try {
             $today = $this->userErrorStatisticsToday($kingUserId);
@@ -2155,6 +2167,7 @@ class KingMonitor extends Model {
         }
     }
 
+    // Desglose de estadisticas de peticiones y errores excedidos del usuario
     public function userStatisticsExceeded($kingUserId) {
         try {
             $today = $this->userStatisticsExceededToday($kingUserId);
@@ -2180,7 +2193,7 @@ class KingMonitor extends Model {
     }
 
     /****************************************************************** STATISTICS EXCEEDED ******************************************************************/
-    // ---------------------------------------------------------------- STATISTICS EXCEEDED REQUEST ----------------------------------------------------------------
+    // ---------------------------------------------------------------- REQUEST STATISTICS EXCEEDED ----------------------------------------------------------------
     // Estadisticas de usuarios que exceden el limite de peticiones (today)
     public function requestStatisticsExceededToday() {
         try {
@@ -2253,7 +2266,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // ---------------------------------------------------------------- STATISTICS EXCEEDED ERROR ----------------------------------------------------------------
+    // ---------------------------------------------------------------- ERROR STATISTICS EXCEEDED ----------------------------------------------------------------
     // Estadisticas de usuarios que exceden el limite de errores (today)
     public function errorStatisticsExceededToday() {
         try {
@@ -2327,7 +2340,7 @@ class KingMonitor extends Model {
     }
 
     // ---------------------------------------------------------------- STATISTICS EXCEEDED ----------------------------------------------------------------
-    // Estadisticas de usuarios que exceden el limite (today)
+    // Estadisticas de usuarios que exceden el limite de peticiones y errores (today)
     public function statisticsExceededToday() {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2339,7 +2352,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // Estadisticas de usuarios que exceden el limite (week)
+    // Estadisticas de usuarios que exceden el limite de peticiones y errores (week)
     public function statisticsExceededWeek() {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2351,7 +2364,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // Estadisticas de usuarios que exceden el limite (month)
+    // Estadisticas de usuarios que exceden el limite de peticiones y errores (month)
     public function statisticsExceededMonth() {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2363,7 +2376,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // Estadisticas de usuarios que exceden el limite (quarter)
+    // Estadisticas de usuarios que exceden el limite de peticiones y errores (quarter)
     public function statisticsExceededQuarter() {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2375,7 +2388,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // Estadisticas de usuarios que exceden el limite (year)
+    // Estadisticas de usuarios que exceden el limite de peticiones y errores (year)
     public function statisticsExceededYear() {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2387,7 +2400,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // Estadisticas de usuarios que exceden el limite (total)
+    // Estadisticas de usuarios que exceden el limite de peticiones y errores (total)
     public function statisticsExceededTotal() {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2400,6 +2413,7 @@ class KingMonitor extends Model {
     }
 
     // ---------------------------------------------------------------- STATISTICS EXCEEDED ----------------------------------------------------------------
+    // Desglose de estadisticas de usuarios que exceden el limite de peticiones
     public function requestStatisticsExceeded() {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2411,6 +2425,7 @@ class KingMonitor extends Model {
         }
     }
 
+    // Desglose de estadisticas de usuarios que exceden el limite de errores
     public function errorStatisticsExceeded() {
         try {
             $king = new KingMonitorUserExceeded();
@@ -2422,10 +2437,540 @@ class KingMonitor extends Model {
         }
     }
 
+    // Desglose de estadisticas de usuarios que exceden el limite de peticiones y errores
     public function statisticsExceeded() {
         try {
             $king = new KingMonitorUserExceeded();
             $response = $king->statistics()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /****************************************************************** USER HISTORICAL EXCEEDED ******************************************************************/
+    // ---------------------------------------------------------------- USER REQUEST HISTORICAL EXCEEDED ----------------------------------------------------------------
+    // Historico del usuario que excede el limite de peticiones (today)
+    public function userRequestHistoricalExceededToday($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userRequestHistoricalToday($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de peticiones (week)
+    public function userRequestHistoricalExceededWeek($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userRequestHistoricalWeek($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de peticiones (month)
+    public function userRequestHistoricalExceededMonth($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userRequestHistoricalMonth($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de peticiones (quarter)
+    public function userRequestHistoricalExceededQuarter($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userRequestHistoricalQuarter($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de peticiones (year)
+    public function userRequestHistoricalExceededYear($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userRequestHistoricalYear($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de peticiones (total)
+    public function userRequestHistoricalExceededTotal($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userRequestHistoricalTotal($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // ---------------------------------------------------------------- USER ERROR HISTORICAL EXCEEDED ----------------------------------------------------------------
+    // Historico del usuario que excede el limite de errores (today)
+    public function userErrorHistoricalExceededToday($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userErrorHistoricalToday($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de errores (week)
+    public function userErrorHistoricalExceededWeek($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userErrorHistoricalWeek($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de errores (month)
+    public function userErrorHistoricalExceededMonth($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userErrorHistoricalMonth($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de errores (quarter)
+    public function userErrorHistoricalExceededQuarter($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userErrorHistoricalQuarter($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de errores (year)
+    public function userErrorHistoricalExceededYear($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userErrorHistoricalYear($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de errores (total)
+    public function userErrorHistoricalExceededTotal($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userErrorHistoricalTotal($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // ---------------------------------------------------------------- USER HISTORICAL EXCEEDED ----------------------------------------------------------------
+    // Historico del usuario que excede el limite de peticiones y errores (today)
+    public function userHistoricalExceededToday($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userHistoricalToday($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de peticiones y errores (week)
+    public function userHistoricalExceededWeek($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userHistoricalWeek($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de peticiones y errores (month)
+    public function userHistoricalExceededMonth($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userHistoricalMonth($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de peticiones y errores (quarter)
+    public function userHistoricalExceededQuarter($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userHistoricalQuarter($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de peticiones y errores (year)
+    public function userHistoricalExceededYear($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userHistoricalYear($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico del usuario que excede el limite de peticiones y errores (total)
+    public function userHistoricalExceededTotal($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userHistoricalTotal($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // ---------------------------------------------------------------- USER HISTORICAL EXCEEDED ----------------------------------------------------------------
+    // Desglose del historico de usuarios que exceden el limite de peticiones
+    public function userRequestHistoricalExceeded($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userRequestHistorical($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Desglose del historico de usuarios que exceden el limite de errores
+    public function userErrorHistoricalExceeded($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userErrorHistorical($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Desglose del historico de usuarios que exceden el limite de peticiones y errores
+    public function userHistoricalExceeded($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userHistorical($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /****************************************************************** HISTORICAL EXCEEDED ******************************************************************/
+    // ---------------------------------------------------------------- REQUEST HISTORICAL EXCEEDED ----------------------------------------------------------------
+    // Historico de usuarios que exceden el limite de peticiones (today)
+    public function requestHistoricalExceededToday() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->requestHistoricalToday()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de peticiones (week)
+    public function requestHistoricalExceededWeek() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->requestHistoricalWeek()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de peticiones (month)
+    public function requestHistoricalExceededMonth() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->requestHistoricalMonth()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de peticiones (quarter)
+    public function requestHistoricalExceededQuarter() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->requestHistoricalQuarter()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de peticiones (year)
+    public function requestHistoricalExceededYear() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->requestHistoricalYear()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de peticiones (total)
+    public function requestHistoricalExceededTotal() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->requestHistoricalTotal()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // ---------------------------------------------------------------- ERROR HISTORICAL EXCEEDED ----------------------------------------------------------------
+    // Historico de usuarios que exceden el limite de errores (today)
+    public function errorHistoricalExceededToday() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->errorHistoricalToday()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de errores (week)
+    public function errorHistoricalExceededWeek() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->errorHistoricalWeek()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de errores (month)
+    public function errorHistoricalExceededMonth() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->errorHistoricalMonth()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de errores (quarter)
+    public function errorHistoricalExceededQuarter() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->errorHistoricalQuarter()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de errores (year)
+    public function errorHistoricalExceededYear() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->errorHistoricalYear()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de errores (total)
+    public function errorHistoricalExceededTotal() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->errorHistoricalTotal()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // ---------------------------------------------------------------- HISTORICAL EXCEEDED ----------------------------------------------------------------
+    // Historico de usuarios que exceden el limite de peticiones y errores (today)
+    public function historicalExceededToday() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->historicalToday()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de peticiones y errores (week)
+    public function historicalExceededWeek() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->historicalWeek()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de peticiones y errores (month)
+    public function historicalExceededMonth() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->historicalMonth()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de peticiones y errores (quarter)
+    public function historicalExceededQuarter() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->historicalQuarter()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de peticiones y errores (year)
+    public function historicalExceededYear() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->historicalYear()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de usuarios que exceden el limite de peticiones y errores (total)
+    public function historicalExceededTotal() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->historicalTotal()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // ---------------------------------------------------------------- STATISTICS EXCEEDED ----------------------------------------------------------------
+    // Desglose del historico de usuarios que exceden el limite de peticiones
+    public function requestHistoricalExceeded() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->requestHistorical()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Desglose de estadisticas de usuarios que exceden el limite de errores
+    public function errorHistoricalExceeded() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->errorHistorical()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Desglose de estadisticas de usuarios que exceden el limite de peticiones y errores
+    public function historicalExceeded() {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->historical()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /****************************************************************** KING_MONITOR_ALERT ******************************************************************/
+    /****************************************************************** USER STATISTICS ALERTS ******************************************************************/
+    // ---------------------------------------------------------------- USER REQUEST STATISTICS ALERTS ----------------------------------------------------------------
+    // Estadisticas del usuario que excede el limite de peticiones (today)
+    public function userRequestStatisticsAlertToday($kingUserId) {
+        try {
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userRequestStatisticsToday($kingUserId)->original;
 
             return response()->json($response);
         } catch(Exception $e) {

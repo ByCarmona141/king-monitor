@@ -29,8 +29,8 @@ class KingMonitor {
         return $kingMonitor->monitorErrorUnauthenticated($king_type_error_id, $error, $message);
     }
 
-    /****************************************************************** STATISTICS USER ******************************************************************/
-    // ---------------------------------------------------------------- STATISTICS USER TODAY ----------------------------------------------------------------
+    /****************************************************************** USER STATISTICS ******************************************************************/
+    // ---------------------------------------------------------------- USER STATISTICS TODAY ----------------------------------------------------------------
     public function userStatisticsToday($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userStatisticsToday($king_user_id);
@@ -41,7 +41,7 @@ class KingMonitor {
         return $king->userMethodStatisticsToday($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS USER WEEK ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER STATISTICS WEEK ----------------------------------------------------------------
     public function userStatisticsWeek($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userStatisticsWeek($king_user_id);
@@ -52,7 +52,7 @@ class KingMonitor {
         return $king->userMethodStatisticsWeek($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS USER MONTH ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER STATISTICS MONTH ----------------------------------------------------------------
     public function userStatisticsMonth($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userStatisticsMonth($king_user_id);
@@ -63,7 +63,7 @@ class KingMonitor {
         return $king->userMethodStatisticsMonth($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS USER QUARTER ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER STATISTICS QUARTER ----------------------------------------------------------------
     public function userStatisticsQuarter($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userStatisticsQuarter($king_user_id);
@@ -74,7 +74,7 @@ class KingMonitor {
         return $king->userMethodStatisticsQuarter($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS USER YEAR ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER STATISTICS YEAR ----------------------------------------------------------------
     public function userStatisticsYear($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userStatisticsYear($king_user_id);
@@ -85,7 +85,7 @@ class KingMonitor {
         return $king->userMethodStatisticsYear($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS USER TOTAL ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER STATISTICS TOTAL ----------------------------------------------------------------
     public function userStatisticsTotal($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userStatisticsTotal($king_user_id);
@@ -96,8 +96,8 @@ class KingMonitor {
         return $king->userMethodStatisticsTotal($king_user_id);
     }
 
-    /****************************************************************** STATISTICS USER REQUEST ******************************************************************/
-    // ---------------------------------------------------------------- STATISTICS USER TODAY REQUEST ----------------------------------------------------------------
+    /****************************************************************** USER REQUEST STATISTICS ******************************************************************/
+    // ---------------------------------------------------------------- USER REQUEST STATISTICS TODAY ----------------------------------------------------------------
     public function userRequestStatisticsToday($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userRequestStatisticsToday($king_user_id);
@@ -108,7 +108,7 @@ class KingMonitor {
         return $king->userRequestMethodStatisticsToday($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS USER WEEK REQUEST ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER REQUEST STATISTICS WEEK ----------------------------------------------------------------
     public function userRequestStatisticsWeek($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userRequestStatisticsWeek($king_user_id);
@@ -119,7 +119,7 @@ class KingMonitor {
         return $king->userRequestMethodStatisticsWeek($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS USER MONTH REQUEST ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER REQUEST STATISTICS MONTH ----------------------------------------------------------------
     public function userRequestStatisticsMonth($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userRequestStatisticsMonth($king_user_id);
@@ -130,7 +130,7 @@ class KingMonitor {
         return $king->userRequestMethodStatisticsMonth($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS USER QUARTER REQUEST ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER REQUEST STATISTICS QUARTER ----------------------------------------------------------------
     public function userRequestStatisticsQuarter($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userRequestStatisticsQuarter($king_user_id);
@@ -141,7 +141,7 @@ class KingMonitor {
         return $king->userRequestMethodStatisticsQuarter($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS USER YEAR REQUEST ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER REQUEST STATISTICS YEAR ----------------------------------------------------------------
     public function userRequestStatisticsYear($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userRequestStatisticsYear($king_user_id);
@@ -152,7 +152,7 @@ class KingMonitor {
         return $king->userRequestMethodStatisticsYear($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS USER TOTAL REQUEST ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER REQUEST STATISTICS TOTAL ----------------------------------------------------------------
     public function userRequestStatisticsTotal($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userRequestStatisticsTotal($king_user_id);
@@ -163,8 +163,8 @@ class KingMonitor {
         return $king->userRequestMethodStatisticsTotal($king_user_id);
     }
 
-    /****************************************************************** STATISTICS REQUEST ******************************************************************/
-    // ---------------------------------------------------------------- STATISTICS TODAY REQUEST ----------------------------------------------------------------
+    /****************************************************************** REQUEST STATISTICS ******************************************************************/
+    // ---------------------------------------------------------------- REQUEST STATISTICS TODAY ----------------------------------------------------------------
     public function requestStatisticsToday() {
         $king = new KingMonitorModel();
         return $king->requestStatisticsToday();
@@ -180,7 +180,7 @@ class KingMonitor {
         return $king->requestStatisticsFrequentUserToday();
     }
 
-    // ---------------------------------------------------------------- STATISTICS WEEK REQUEST ----------------------------------------------------------------
+    // ---------------------------------------------------------------- REQUEST STATISTICS WEEK ----------------------------------------------------------------
     public function requestStatisticsWeek() {
         $king = new KingMonitorModel();
         return $king->requestStatisticsWeek();
@@ -196,7 +196,7 @@ class KingMonitor {
         return $king->requestStatisticsFrequentUserWeek();
     }
 
-    // ---------------------------------------------------------------- STATISTICS MONTH REQUEST ----------------------------------------------------------------
+    // ---------------------------------------------------------------- REQUEST STATISTICS MONTH ----------------------------------------------------------------
     public function requestStatisticsMonth() {
         $king = new KingMonitorModel();
         return $king->requestStatisticsMonth();
@@ -212,7 +212,7 @@ class KingMonitor {
         return $king->requestStatisticsFrequentUserMonth();
     }
 
-    // ---------------------------------------------------------------- STATISTICS QUARTER REQUEST ----------------------------------------------------------------
+    // ---------------------------------------------------------------- REQUEST STATISTICS QUARTER ----------------------------------------------------------------
     public function requestStatisticsQuarter() {
         $king = new KingMonitorModel();
         return $king->requestStatisticsQuarter();
@@ -228,7 +228,7 @@ class KingMonitor {
         return $king->requestStatisticsFrequentUserQuarter();
     }
 
-    // ---------------------------------------------------------------- STATISTICS YEAR REQUEST ----------------------------------------------------------------
+    // ---------------------------------------------------------------- REQUEST STATISTICS YEAR ----------------------------------------------------------------
     public function requestStatisticsYear() {
         $king = new KingMonitorModel();
         return $king->requestStatisticsYear();
@@ -244,33 +244,7 @@ class KingMonitor {
         return $king->requestStatisticsFrequentUserYear();
     }
 
-    // ---------------------------------------------------------------- STATISTICS TOTAL REQUEST ----------------------------------------------------------------
-
-    /**
-     *  Mostrar los kingMonitor
-     *  @OA\Get (path="/api/v1/kingMonitor/statisticsTotal", tags={"kingMonitor"},
-     *      @OA\Response(response=200, description="OK",
-     *          @OA\MediaType(mediaType="application/vnd.api+json",
-     *              @OA\Schema(
-     *                  @OA\Property(property="totalRequest", type="number", example="1"),
-     *                  @OA\Property(type="object", property="method",
-     *                      @OA\Property(property="mostCommon", type="array",
-     *                          @OA\Items(anyOf={@OA\Schema(type="string")})
-     *                      ),
-     *                      @OA\Property(property="GET", type="number", example="1"),
-     *                      @OA\Property(property="POST", type="number", example="1"),
-     *                      @OA\Property(property="PUT", type="number", example="1"),
-     *                      @OA\Property(property="PATCH", type="number", example="1"),
-     *                      @OA\Property(property="DELETE", type="number", example="1"),
-     *                  ),
-     *                  @OA\Property(property="userRequest", type="array",
-     *                      @OA\Items(anyOf={@OA\Schema(type="number")})
-     *                  ),
-     *              ),
-     *          )
-     *      )
-     *  )
-     */
+    // ---------------------------------------------------------------- REQUEST STATISTICS TOTAL ----------------------------------------------------------------
     public function requestStatisticsTotal() {
         $king = new KingMonitorModel();
         return $king->requestStatisticsTotal();
@@ -286,8 +260,8 @@ class KingMonitor {
         return $king->requestStatisticsFrequentUserTotal();
     }
 
-    /****************************************************************** STATISTICS ERRORS USER ******************************************************************/
-    // ---------------------------------------------------------------- STATISTICS ERRORS USER TODAY ----------------------------------------------------------------
+    /****************************************************************** USER ERRORS STATISTICS ******************************************************************/
+    // ---------------------------------------------------------------- USER ERROR STATISTICS TODAY ----------------------------------------------------------------
     public function userErrorStatisticsToday($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userErrorStatisticsToday($king_user_id);
@@ -298,7 +272,7 @@ class KingMonitor {
         return $king->userErrorMethodStatisticsToday($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS ERRORS USER WEEK ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER ERROR STATISTICS WEEK ----------------------------------------------------------------
     public function userErrorStatisticsWeek($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userErrorStatisticsWeek($king_user_id);
@@ -309,7 +283,7 @@ class KingMonitor {
         return $king->userErrorMethodStatisticsWeek($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS ERRORS USER MONTH ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER ERROR STATISTICS MONTH ----------------------------------------------------------------
     public function userErrorStatisticsMonth($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userErrorStatisticsMonth($king_user_id);
@@ -320,7 +294,7 @@ class KingMonitor {
         return $king->userErrorMethodStatisticsMonth($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS ERRORS USER QUARTER ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER ERROR STATISTICS QUARTER ----------------------------------------------------------------
     public function userErrorStatisticsQuarter($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userErrorStatisticsQuarter($king_user_id);
@@ -331,7 +305,7 @@ class KingMonitor {
         return $king->userErrorMethodStatisticsQuarter($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS ERRORS USER YEAR ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER ERROR STATISTICS YEAR ----------------------------------------------------------------
     public function userErrorStatisticsYear($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userErrorStatisticsYear($king_user_id);
@@ -342,7 +316,7 @@ class KingMonitor {
         return $king->userErrorMethodStatisticsYear($king_user_id);
     }
 
-    // ---------------------------------------------------------------- STATISTICS ERRORS USER TOTAL ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER ERROR STATISTICS TOTAL ----------------------------------------------------------------
     public function userErrorStatisticsTotal($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userErrorStatisticsTotal($king_user_id);
@@ -353,8 +327,8 @@ class KingMonitor {
         return $king->userErrorMethodStatisticsTotal($king_user_id);
     }
 
-    /****************************************************************** STATISTICS ERRORS ******************************************************************/
-    // ---------------------------------------------------------------- STATISTICS ERRORS TODAY ----------------------------------------------------------------
+    /****************************************************************** ERROR STATISTICS ******************************************************************/
+    // ---------------------------------------------------------------- ERROR STATISTICS TODAY ----------------------------------------------------------------
     public function errorStatisticsToday() {
         $king = new KingMonitorModel();
         return $king->errorStatisticsToday();
@@ -370,7 +344,7 @@ class KingMonitor {
         return $king->errorStatisticsFrequentUserToday();
     }
 
-    // ---------------------------------------------------------------- STATISTICS ERRORS WEEK ----------------------------------------------------------------
+    // ---------------------------------------------------------------- ERROR STATISTICS WEEK ----------------------------------------------------------------
     public function errorStatisticsWeek() {
         $king = new KingMonitorModel();
         return $king->errorStatisticsWeek();
@@ -386,7 +360,7 @@ class KingMonitor {
         return $king->errorStatisticsFrequentUserWeek();
     }
 
-    // ---------------------------------------------------------------- STATISTICS ERRORS MONTH ----------------------------------------------------------------
+    // ---------------------------------------------------------------- ERROR STATISTICS MONTH ----------------------------------------------------------------
     public function errorStatisticsMonth() {
         $king = new KingMonitorModel();
         return $king->errorStatisticsMonth();
@@ -402,7 +376,7 @@ class KingMonitor {
         return $king->errorStatisticsFrequentUserMonth();
     }
 
-    // ---------------------------------------------------------------- STATISTICS ERRORS QUARTER ----------------------------------------------------------------
+    // ---------------------------------------------------------------- ERROR STATISTICS QUARTER ----------------------------------------------------------------
     public function errorStatisticsQuarter() {
         $king = new KingMonitorModel();
         return $king->errorStatisticsQuarter();
@@ -418,7 +392,7 @@ class KingMonitor {
         return $king->errorStatisticsFrequentUserQuarter();
     }
 
-    // ---------------------------------------------------------------- STATISTICS ERRORS YEAR ----------------------------------------------------------------
+    // ---------------------------------------------------------------- ERROR STATISTICS YEAR ----------------------------------------------------------------
     public function errorStatisticsYear() {
         $king = new KingMonitorModel();
         return $king->errorStatisticsYear();
@@ -434,7 +408,7 @@ class KingMonitor {
         return $king->errorStatisticsFrequentUserYear();
     }
 
-    // ---------------------------------------------------------------- STATISTICS ERRORS TOTAL ----------------------------------------------------------------
+    // ---------------------------------------------------------------- ERROR STATISTICS TOTAL ----------------------------------------------------------------
     public function errorStatisticsTotal() {
         $king = new KingMonitorModel();
         return $king->errorStatisticsTotal();
@@ -543,32 +517,6 @@ class KingMonitor {
     }
 
     // ---------------------------------------------------------------- STATISTICS TOTAL ----------------------------------------------------------------
-
-    /**
-     *  Mostrar los kingMonitor
-     *  @OA\Get (path="/api/v1/kingMonitor/statisticsTotal", tags={"kingMonitor"},
-     *      @OA\Response(response=200, description="OK",
-     *          @OA\MediaType(mediaType="application/vnd.api+json",
-     *              @OA\Schema(
-     *                  @OA\Property(property="totalRequest", type="number", example="1"),
-     *                  @OA\Property(type="object", property="method",
-     *                      @OA\Property(property="mostCommon", type="array",
-     *                          @OA\Items(anyOf={@OA\Schema(type="string")})
-     *                      ),
-     *                      @OA\Property(property="GET", type="number", example="1"),
-     *                      @OA\Property(property="POST", type="number", example="1"),
-     *                      @OA\Property(property="PUT", type="number", example="1"),
-     *                      @OA\Property(property="PATCH", type="number", example="1"),
-     *                      @OA\Property(property="DELETE", type="number", example="1"),
-     *                  ),
-     *                  @OA\Property(property="userRequest", type="array",
-     *                      @OA\Items(anyOf={@OA\Schema(type="number")})
-     *                  ),
-     *              ),
-     *          )
-     *      )
-     *  )
-     */
     public function statisticsTotal() {
         $king = new KingMonitorModel();
         return $king->statisticsTotal();
@@ -585,42 +533,6 @@ class KingMonitor {
     }
 
     /*********************************************** STATISTICS ***********************************************/
-
-    /**
-     *  Mostrar los kingMonitor
-     *  @OA\Get (path="/api/v1/kingMonitor/statistics", tags={"kingMonitor"},
-     *      @OA\Response(response=200, description="OK",
-     *          @OA\MediaType(mediaType="application/vnd.api+json",
-     *              @OA\Schema(
-     *                  @OA\Property(type="array", property="data",
-     *                      @OA\Items(type="object",
-     *                          @OA\Property(property="type", type="string", example="kingMonitor"),
-     *                          @OA\Property(property="id", type="string", example="1"),
-     *                          @OA\Property(type="object", property="attributes",
-     *                              @OA\Property(property="king_user_id", type="number", example="1"),
-     *                              @OA\Property(property="tuple", type="string", example="1"),
-     *                              @OA\Property(property="method", type="string", example="GET"),
-     *                              @OA\Property(property="endpoint", type="string", example="api/v1/kingMonitor"),
-     *                              @OA\Property(property="headers", type="string", example="example"),
-     *                              @OA\Property(property="ip", type="string", example="example"),
-     *                              @OA\Property(property="params", type="string", example="example"),
-     *                              @OA\Property(property="data", type="string", example="example"),
-     *                              @OA\Property(property="response", type="string", example="example"),
-     *                              @OA\Property(property="error", type="string", example="example"),
-     *                          ),
-     *                          @OA\Property(type="object", property="links",
-     *                              @OA\Property(property="self", type="string", example="http://localhost/api/v1/kingMonitor/1"),
-     *                          )
-     *                      )
-     *                  ),
-     *                  @OA\Property(type="object", property="links",
-     *                      @OA\Property(property="self", type="string", example="http://localhost/api/v1/kingMonitor"),
-     *                  )
-     *              ),
-     *          )
-     *      )
-     *  )
-     */
     public function statistics() {
         $king = new KingMonitorModel();
         return $king->statistics();
@@ -871,9 +783,230 @@ class KingMonitor {
         return $king->statisticsExceeded();
     }
 
+    /****************************************************************** HISTORICAL EXCEEDED ******************************************************************/
+    /****************************************************************** USER HISTORICAL EXCEEDED ******************************************************************/
+    // ---------------------------------------------------------------- USER REQUEST HISTORICAL EXCEEDED ----------------------------------------------------------------
+    public function userRequestHistoricalExceededToday($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userRequestHistoricalExceededToday($king_user_id);
+    }
+
+    public function userRequestHistoricalExceededWeek($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userRequestHistoricalExceededWeek($king_user_id);
+    }
+
+    public function userRequestHistoricalExceededMonth($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userRequestHistoricalExceededMonth($king_user_id);
+    }
+
+    public function userRequestHistoricalExceededQuarter($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userRequestHistoricalExceededQuarter($king_user_id);
+    }
+
+    public function userRequestHistoricalExceededYear($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userRequestHistoricalExceededYear($king_user_id);
+    }
+
+    public function userRequestHistoricalExceededTotal($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userRequestHistoricalExceededTotal($king_user_id);
+    }
+
+    // ---------------------------------------------------------------- USER ERROR HISTORICAL EXCEEDED ----------------------------------------------------------------
+    public function userErrorHistoricalExceededToday($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userErrorHistoricalExceededToday($king_user_id);
+    }
+
+    public function userErrorHistoricalExceededWeek($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userErrorHistoricalExceededWeek($king_user_id);
+    }
+
+    public function userErrorHistoricalExceededMonth($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userErrorHistoricalExceededMonth($king_user_id);
+    }
+
+    public function userErrorHistoricalExceededQuarter($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userErrorHistoricalExceededQuarter($king_user_id);
+    }
+
+    public function userErrorHistoricalExceededYear($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userErrorHistoricalExceededYear($king_user_id);
+    }
+
+    public function userErrorHistoricalExceededTotal($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userErrorHistoricalExceededTotal($king_user_id);
+    }
+
+    // ---------------------------------------------------------------- USER HISTORICAL EXCEEDED ----------------------------------------------------------------
+    public function userHistoricalExceededToday($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userHistoricalExceededToday($king_user_id);
+    }
+
+    public function userHistoricalExceededWeek($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userHistoricalExceededWeek($king_user_id);
+    }
+
+    public function userHistoricalExceededMonth($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userHistoricalExceededMonth($king_user_id);
+    }
+
+    public function userHistoricalExceededQuarter($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userHistoricalExceededQuarter($king_user_id);
+    }
+
+    public function userHistoricalExceededYear($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userHistoricalExceededYear($king_user_id);
+    }
+
+    public function userHistoricalExceededTotal($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userHistoricalExceededTotal($king_user_id);
+    }
+
+    // ---------------------------------------------------------------- USER HISTORICAL EXCEEDED ----------------------------------------------------------------
+    public function userRequestHistoricalExceeded($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userRequestHistoricalExceeded($king_user_id);
+    }
+
+    public function userErrorHistoricalExceeded($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userErrorHistoricalExceeded($king_user_id);
+    }
+
+    public function userHistoricalExceeded($king_user_id) {
+        $king = new KingMonitorModel();
+        return $king->userHistoricalExceeded($king_user_id);
+    }
+
+    /****************************************************************** HISTORICAL EXCEEDED ******************************************************************/
+    // ---------------------------------------------------------------- REQUEST HISTORICAL EXCEEDED ----------------------------------------------------------------
+    public function requestHistoricalExceededToday() {
+        $king = new KingMonitorModel();
+        return $king->requestHistoricalExceededToday();
+    }
+
+    public function requestHistoricalExceededWeek() {
+        $king = new KingMonitorModel();
+        return $king->requestHistoricalExceededWeek();
+    }
+
+    public function requestHistoricalExceededMonth() {
+        $king = new KingMonitorModel();
+        return $king->requestHistoricalExceededMonth();
+    }
+
+    public function requestHistoricalExceededQuarter() {
+        $king = new KingMonitorModel();
+        return $king->requestHistoricalExceededQuarter();
+    }
+
+    public function requestHistoricalExceededYear() {
+        $king = new KingMonitorModel();
+        return $king->requestHistoricalExceededYear();
+    }
+
+    public function requestHistoricalExceededTotal() {
+        $king = new KingMonitorModel();
+        return $king->requestHistoricalExceededTotal();
+    }
+
+    // ---------------------------------------------------------------- ERROR HISTORICAL EXCEEDED ----------------------------------------------------------------
+    public function errorHistoricalExceededToday() {
+        $king = new KingMonitorModel();
+        return $king->errorHistoricalExceededToday();
+    }
+
+    public function errorHistoricalExceededWeek() {
+        $king = new KingMonitorModel();
+        return $king->errorHistoricalExceededWeek();
+    }
+
+    public function errorHistoricalExceededMonth() {
+        $king = new KingMonitorModel();
+        return $king->errorHistoricalExceededMonth();
+    }
+
+    public function errorHistoricalExceededQuarter() {
+        $king = new KingMonitorModel();
+        return $king->errorHistoricalExceededQuarter();
+    }
+
+    public function errorHistoricalExceededYear() {
+        $king = new KingMonitorModel();
+        return $king->errorHistoricalExceededYear();
+    }
+
+    public function errorHistoricalExceededTotal() {
+        $king = new KingMonitorModel();
+        return $king->errorHistoricalExceededTotal();
+    }
+
+    // ---------------------------------------------------------------- USER HISTORICAL EXCEEDED ----------------------------------------------------------------
+    public function historicalExceededToday() {
+        $king = new KingMonitorModel();
+        return $king->historicalExceededToday();
+    }
+
+    public function historicalExceededWeek() {
+        $king = new KingMonitorModel();
+        return $king->historicalExceededWeek();
+    }
+
+    public function historicalExceededMonth() {
+        $king = new KingMonitorModel();
+        return $king->historicalExceededMonth();
+    }
+
+    public function historicalExceededQuarter() {
+        $king = new KingMonitorModel();
+        return $king->historicalExceededQuarter();
+    }
+
+    public function historicalExceededYear() {
+        $king = new KingMonitorModel();
+        return $king->historicalExceededYear();
+    }
+
+    public function historicalExceededTotal() {
+        $king = new KingMonitorModel();
+        return $king->historicalExceededTotal();
+    }
+
+    // ---------------------------------------------------------------- HISTORICAL EXCEEDED ----------------------------------------------------------------
+    public function requestHistoricalExceeded() {
+        $king = new KingMonitorModel();
+        return $king->requestHistoricalExceeded();
+    }
+
+    public function errorHistoricalExceeded() {
+        $king = new KingMonitorModel();
+        return $king->errorHistoricalExceeded();
+    }
+
+    public function historicalExceeded() {
+        $king = new KingMonitorModel();
+        return $king->historicalExceeded();
+    }
+
     /****************************************************************** HISTORICAL ******************************************************************/
     /****************************************************************** USER HISTORICAL ******************************************************************/
-    // ---------------------------------------------------------------- USER HISTORICAL REQUEST ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER REQUEST HISTORICAL ----------------------------------------------------------------
     public function userRequestHistoricalToday($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userRequestHistoricalToday($king_user_id);
@@ -904,7 +1037,7 @@ class KingMonitor {
         return $king->userRequestHistoricalTotal($king_user_id);
     }
 
-    // ---------------------------------------------------------------- USER HISTORICAL ERROR ----------------------------------------------------------------
+    // ---------------------------------------------------------------- USER ERROR HISTORICAL ----------------------------------------------------------------
     public function userErrorHistoricalToday($king_user_id) {
         $king = new KingMonitorModel();
         return $king->userErrorHistoricalToday($king_user_id);
@@ -966,7 +1099,7 @@ class KingMonitor {
         return $king->userHistoricalTotal($king_user_id);
     }
 
-    /****************************************************************** HISTORICAL REQUEST ******************************************************************/
+    /****************************************************************** REQUEST HISTORICAL ******************************************************************/
     public function requestHistoricalToday() {
         $king = new KingMonitorModel();
         return $king->requestHistoricalToday();
@@ -1089,4 +1222,8 @@ class KingMonitor {
         $king = new KingMonitorModel();
         return $king->historical();
     }
+
+    /****************************************************************** HISTORICAL ALERT ******************************************************************/
+    /****************************************************************** USER HISTORICAL ALERT ******************************************************************/
+    // ---------------------------------------------------------------- USER REQUEST HISTORICAL ALERT ----------------------------------------------------------------
 }
