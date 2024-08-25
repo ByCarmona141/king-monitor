@@ -136,16 +136,88 @@
                             </div>
                             <!-- Chart -->
                             <div class="flex justify-center items-center p-4 h-72">
-                                <canvas id="total" width="379" height="256" style="display: block; width: 379px; height: 256px;" class="chartjs-render-monitor"></canvas>
+                                <canvas id="year" width="379" height="256" style="display: block; width: 379px; height: 256px;" class="chartjs-render-monitor"></canvas>
                             </div>
                         </div>
 
                         <div class="col-span-2 bg-white rounded-md dark:bg-gray-900">
                             <div class="text-center p-4 border-b dark:border-primary">
-                                <h4 class="text-lg font-semibold text-white dark:text-light">Historical Year</h4>
+                                <h4 class="text-lg font-semibold text-white dark:text-light">Historical Exceeded Year</h4>
                             </div>
                             <div class="flex justify-center items-center p-4 h-72">
-                                <canvas id="historical-year" width="400" height="100"></canvas>
+                                <canvas id="historical-exceeded-year" width="400" height="100"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="flex flex-wrap -mx-6">
+                            <div class="w-full px-6 sm:w-1/2 xl:w-1/4">
+                                <div class="flex items-center px-5 py-6 dark:bg-gray-900 rounded-md shadow-sm">
+                                    <div class="p-3 bg-gradient-to-tl from-gray-900 to-gray-700 shadow-soft-2xl rounded-full">
+                                        <svg height="36px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M20 7C20 8.65685 18.6569 10 17 10C15.3431 10 14 8.65685 14 7C14 5.34315 15.3431 4 17 4C18.6569 4 20 5.34315 20 7Z" fill="currentColor"/>
+                                            <path d="M12 6H4V20H18V12H16V18H6V8H12V6Z" fill="currentColor"/>
+                                        </svg>
+                                    </div>
+
+                                    <div class="mx-5">
+                                        <h4 class="text-2xl font-semibold text-white">
+                                            {{$statisticsAlert['total']}}
+                                        </h4>
+                                        <div class="text-gray-500">Total Alert</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/4 sm:mt-0 md:mt-0 xl:mt-0">
+                                <div class="flex items-center px-5 py-6 dark:bg-gray-900 rounded-md shadow-sm">
+                                    <div class="p-3 bg-gradient-to-tl from-gray-900 to-gray-700 shadow-soft-2xl rounded-full">
+                                        <svg height="36px" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="32" cy="24" r="16" fill="none"/>
+                                            <path d="M32 4c-11.05 0-20 8.95-20 20 0 14 20 36 20 36s20-22 20-36c0-11.05-8.95-20-20-20zm0 28c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" fill="currentColor"/>
+                                        </svg>
+                                    </div>
+
+                                    <div class="mx-5">
+                                        <h4 class="text-2xl font-semibold text-white">
+                                            {{$statisticsAlert['ip'][0]}}
+                                        </h4>
+                                        <div class="text-gray-500">IP</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/4 xl:mt-0">
+                                <div class="flex items-center px-5 py-6 dark:bg-gray-900 rounded-md shadow-sm">
+                                    <div class="p-3 bg-gradient-to-tl from-gray-900 to-gray-700 shadow-soft-2xl rounded-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 -960 960 960" width="36px" fill="#FFFFFF">
+                                            <path d="m438-240 226-226-58-58-169 169-84-84-57 57 142 142ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z"/>
+                                        </svg>
+                                    </div>
+
+                                    <div class="mx-5">
+                                        <h4 class="text-2xl font-semibold text-white">
+                                            {{$statisticsExceeded['request']['total']['total']}}
+                                        </h4>
+                                        <div class="text-gray-500">Total Exceeded Request</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/4 sm:mt-6 md:mt-6 xl:mt-0">
+                                <div class="flex items-center px-5 py-6 dark:bg-gray-900 rounded-md shadow-sm">
+                                    <div class="p-3 bg-gradient-to-tl from-gray-900 to-gray-700 shadow-soft-2xl rounded-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 -960 960 960" width="36px" fill="#FFFFFF">
+                                            <path d="m336-280 144-144 144 144 56-56-144-144 144-144-56-56-144 144-144-144-56 56 144 144-144 144 56 56ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/>
+                                        </svg>
+                                    </div>
+
+                                    <div class="mx-5">
+                                        <h4 class="text-2xl font-semibold text-white">{{$statisticsExceeded['errors']['total']['total']}}</h4>
+                                        <div class="text-gray-500">Total Exceeded Errors</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -246,8 +318,9 @@
     <script>
         const historicalTotal = document.getElementById('historical-total');
         const historicalYear = document.getElementById('historical-year');
-        const total = document.getElementById('total');
-        const ctx2 = document.getElementById('total-method');
+        const year = document.getElementById('year');
+        const totalMethod = document.getElementById('total-method');
+        const historicalExceededYear = document.getElementById('historical-exceeded-year');
         // const ctx3 = document.getElementById('today');
         // const ctx4 = document.getElementById('today-method');
         // const ctx5 = document.getElementById('tables');
@@ -413,15 +486,15 @@
             }
         });
 
-        new Chart(total, {
+        new Chart(year, {
             type: 'doughnut',
             data: {
                 labels: ['Request', 'Errors'], // Etiquetas de datos
                 datasets: [{
-                    label: 'Total', // Etiqueta principal
+                    label: 'Year', // Etiqueta principal
                     data: [ // Datos
-                        {{ $statistics['request']['total']['total'] }},
-                        {{ $statistics['errors']['total']['total'] }}
+                        {{ $statistics['request']['year']['total'] }},
+                        {{ $statistics['errors']['year']['total'] }}
                     ],
                     backgroundColor: [ // Color del grafico
                         'rgba(75, 192, 192, 0.2)',
@@ -439,17 +512,17 @@
             }
         });
 
-        new Chart(ctx2, {
+        new Chart(totalMethod, {
             type: 'bar',
             data: {
                 labels: ['GET', 'POST', 'PUT', 'DELETE'],
                 datasets: [{
                     label: 'Request',
                     data: [
-                        {{ $statistics['request']['total']['method']['GET'] }},
-                        {{ $statistics['request']['total']['method']['POST'] }},
-                        {{ $statistics['request']['total']['method']['PUT'] }},
-                        {{ $statistics['request']['total']['method']['DELETE'] }},
+                        {{ $statistics['request']['year']['method']['GET'] }},
+                        {{ $statistics['request']['year']['method']['POST'] }},
+                        {{ $statistics['request']['year']['method']['PUT'] }},
+                        {{ $statistics['request']['year']['method']['DELETE'] }},
                     ],
                     backgroundColor: [
                         'rgba(75, 192, 192, 0.2)',
@@ -467,10 +540,10 @@
                 }, {
                     label: 'Error',
                     data: [
-                        {{ $statistics['errors']['total']['method']['GET'] }},
-                        {{ $statistics['errors']['total']['method']['POST'] }},
-                        {{ $statistics['errors']['total']['method']['PUT'] }},
-                        {{ $statistics['errors']['total']['method']['DELETE'] }},
+                        {{ $statistics['errors']['year']['method']['GET'] }},
+                        {{ $statistics['errors']['year']['method']['POST'] }},
+                        {{ $statistics['errors']['year']['method']['PUT'] }},
+                        {{ $statistics['errors']['year']['method']['DELETE'] }},
                     ],
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)',
@@ -489,6 +562,83 @@
             },
             options: {
                 responsive: true,
+            }
+        });
+
+        let tag3 = new Set();
+        var request3 = [];
+        var error3 = [];
+
+        @foreach ($historicalExceeded['request']['year']['details'] as $request)
+            request3.push({"month":"{{$request['month']}}", "total":"{{$request['total']}}"});
+        @endforeach
+
+        @foreach ($historicalExceeded['errors']['year']['details'] as $error)
+            error3.push({"month":"{{$error['month']}}", "total":"{{$error['total']}}"});
+        @endforeach
+
+        // Obtenemos los meses en cada arreglo
+        request3.forEach(item => tag3.add(item.month));
+        error3.forEach(item => tag3.add(item.month));
+
+        // Convertimos el set a un array
+        tag3 = Array.from(tag3);
+
+        // Agregamos el mes y valor faltante al arreglo
+        tag3.forEach(month => {
+            if (!request3.some(item => item.month === month)) {
+                request3.push({ month: month, total: 0 });
+            }
+        });
+
+        tag3.forEach(month => {
+            if (!error3.some(item => item.month === month)) {
+                error3.push({ month: month, total: 0 });
+            }
+        });
+
+        // Ordenar los arreglos por año para mantenerlos organizados
+        request3.sort((a, b) => a.month - b.month);
+        error3.sort((a, b) => a.month - b.month);
+        tag3.sort();
+
+        // Separar los totales de peticiones y errores
+        let totalRequest3 = request3.map(item => item.total);
+        let totalError3 = error3.map(item => item.total);
+
+        new Chart(historicalExceededYear, {
+            type: 'line',
+            data: {
+                labels: tag3,
+                datasets: [{
+                    label: 'Request',
+                    data: totalRequest3,
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    pointBackgroundColor: 'rgb(75, 192, 192)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(75, 192, 192)'
+                }, {
+                    label: 'Error',
+                    data: totalError3,
+                    fill: true,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    pointBackgroundColor: 'rgb(255, 99, 132)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(255, 99, 132)'
+                }]
+            },
+            options: {
+                responsive: true,
+                elements: {
+                    line: {
+                        borderWidth: 3
+                    }
+                }
             }
         });
 

@@ -2,9 +2,9 @@
 
 namespace ByCarmona141\KingMonitor\Http\Controllers\WEB;
 
-use ByCarmona141\KingMonitor\Facades\KingMonitor;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use ByCarmona141\KingMonitor\Facades\KingMonitor;
 
 //use ByCarmona141\KingMonitor\Models\KingMonitor;
 
@@ -13,13 +13,27 @@ class KingMonitorController extends Controller {
         // Obtenemos las estadisticas del monitor
         $statistics = KingMonitor::statistics();
         $historical = KingMonitor::historical();
+        $statisticsExceeded = KingMonitor::statisticsExceeded();
+        $historicalExceeded = KingMonitor::historicalExceeded();
+        $statisticsAlert = KingMonitor::statisticsAlertTotal();
+        $historicalAlert = KingMonitor::historicalAlertTotal();
 
         // Convertimos el json en arreglo
         $statistics = $statistics->original;
         $historical = $historical->original;
+        $statisticsExceeded = $statisticsExceeded->original;
+        $historicalExceeded = $historicalExceeded->original;
+        $statisticsAlert = $statisticsAlert->original;
+        $historicalAlert = $historicalAlert->original;
 
         // Mandamos los datos a la vista
-        return view('king-monitor::monitor')->with('statistics', $statistics)->with('historical', $historical);
+        return view('king-monitor::monitor')
+            ->with('statistics', $statistics)
+            ->with('historical', $historical)
+            ->with('statisticsExceeded', $statisticsExceeded)
+            ->with('historicalExceeded', $historicalExceeded)
+            ->with('statisticsAlert', $statisticsAlert)
+            ->with('historicalAlert', $historicalAlert);
     }
 
     public function show($king_user_id) {
