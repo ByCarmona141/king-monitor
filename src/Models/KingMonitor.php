@@ -2926,7 +2926,7 @@ class KingMonitor extends Model {
         }
     }
 
-    // ---------------------------------------------------------------- STATISTICS EXCEEDED ----------------------------------------------------------------
+    // ---------------------------------------------------------------- HISTORICAL EXCEEDED ----------------------------------------------------------------
     // Desglose del historico de usuarios que exceden el limite de peticiones
     public function requestHistoricalExceeded() {
         try {
@@ -2964,13 +2964,13 @@ class KingMonitor extends Model {
     }
 
     /****************************************************************** KING_MONITOR_ALERT ******************************************************************/
-    /****************************************************************** USER STATISTICS ALERTS ******************************************************************/
-    // ---------------------------------------------------------------- USER REQUEST STATISTICS ALERTS ----------------------------------------------------------------
-    // Estadisticas del usuario que excede el limite de peticiones (today)
-    public function userRequestStatisticsAlertToday($kingUserId) {
+    /****************************************************************** STATISTICS ******************************************************************/
+    // ---------------------------------------------------------------- USER STATISTICS ALERTS ----------------------------------------------------------------
+    // Estadisticas de alertas del usuario (today)
+    public function userStatisticsAlertToday($kingUserId) {
         try {
-            $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestStatisticsToday($kingUserId)->original;
+            $king = new KingMonitorAlert();
+            $response = $king->userStatisticsToday($kingUserId)->original;
 
             return response()->json($response);
         } catch(Exception $e) {
@@ -2978,6 +2978,287 @@ class KingMonitor extends Model {
         }
     }
 
+    // Estadisticas de alertas del usuario (week)
+    public function userStatisticsAlertWeek($kingUserId) {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->userStatisticsWeek($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Estadisticas de alertas del usuario (month)
+    public function userStatisticsAlertMonth($kingUserId) {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->userStatisticsMonth($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Estadisticas de alertas del usuario (quarter)
+    public function userStatisticsAlertQuarter($kingUserId) {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->userStatisticsQuarter($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Estadisticas de alertas del usuario (year)
+    public function userStatisticsAlertYear($kingUserId) {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->userStatisticsYear($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Estadisticas de alertas del usuario (total)
+    public function userStatisticsAlertTotal($kingUserId) {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->userStatisticsTotal($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // ---------------------------------------------------------------- STATISTICS ALERTS ----------------------------------------------------------------
+    // Total de alertas (today)
+    public function statisticsAlertToday() {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->statisticsToday()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Total de alertas (week)
+    public function statisticsAlertWeek() {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->statisticsWeek()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Total de alertas (month)
+    public function statisticsAlertMonth() {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->statisticsMonth()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Total de alertas (quarter)
+    public function statisticsAlertQuarter() {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->statisticsQuarter()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Total de alertas (year)
+    public function statisticsAlertYear() {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->statisticsYear()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Total de alertas (total)
+    public function statisticsAlertTotal() {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->statisticsTotal()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /****************************************************************** HISTORICAL ******************************************************************/
+    // ---------------------------------------------------------------- USER HISTORICAL ALERTS ----------------------------------------------------------------
+    // Historico de alertas del usuario (today)
+    public function userHistoricalAlertToday($kingUserId) {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->userHistoricalToday($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de alertas del usuario (week)
+    public function userHistoricalAlertWeek($kingUserId) {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->userHistoricalWeek($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de alertas del usuario (month)
+    public function userHistoricalAlertMonth($kingUserId) {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->userHistoricalMonth($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de alertas del usuario (quarter)
+    public function userHistoricalAlertQuarter($kingUserId) {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->userHistoricalQuarter($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de alertas del usuario (year)
+    public function userHistoricalAlertYear($kingUserId) {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->userHistoricalYear($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Historico de alertas del usuario (total)
+    public function userHistoricalAlertTotal($kingUserId) {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->userHistoricalTotal($kingUserId)->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // ---------------------------------------------------------------- HISTORICAL ALERTS ----------------------------------------------------------------
+    // Total de alertas (today)
+    public function historicalAlertToday() {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->historicalToday()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Total de alertas (week)
+    public function historicalAlertWeek() {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->historicalWeek()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Total de alertas (month)
+    public function historicalAlertMonth() {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->historicalMonth()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Total de alertas (quarter)
+    public function historicalAlertQuarter() {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->historicalQuarter()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Total de alertas (year)
+    public function historicalAlertYear() {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->historicalYear()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // Total de alertas (total)
+    public function historicalAlertTotal() {
+        try {
+            $king = new KingMonitorAlert();
+            $response = $king->historicalTotal()->original;
+
+            return response()->json($response);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /****************************************************************** KING_MONITOR ******************************************************************/
     /****************************************************************** HISTORICAL ******************************************************************/
     // ---------------------------------------------------------------- USER REQUEST HISTORICAL ----------------------------------------------------------------
     // Historico del usuario por dia dividido en horas (today)

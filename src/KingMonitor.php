@@ -957,7 +957,7 @@ class KingMonitor {
         return $king->errorHistoricalExceededTotal();
     }
 
-    // ---------------------------------------------------------------- USER HISTORICAL EXCEEDED ----------------------------------------------------------------
+    // ---------------------------------------------------------------- HISTORICAL EXCEEDED ----------------------------------------------------------------
     public function historicalExceededToday() {
         $king = new KingMonitorModel();
         return $king->historicalExceededToday();
@@ -1002,6 +1002,132 @@ class KingMonitor {
     public function historicalExceeded() {
         $king = new KingMonitorModel();
         return $king->historicalExceeded();
+    }
+
+    /****************************************************************** SATISTICS ALERT ******************************************************************/
+    /****************************************************************** USER SATISTICS ALERT ******************************************************************/
+    // ---------------------------------------------------------------- USER SATISTICS ALERT ----------------------------------------------------------------
+    public function userStatisticsAlertToday($kingUserId) {
+        $king = new KingMonitorModel();
+        return $king->userStatisticsAlertToday($kingUserId);
+    }
+
+    public function userStatisticsAlertWeek($kingUserId) {
+        $king = new KingMonitorModel();
+        return $king->userStatisticsAlertWeek($kingUserId);
+    }
+
+    public function userStatisticsAlertMonth($kingUserId) {
+        $king = new KingMonitorModel();
+        return $king->userStatisticsAlertMonth($kingUserId);
+    }
+
+    public function userStatisticsAlertQuarter($kingUserId) {
+        $king = new KingMonitorModel();
+        return $king->userStatisticsAlertQuarter($kingUserId);
+    }
+
+    public function userStatisticsAlertYear($kingUserId) {
+        $king = new KingMonitorModel();
+        return $king->userStatisticsAlertYear($kingUserId);
+    }
+
+    public function userStatisticsAlertTotal($kingUserId) {
+        $king = new KingMonitorModel();
+        return $king->userStatisticsAlertYear($kingUserId);
+    }
+
+    // ---------------------------------------------------------------- SATISTICS ALERT ----------------------------------------------------------------
+    public function statisticsAlertToday() {
+        $king = new KingMonitorModel();
+        return $king->statisticsAlertToday();
+    }
+
+    public function statisticsAlertWeek() {
+        $king = new KingMonitorModel();
+        return $king->statisticsAlertWeek();
+    }
+
+    public function statisticsAlertMonth() {
+        $king = new KingMonitorModel();
+        return $king->statisticsAlertMonth();
+    }
+
+    public function statisticsAlertQuarter() {
+        $king = new KingMonitorModel();
+        return $king->statisticsAlertQuarter();
+    }
+
+    public function statisticsAlertYear() {
+        $king = new KingMonitorModel();
+        return $king->statisticsAlertYear();
+    }
+
+    public function statisticsAlertTotal() {
+        $king = new KingMonitorModel();
+        return $king->statisticsAlertTotal();
+    }
+
+    // ---------------------------------------------------------------- USER HISTORICAL ALERT ----------------------------------------------------------------
+    public function userHistoricalAlertToday($kingUserId) {
+        $king = new KingMonitorModel();
+        return $king->userHistoricalAlertToday($kingUserId);
+    }
+
+    public function userHistoricalAlertWeek($kingUserId) {
+        $king = new KingMonitorModel();
+        return $king->userHistoricalAlertWeek($kingUserId);
+    }
+
+    public function userHistoricalAlertMonth($kingUserId) {
+        $king = new KingMonitorModel();
+        return $king->userHistoricalAlertMonth($kingUserId);
+    }
+
+    public function userHistoricalAlertQuarter($kingUserId) {
+        $king = new KingMonitorModel();
+        return $king->userHistoricalAlertQuarter($kingUserId);
+    }
+
+    public function userHistoricalAlertYear($kingUserId) {
+        $king = new KingMonitorModel();
+        return $king->userHistoricalAlertYear($kingUserId);
+    }
+
+    public function userHistoricalAlertTotal($kingUserId) {
+        $king = new KingMonitorModel();
+        return $king->userHistoricalAlertTotal($kingUserId);
+    }
+
+    // ---------------------------------------------------------------- HISTORICAL ALERT ----------------------------------------------------------------
+    public function historicalAlertToday() {
+        $king = new KingMonitorModel();
+        return $king->historicalAlertToday();
+    }
+
+    public function historicalAlertWeek() {
+        $king = new KingMonitorModel();
+        return $king->historicalAlertWeek();
+    }
+
+    public function historicalAlertMonth() {
+        $king = new KingMonitorModel();
+        return $king->historicalAlertMonth();
+    }
+
+    public function historicalAlertQuarter() {
+        $king = new KingMonitorModel();
+        return $king->historicalAlertQuarter();
+    }
+
+    public function historicalAlertYear() {
+        $king = new KingMonitorModel();
+        return $king->historicalAlertYear();
+    }
+
+    public function historicalAlertTotal() {
+        $king = new KingMonitorModel();
+        return $king->historicalAlertTotal();
     }
 
     /****************************************************************** HISTORICAL ******************************************************************/
@@ -1222,8 +1348,4 @@ class KingMonitor {
         $king = new KingMonitorModel();
         return $king->historical();
     }
-
-    /****************************************************************** HISTORICAL ALERT ******************************************************************/
-    /****************************************************************** USER HISTORICAL ALERT ******************************************************************/
-    // ---------------------------------------------------------------- USER REQUEST HISTORICAL ALERT ----------------------------------------------------------------
 }
