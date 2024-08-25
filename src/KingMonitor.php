@@ -1034,7 +1034,7 @@ class KingMonitor {
 
     public function userStatisticsAlertTotal($kingUserId) {
         $king = new KingMonitorModel();
-        return $king->userStatisticsAlertYear($kingUserId);
+        return $king->userStatisticsAlertTotal($kingUserId);
     }
 
     // ---------------------------------------------------------------- SATISTICS ALERT ----------------------------------------------------------------
