@@ -181,7 +181,7 @@
 
                                     <div class="mx-5">
                                         <h4 class="text-2xl font-semibold text-white">
-                                            @if ($statisticsAlert['ip'] !== NULL)--}}
+                                            @if ($statisticsAlert['ip'] !== NULL)
                                                 {{$statisticsAlert['ip'][0]}}
                                             @else
                                                 ANY
