@@ -2108,7 +2108,7 @@ class KingMonitor extends Model {
     public function userStatisticsExceededTotal($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userStatisticsTotal($kingUserId)->original;
+            $response = $king->userRequestStatistics($kingUserId)->original;
 
             return response()->json($response);
         } catch(Exception $e) {
@@ -2120,21 +2120,8 @@ class KingMonitor extends Model {
     // Desglose de estadisticas de peticiones excedidas del usuario
     public function userRequestStatisticsExceeded($kingUserId) {
         try {
-            $today = $this->userRequestStatisticsToday($kingUserId);
-            $week = $this->userRequestStatisticsWeek($kingUserId);
-            $month = $this->userRequestStatisticsMonth($kingUserId);
-            $quarter = $this->userRequestStatisticsQuarter($kingUserId);
-            $year = $this->userRequestStatisticsYear($kingUserId);
-            $total = $this->userRequestStatisticsTotal($kingUserId);
-
-            $response = [
-                'today' => $today->original,
-                'week' => $week->original,
-                'month' => $month->original,
-                'quarter' => $quarter->original,
-                'year' => $year->original,
-                'total' => $total->original,
-            ];
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userRequestStatistics($kingUserId)->original;
 
             return response()->json($response);
         } catch (Exception $e) {
@@ -2145,21 +2132,8 @@ class KingMonitor extends Model {
     // Desglose de estadisticas de errores excedidos del usuario
     public function userErrorStatisticsExceeded($kingUserId) {
         try {
-            $today = $this->userErrorStatisticsToday($kingUserId);
-            $week = $this->userErrorStatisticsWeek($kingUserId);
-            $month = $this->userErrorStatisticsMonth($kingUserId);
-            $quarter = $this->userErrorStatisticsQuarter($kingUserId);
-            $year = $this->userErrorStatisticsYear($kingUserId);
-            $total = $this->userErrorStatisticsTotal($kingUserId);
-
-            $response = [
-                'today' => $today->original,
-                'week' => $week->original,
-                'month' => $month->original,
-                'quarter' => $quarter->original,
-                'year' => $year->original,
-                'total' => $total->original,
-            ];
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userRequestStatistics($kingUserId)->original;
 
             return response()->json($response);
         } catch (Exception $e) {
@@ -2170,21 +2144,8 @@ class KingMonitor extends Model {
     // Desglose de estadisticas de peticiones y errores excedidos del usuario
     public function userStatisticsExceeded($kingUserId) {
         try {
-            $today = $this->userStatisticsExceededToday($kingUserId);
-            $week = $this->userStatisticsExceededWeek($kingUserId);
-            $month = $this->userStatisticsExceededMonth($kingUserId);
-            $quarter = $this->userStatisticsExceededQuarter($kingUserId);
-            $year = $this->userStatisticsExceededYear($kingUserId);
-            $total = $this->userStatisticsExceededTotal($kingUserId);
-
-            $response = [
-                'today' => $today->original,
-                'week' => $week->original,
-                'month' => $month->original,
-                'quarter' => $quarter->original,
-                'year' => $year->original,
-                'total' => $total->original,
-            ];
+            $king = new KingMonitorUserExceeded();
+            $response = $king->userStatistics($kingUserId)->original;
 
             return response()->json($response);
         } catch (Exception $e) {
