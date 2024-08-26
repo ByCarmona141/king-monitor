@@ -46,11 +46,11 @@
 
                                     <div class="mx-5">
                                         <h4 class="text-2xl font-semibold text-white">
-{{--                                            @if ($statistics['request']['total']['method']['mostCommon'] !== NULL)--}}
-{{--                                                {{$statistics['request']['total']['method']['mostCommon'][0]}}--}}
-{{--                                            @else--}}
-{{--                                                ANY--}}
-{{--                                            @endif--}}
+                                            @if ($statistics['request']['total']['method']['mostCommon'] !== NULL)
+                                                {{$statistics['request']['total']['method']['mostCommon'][0]}}
+                                            @else
+                                                ANY
+                                            @endif
                                         </h4>
                                         <div class="text-gray-500">Request</div>
                                     </div>
@@ -82,11 +82,11 @@
 
                                     <div class="mx-5">
                                         <h4 class="text-2xl font-semibold text-white">
-{{--                                            @if ($statistics['errors']['total']['method']['mostCommon'] !== NULL)--}}
-{{--                                                {{$statistics['errors']['total']['method']['mostCommon'][0]}}--}}
-{{--                                            @else--}}
-{{--                                                ANY--}}
-{{--                                            @endif--}}
+                                            @if ($statistics['errors']['total']['method']['mostCommon'] !== NULL)
+                                                {{$statistics['errors']['total']['method']['mostCommon'][0]}}
+                                            @else
+                                                ANY
+                                            @endif
                                         </h4>
                                         <div class="text-gray-500">Error</div>
                                     </div>
@@ -202,7 +202,7 @@
 
                                     <div class="mx-5">
                                         <h4 class="text-2xl font-semibold text-white">
-{{--                                            {{$statisticsExceeded['request']['total']['total']}}--}}
+                                            {{$statisticsExceeded['request']['total']['total']}}
                                         </h4>
                                         <div class="text-gray-500">Total Exceeded Request</div>
                                     </div>
