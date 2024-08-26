@@ -40,12 +40,29 @@ class KingMonitorController extends Controller {
         // Obtenemos las estadisticas del monitor
         $statistics = KingMonitor::userStatistics($king_user_id);
         $historical = KingMonitor::userHistorical($king_user_id);
+        $statisticsExceeded = KingMonitor::userStatisticsExceeded($king_user_id);
+        $historicalExceeded = KingMonitor::userHistoricalExceeded($king_user_id);
+        $statisticsAlert = KingMonitor::userStatisticsAlertTotal($king_user_id);
+        $historicalAlert = KingMonitor::userHistoricalAlertTotal($king_user_id);
+
+//        dd(gettype($historicalExceeded));
 
         // Convertimos el json en arreglo
         $statistics = $statistics->original;
         $historical = $historical->original;
+        $statisticsExceeded = $statisticsExceeded->original;
+        $historicalExceeded = $historicalExceeded->original;
+        $statisticsAlert = $statisticsAlert->original;
+        $historicalAlert = $historicalAlert->original;
+
 
         // Mandamos los datos a la vista
-        return view('king-monitor::user')->with('statistics', $statistics)->with('historical', $historical);
+        return view('king-monitor::user')
+            ->with('statistics', $statistics)
+            ->with('historical', $historical)
+            ->with('statisticsExceeded', $statisticsExceeded)
+            ->with('historicalExceeded', $historicalExceeded)
+            ->with('statisticsAlert', $statisticsAlert)
+            ->with('historicalAlert', $historicalAlert);
     }
 }

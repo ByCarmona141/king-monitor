@@ -885,7 +885,7 @@ class KingMonitorUserExceeded extends Model {
     public function userRequestHistoricalTotal($kingUserId) {
         try {
             $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 1)->all()->count(), // Total de peticiones del usuario
+                'total' => KingMonitorUserExceeded::where('type', '=', 1)->count(), // Total de peticiones del usuario
                 'details' => KingMonitorUserExceeded::where('type', '=', 1)->select(
                     DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
                     DB::raw('count(*) as total')
@@ -1000,7 +1000,7 @@ class KingMonitorUserExceeded extends Model {
     public function userErrorHistoricalTotal($kingUserId) {
         try {
             $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 2)->all()->count(), // Total de peticiones del usuario
+                'total' => KingMonitorUserExceeded::where('type', '=', 2)->count(), // Total de peticiones del usuario
                 'details' => KingMonitorUserExceeded::where('type', '=', 2)->select(
                     DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
                     DB::raw('count(*) as total')
