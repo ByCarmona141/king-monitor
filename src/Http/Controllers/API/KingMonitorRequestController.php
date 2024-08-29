@@ -262,4 +262,35 @@ class KingMonitorRequestController extends Controller {
         $king = new KingMonitorRequest();
         return $king->requestHistorical();
     }
+
+    // ---------------------------------------------------------------- AVG ----------------------------------------------------------------
+    public function averageRequestTimeToday() {
+        $king = new KingMonitorRequest();
+        return $king->averageRequestTimeToday();
+    }
+
+    public function averageRequestTimeWeek() {
+        $king = new KingMonitorRequest();
+        return $king->averageRequestTimeWeek();
+    }
+
+    public function averageRequestTimeMonth() {
+        $king = new KingMonitorRequest();
+        return $king->averageRequestTimeMonth();
+    }
+
+    public function averageRequestTimeQuarter() {
+        $king = new KingMonitorRequest();
+        return $king->averageRequestTimeQuarter();
+    }
+
+    public function averageRequestTimeYear() {
+        $king = new KingMonitorRequest();
+        return $king->averageRequestTimeYear();
+    }
+
+    public function averageRequestTimeTotal() {
+        $king = new KingMonitorRequest();
+        return $king->averageRequestTimeTotal();
+    }
 }

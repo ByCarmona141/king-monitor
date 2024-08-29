@@ -302,4 +302,35 @@ class KingMonitorErrorController extends Controller {
         $king = new KingMonitorError();
         return $king->errorHistorical();
     }
+
+    // ---------------------------------------------------------------- AVG ----------------------------------------------------------------
+    public function averageErrorTimeToday() {
+        $king = new KingMonitorError();
+        return $king->averageErrorTimeToday();
+    }
+
+    public function averageErrorTimeWeek() {
+        $king = new KingMonitorError();
+        return $king->averageErrorTimeWeek();
+    }
+
+    public function averageErrorTimeMonth() {
+        $king = new KingMonitorError();
+        return $king->averageErrorTimeMonth();
+    }
+
+    public function averageErrorTimeQuarter() {
+        $king = new KingMonitorError();
+        return $king->averageErrorTimeQuarter();
+    }
+
+    public function averageErrorTimeYear() {
+        $king = new KingMonitorError();
+        return $king->averageErrorTimeYear();
+    }
+
+    public function averageErrorTimeTotal() {
+        $king = new KingMonitorError();
+        return $king->averageErrorTimeTotal();
+    }
 }

@@ -1083,4 +1083,97 @@ class KingMonitorController extends Controller {
         $king = new KingMonitor();
         return $king->historical();
     }
+
+    /****************************************************************** AVG REQUEST ******************************************************************/
+    public function averageRequestTimeToday() {
+        $king = new KingMonitor();
+        return $king->averageRequestTimeToday();
+    }
+
+    public function averageRequestTimeWeek() {
+        $king = new KingMonitor();
+        return $king->averageRequestTimeWeek();
+    }
+
+    public function averageRequestTimeMonth() {
+        $king = new KingMonitor();
+        return $king->averageRequestTimeMonth();
+    }
+
+    public function averageRequestTimeQuarter() {
+        $king = new KingMonitor();
+        return $king->averageRequestTimeQuarter();
+    }
+
+    public function averageRequestTimeYear() {
+        $king = new KingMonitor();
+        return $king->averageRequestTimeYear();
+    }
+
+    public function averageRequestTimeTotal() {
+        $king = new KingMonitor();
+        return $king->averageRequestTimeTotal();
+    }
+
+    /****************************************************************** AVG ERROR ******************************************************************/
+    public function averageErrorTimeToday() {
+        $king = new KingMonitor();
+        return $king->averageErrorTimeToday();
+    }
+
+    public function averageErrorTimeWeek() {
+        $king = new KingMonitor();
+        return $king->averageErrorTimeWeek();
+    }
+
+    public function averageErrorTimeMonth() {
+        $king = new KingMonitor();
+        return $king->averageErrorTimeMonth();
+    }
+
+    public function averageErrorTimeQuarter() {
+        $king = new KingMonitor();
+        return $king->averageErrorTimeQuarter();
+    }
+
+    public function averageErrorTimeYear() {
+        $king = new KingMonitor();
+        return $king->averageErrorTimeYear();
+    }
+
+    public function averageErrorTimeTotal() {
+        $king = new KingMonitor();
+        return $king->averageErrorTimeTotal();
+    }
+
+    /****************************************************************** AVG ******************************************************************/
+    public function averageTimeToday() {
+        $king = new KingMonitor();
+        return $king->averageTimeToday();
+    }
+
+    public function averageTimeWeek() {
+        $king = new KingMonitor();
+        return $king->averageTimeWeek();
+    }
+
+    public function averageTimeMonth() {
+        $king = new KingMonitor();
+        return $king->averageTimeMonth();
+    }
+
+    public function averageTimeQuarter() {
+        $king = new KingMonitor();
+        return $king->averageTimeQuarter();
+    }
+
+    public function averageTimeYear() {
+        $king = new KingMonitor();
+        return $king->averageTimeYear();
+    }
+
+    public function averageTimeTotal() {
+        $king = new KingMonitor();
+        return $king->averageTimeTotal();
+    }
 }

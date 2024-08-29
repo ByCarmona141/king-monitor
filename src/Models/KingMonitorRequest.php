@@ -1132,4 +1132,191 @@ class KingMonitorRequest extends Model {
             return $e->getMessage();
         }
     }
+
+    /****************************************************************** AVG REQUEST ******************************************************************/
+    public function averageRequestTimeToday() {
+        try {
+            $time = KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->orderBy('created_at', 'asc')->get();
+
+            $intervals = [];
+
+            // Calcular los intervalos
+            for ($i = 1; $i < count($time); $i++) {
+                $intervals[] = $time[$i]->created_at->diffInSeconds($time[$i - 1]->created_at); // Agregar el intervalo al array
+            }
+
+            // Calcular el promedio
+            if (!empty($intervals)) {
+                $averageInterval = array_sum($intervals) / count($intervals); // Promedio en segundos
+            } else {
+                $averageInterval = null; // No hay intervalos para calcular
+            }
+
+            $response = [
+                'min' => (!empty($intervals)) ? min($intervals) : null,
+                'avg' => $averageInterval,
+                'max' => (!empty($intervals)) ? max($intervals) : null
+            ];
+
+            return response()->json($response);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function averageRequestTimeWeek() {
+        try {
+            $time = KingMonitor::whereBetween('created_at', [
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek()
+            ])->orderBy('created_at', 'asc')->get();
+
+            $intervals = [];
+
+            // Calcular los intervalos
+            for ($i = 1; $i < count($time); $i++) {
+                $intervals[] = $time[$i]->created_at->diffInSeconds($time[$i - 1]->created_at); // Agregar el intervalo al array
+            }
+
+            // Calcular el promedio
+            if (!empty($intervals)) {
+                $averageInterval = array_sum($intervals) / count($intervals); // Promedio en segundos
+            } else {
+                $averageInterval = null; // No hay intervalos para calcular
+            }
+
+            $response = [
+                'min' => (!empty($intervals)) ? min($intervals) : null,
+                'avg' => $averageInterval,
+                'max' => (!empty($intervals)) ? max($intervals) : null
+            ];
+
+            return response()->json($response);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function averageRequestTimeMonth() {
+        try {
+            $time = KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->orderBy('created_at', 'asc')->get();
+
+            $intervals = [];
+
+            // Calcular los intervalos
+            for ($i = 1; $i < count($time); $i++) {
+                $intervals[] = $time[$i]->created_at->diffInSeconds($time[$i - 1]->created_at); // Agregar el intervalo al array
+            }
+
+            // Calcular el promedio
+            if (!empty($intervals)) {
+                $averageInterval = array_sum($intervals) / count($intervals); // Promedio en segundos
+            } else {
+                $averageInterval = null; // No hay intervalos para calcular
+            }
+
+            $response = [
+                'min' => (!empty($intervals)) ? min($intervals) : null,
+                'avg' => $averageInterval,
+                'max' => (!empty($intervals)) ? max($intervals) : null
+            ];
+
+            return response()->json($response);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function averageRequestTimeQuarter() {
+        try {
+            $time = KingMonitor::whereBetween('created_at', [
+                Carbon::now()->startOfQuarter(),
+                Carbon::now()->endOfQuarter()
+            ])->orderBy('created_at', 'asc')->get();
+
+            $intervals = [];
+
+            // Calcular los intervalos
+            for ($i = 1; $i < count($time); $i++) {
+                $intervals[] = $time[$i]->created_at->diffInSeconds($time[$i - 1]->created_at); // Agregar el intervalo al array
+            }
+
+            // Calcular el promedio
+            if (!empty($intervals)) {
+                $averageInterval = array_sum($intervals) / count($intervals); // Promedio en segundos
+            } else {
+                $averageInterval = null; // No hay intervalos para calcular
+            }
+
+            $response = [
+                'min' => (!empty($intervals)) ? min($intervals) : null,
+                'avg' => $averageInterval,
+                'max' => (!empty($intervals)) ? max($intervals) : null
+            ];
+
+            return response()->json($response);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function averageRequestTimeYear() {
+        try {
+            $time = KingMonitor::whereYear('created_at', '=', now())->orderBy('created_at', 'asc')->get();
+
+            $intervals = [];
+
+            // Calcular los intervalos
+            for ($i = 1; $i < count($time); $i++) {
+                $intervals[] = $time[$i]->created_at->diffInSeconds($time[$i - 1]->created_at); // Agregar el intervalo al array
+            }
+
+            // Calcular el promedio
+            if (!empty($intervals)) {
+                $averageInterval = array_sum($intervals) / count($intervals); // Promedio en segundos
+            } else {
+                $averageInterval = null; // No hay intervalos para calcular
+            }
+
+            $response = [
+                'min' => (!empty($intervals)) ? min($intervals) : null,
+                'avg' => $averageInterval,
+                'max' => (!empty($intervals)) ? max($intervals) : null
+            ];
+
+            return response()->json($response);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function averageRequestTimeTotal() {
+        try {
+            $time = KingMonitor::orderBy('created_at', 'asc')->get();
+
+            $intervals = [];
+
+            // Calcular los intervalos
+            for ($i = 1; $i < count($time); $i++) {
+                $intervals[] = $time[$i]->created_at->diffInSeconds($time[$i - 1]->created_at); // Agregar el intervalo al array
+            }
+
+            // Calcular el promedio
+            if (!empty($intervals)) {
+                $averageInterval = array_sum($intervals) / count($intervals); // Promedio en segundos
+            } else {
+                $averageInterval = null; // No hay intervalos para calcular
+            }
+
+            $response = [
+                'min' => (!empty($intervals)) ? min($intervals) : null,
+                'avg' => $averageInterval,
+                'max' => (!empty($intervals)) ? max($intervals) : null
+            ];
+
+            return response()->json($response);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
 }

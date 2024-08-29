@@ -3922,6 +3922,189 @@ class KingMonitor extends Model {
         }
     }
 
+    /****************************************************************** AVG REQUEST ******************************************************************/
+    public function averageRequestTimeToday() {
+        $king = new KingMonitorRequest();
+        $response = $king->averageRequestTimeToday()->original;
+
+        return response()->json($response);
+    }
+
+    public function averageRequestTimeWeek() {
+        $king = new KingMonitorRequest();
+        $response = $king->averageRequestTimeWeek()->original;
+
+        return response()->json($response);
+    }
+
+    public function averageRequestTimeMonth() {
+        $king = new KingMonitorRequest();
+        $response = $king->averageRequestTimeMonth()->original;
+
+        return response()->json($response);
+    }
+
+    public function averageRequestTimeQuarter() {
+        $king = new KingMonitorRequest();
+        $response = $king->averageRequestTimeQuarter()->original;
+
+        return response()->json($response);
+    }
+
+    public function averageRequestTimeYear() {
+        $king = new KingMonitorRequest();
+        $response = $king->averageRequestTimeYear()->original;
+
+        return response()->json($response);
+    }
+
+    public function averageRequestTimeTotal() {
+        $king = new KingMonitorRequest();
+        $response = $king->averageRequestTimeTotal()->original;
+
+        return response()->json($response);
+    }
+
+    /****************************************************************** AVG ERROR ******************************************************************/
+    public function averageErrorTimeToday() {
+        $king = new KingMonitorError();
+        $response = $king->averageErrorTimeToday()->original;
+
+        return response()->json($response);
+    }
+
+    public function averageErrorTimeWeek() {
+        $king = new KingMonitorError();
+        $response = $king->averageErrorTimeWeek()->original;
+
+        return response()->json($response);
+    }
+
+    public function averageErrorTimeMonth() {
+        $king = new KingMonitorError();
+        $response = $king->averageErrorTimeMonth()->original;
+
+        return response()->json($response);
+    }
+
+    public function averageErrorTimeQuarter() {
+        $king = new KingMonitorError();
+        $response = $king->averageErrorTimeQuarter()->original;
+
+        return response()->json($response);
+    }
+
+    public function averageErrorTimeYear() {
+        $king = new KingMonitorError();
+        $response = $king->averageErrorTimeYear()->original;
+
+        return response()->json($response);
+    }
+
+    public function averageErrorTimeTotal() {
+        $king = new KingMonitorError();
+        $response = $king->averageErrorTimeTotal()->original;
+
+        return response()->json($response);
+    }
+
+    /****************************************************************** AVG ******************************************************************/
+    public function averageTimeToday() {
+        try {
+            $kingRequest = new KingMonitorRequest();
+            $kingError = new KingMonitorError();
+
+            $response = [
+                'request' =>  $kingRequest->averageRequestTimeToday()->original,
+                'error' =>  $kingError->averageErrorTimeToday()->original
+            ];
+
+            return response()->json($response);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function averageTimeWeek() {
+        try {
+            $kingRequest = new KingMonitorRequest();
+            $kingError = new KingMonitorError();
+
+            $response = [
+                'request' =>  $kingRequest->averageRequestTimeWeek()->original,
+                'error' =>  $kingError->averageErrorTimeWeek()->original
+            ];
+
+            return response()->json($response);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function averageTimeMonth() {
+        try {
+            $kingRequest = new KingMonitorRequest();
+            $kingError = new KingMonitorError();
+
+            $response = [
+                'request' =>  $kingRequest->averageRequestTimeMonth()->original,
+                'error' =>  $kingError->averageErrorTimeMonth()->original
+            ];
+
+            return response()->json($response);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function averageTimeQuarter() {
+        try {
+            $kingRequest = new KingMonitorRequest();
+            $kingError = new KingMonitorError();
+
+            $response = [
+                'request' =>  $kingRequest->averageRequestTimeQuarter()->original,
+                'error' =>  $kingError->averageErrorTimeQuarter()->original
+            ];
+
+            return response()->json($response);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function averageTimeYear() {
+        try {
+            $kingRequest = new KingMonitorRequest();
+            $kingError = new KingMonitorError();
+
+            $response = [
+                'request' =>  $kingRequest->averageRequestTimeYear()->original,
+                'error' =>  $kingError->averageErrorTimeYear()->original
+            ];
+
+            return response()->json($response);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function averageTimeTotal() {
+        try {
+            $kingRequest = new KingMonitorRequest();
+            $kingError = new KingMonitorError();
+
+            $response = [
+                'request' =>  $kingRequest->averageRequestTimeTotal()->original,
+                'error' =>  $kingError->averageErrorTimeTotal()->original
+            ];
+
+            return response()->json($response);
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
     /****************************************************************** MONITOR ******************************************************************/
     // Si hubo una alerta entonces obtener el dato de king_alert_user y si ya paso media hora y sigue superando el limite entonces volver a enviar otra alerta
     // Arreglar la parte de los destroy y crear un resource para poder obtener los datos
