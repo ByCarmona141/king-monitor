@@ -67,7 +67,7 @@ class KingMonitorAlert extends Model {
             'ip' => KingMonitorAlert::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de alertas del usuario (week)
@@ -83,7 +83,7 @@ class KingMonitorAlert extends Model {
             ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de alertas del usuario (month)
@@ -93,7 +93,7 @@ class KingMonitorAlert extends Model {
             'ip' => KingMonitorAlert::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de alertas del usuario (quarter)
@@ -109,7 +109,7 @@ class KingMonitorAlert extends Model {
             ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de alertas del usuario (year)
@@ -119,7 +119,7 @@ class KingMonitorAlert extends Model {
             'ip' => KingMonitorAlert::whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de alertas del usuario (total)
@@ -129,7 +129,7 @@ class KingMonitorAlert extends Model {
             'ip' => KingMonitorAlert::where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     /****************************************************************** STATISTICS ******************************************************************/
@@ -142,7 +142,7 @@ class KingMonitorAlert extends Model {
                 'ip' => KingMonitorAlert::whereDate('created_at', '=', date('Y-m-d'))->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -166,7 +166,7 @@ class KingMonitorAlert extends Model {
                 ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -181,7 +181,7 @@ class KingMonitorAlert extends Model {
                 'ip' => KingMonitorAlert::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -205,7 +205,7 @@ class KingMonitorAlert extends Model {
                 ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -220,7 +220,7 @@ class KingMonitorAlert extends Model {
                 'ip' => KingMonitorAlert::whereYear('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -235,7 +235,7 @@ class KingMonitorAlert extends Model {
                 'ip' => KingMonitorAlert::where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos de alertas
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -253,7 +253,7 @@ class KingMonitorAlert extends Model {
                 )->groupBy('hour')->orderBy('hour')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -276,7 +276,7 @@ class KingMonitorAlert extends Model {
                 )->groupBy('day')->orderBy('day')->get(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -293,7 +293,7 @@ class KingMonitorAlert extends Model {
                 )->groupBy('day')->orderBy('day')->get(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -316,7 +316,7 @@ class KingMonitorAlert extends Model {
                 )->groupBy('day')->orderBy('day')->get(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -333,7 +333,7 @@ class KingMonitorAlert extends Model {
                 )->groupBy('month')->orderBy('month')->get(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -350,7 +350,7 @@ class KingMonitorAlert extends Model {
                 )->groupBy('year')->orderBy('year')->get(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -368,7 +368,7 @@ class KingMonitorAlert extends Model {
                 )->groupBy('hour')->orderBy('hour')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -391,7 +391,7 @@ class KingMonitorAlert extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -408,7 +408,7 @@ class KingMonitorAlert extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -431,7 +431,7 @@ class KingMonitorAlert extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -448,7 +448,7 @@ class KingMonitorAlert extends Model {
                 )->groupBy('month')->orderBy('month')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -465,7 +465,7 @@ class KingMonitorAlert extends Model {
                 )->groupBy('year')->orderBy('year')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }

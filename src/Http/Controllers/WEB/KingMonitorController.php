@@ -18,13 +18,16 @@ class KingMonitorController extends Controller {
         $statisticsAlert = KingMonitor::statisticsAlertTotal();
         $historicalAlert = KingMonitor::historicalAlertTotal();
 
+//        print(gettype($statistics));
+//        dd($statistics);
+
         // Convertimos el json en arreglo
-        $statistics = $statistics->original;
-        $historical = $historical->original;
-        $statisticsExceeded = $statisticsExceeded->original;
-        $historicalExceeded = $historicalExceeded->original;
-        $statisticsAlert = $statisticsAlert->original;
-        $historicalAlert = $historicalAlert->original;
+//        $statistics = $statistics->original;
+//        $historical = $historical->original;
+//        $statisticsExceeded = $statisticsExceeded->original;
+//        $historicalExceeded = $historicalExceeded->original;
+//        $statisticsAlert = $statisticsAlert->original;
+//        $historicalAlert = $historicalAlert->original;
 
         // Mandamos los datos a la vista
         return view('king-monitor::monitor')
@@ -45,15 +48,13 @@ class KingMonitorController extends Controller {
         $statisticsAlert = KingMonitor::userStatisticsAlertTotal($king_user_id);
         $historicalAlert = KingMonitor::userHistoricalAlertTotal($king_user_id);
 
-//        dd(gettype($historicalExceeded));
-
         // Convertimos el json en arreglo
-        $statistics = $statistics->original;
-        $historical = $historical->original;
-        $statisticsExceeded = $statisticsExceeded->original;
-        $historicalExceeded = $historicalExceeded->original;
-        $statisticsAlert = $statisticsAlert->original;
-        $historicalAlert = $historicalAlert->original;
+        $statistics = (gettype($statistics) === "string") ? $statistics : $statistics->original;
+        $historical = (gettype($historical) === "string") ? $historical : $historical->original;
+        $statisticsExceeded = (gettype($statisticsExceeded) === "string") ? $statisticsExceeded : $statisticsExceeded->original;
+        $historicalExceeded = (gettype($historicalExceeded) === "string") ? $historicalExceeded : $historicalExceeded->original;
+        $statisticsAlert = (gettype($statisticsAlert) === "string") ? $statisticsAlert : $statisticsAlert->original;
+        $historicalAlert = (gettype($historicalAlert) === "string") ? $historicalAlert : $historicalAlert->original;
 
 
         // Mandamos los datos a la vista

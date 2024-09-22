@@ -208,7 +208,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de peticiones del usuario (week)
@@ -224,7 +224,7 @@ class KingMonitorUserExceeded extends Model {
             ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de peticiones del usuario (month)
@@ -234,7 +234,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de peticiones del usuario (quarter)
@@ -250,7 +250,7 @@ class KingMonitorUserExceeded extends Model {
             ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de peticiones del usuario (year)
@@ -260,7 +260,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de peticiones del usuario (total)
@@ -270,7 +270,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 1)->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // ---------------------------------------------------------------- USER STATISTICS ERROR ----------------------------------------------------------------
@@ -281,7 +281,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de errores del usuario (week)
@@ -297,7 +297,7 @@ class KingMonitorUserExceeded extends Model {
             ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de errores del usuario (month)
@@ -307,7 +307,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de errores del usuario (quarter)
@@ -323,7 +323,7 @@ class KingMonitorUserExceeded extends Model {
             ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de errores del usuario (year)
@@ -333,7 +333,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de errores del usuario (total)
@@ -343,7 +343,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 2)->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // ---------------------------------------------------------------- USER STATISTICS ----------------------------------------------------------------
@@ -354,7 +354,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas del usuario (week)
@@ -370,7 +370,7 @@ class KingMonitorUserExceeded extends Model {
             ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas del usuario (month)
@@ -380,7 +380,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas del usuario (quarter)
@@ -396,7 +396,7 @@ class KingMonitorUserExceeded extends Model {
             ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas del usuario (year)
@@ -406,7 +406,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas del usuario (total)
@@ -416,7 +416,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // ---------------------------------------------------------------- STATISTICS USER ----------------------------------------------------------------
@@ -430,15 +430,15 @@ class KingMonitorUserExceeded extends Model {
         $total = $this->userRequestStatisticsTotal($kingUserId);
 
         $response = [
-            'today' => $today->original,
-            'week' => $week->original,
-            'month' => $month->original,
-            'quarter' => $quarter->original,
-            'year' => $year->original,
-            'total' => $total->original,
+            'today' => $today,
+            'week' => $week,
+            'month' => $month,
+            'quarter' => $quarter,
+            'year' => $year,
+            'total' => $total,
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de errores
@@ -451,25 +451,25 @@ class KingMonitorUserExceeded extends Model {
         $total = $this->userErrorStatisticsTotal($kingUserId);
 
         $response = [
-            'today' => $today->original,
-            'week' => $week->original,
-            'month' => $month->original,
-            'quarter' => $quarter->original,
-            'year' => $year->original,
-            'total' => $total->original,
+            'today' => $today,
+            'week' => $week,
+            'month' => $month,
+            'quarter' => $quarter,
+            'year' => $year,
+            'total' => $total,
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de peticiones y errores
     public function userStatistics($kingUserId) {
         $response = [
-            'request' => $this->userRequestStatistics($kingUserId)->original,
-            'errors' => $this->userErrorStatistics($kingUserId)->original,
+            'request' => $this->userRequestStatistics($kingUserId),
+            'errors' => $this->userErrorStatistics($kingUserId),
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     /****************************************************************** STATISTICS ******************************************************************/
@@ -482,7 +482,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de peticiones (week)
@@ -502,7 +502,7 @@ class KingMonitorUserExceeded extends Model {
             ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de peticiones (month)
@@ -513,7 +513,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de peticiones (quarter)
@@ -533,7 +533,7 @@ class KingMonitorUserExceeded extends Model {
             ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de peticiones (year)
@@ -544,7 +544,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de peticiones (total)
@@ -555,7 +555,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 1)->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos de peticiones
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // ---------------------------------------------------------------- ERROR STATISTICS ----------------------------------------------------------------
@@ -567,7 +567,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de errores (week)
@@ -587,7 +587,7 @@ class KingMonitorUserExceeded extends Model {
             ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de errores (month)
@@ -598,7 +598,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de errores (quarter)
@@ -618,7 +618,7 @@ class KingMonitorUserExceeded extends Model {
             ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de errores (year)
@@ -629,7 +629,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de errores (total)
@@ -640,7 +640,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::where('type', '=', 2)->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos de errores
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // ---------------------------------------------------------------- STATISTICS ----------------------------------------------------------------
@@ -652,7 +652,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas (week)
@@ -672,7 +672,7 @@ class KingMonitorUserExceeded extends Model {
             ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas (month)
@@ -683,7 +683,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas (quarter)
@@ -703,7 +703,7 @@ class KingMonitorUserExceeded extends Model {
             ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas (year)
@@ -714,7 +714,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas (total)
@@ -725,7 +725,7 @@ class KingMonitorUserExceeded extends Model {
             'ip' => KingMonitorUserExceeded::all()->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // ---------------------------------------------------------------- STATISTICS ----------------------------------------------------------------
@@ -739,15 +739,15 @@ class KingMonitorUserExceeded extends Model {
         $total = $this->requestStatisticsTotal();
 
         $response = [
-            'today' => $today->original,
-            'week' => $week->original,
-            'month' => $month->original,
-            'quarter' => $quarter->original,
-            'year' => $year->original,
-            'total' => $total->original,
+            'today' => $today,
+            'week' => $week,
+            'month' => $month,
+            'quarter' => $quarter,
+            'year' => $year,
+            'total' => $total,
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de errores
@@ -760,25 +760,25 @@ class KingMonitorUserExceeded extends Model {
         $total = $this->errorStatisticsTotal();
 
         $response = [
-            'today' => $today->original,
-            'week' => $week->original,
-            'month' => $month->original,
-            'quarter' => $quarter->original,
-            'year' => $year->original,
-            'total' => $total->original,
+            'today' => $today,
+            'week' => $week,
+            'month' => $month,
+            'quarter' => $quarter,
+            'year' => $year,
+            'total' => $total,
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     // Estadisticas de peticiones y errores
     public function statistics() {
         $response = [
-            'request' => $this->requestStatistics()->original,
-            'errors' => $this->errorStatistics()->original,
+            'request' => $this->requestStatistics(),
+            'errors' => $this->errorStatistics(),
         ];
 
-        return response()->json($response);
+        return $response;
     }
 
     /****************************************************************** HISTORICAL ******************************************************************/
@@ -795,7 +795,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('hour')->orderBy('hour')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -818,7 +818,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('day')->orderBy('day')->get(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -835,7 +835,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -858,7 +858,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -875,7 +875,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('month')->orderBy('month')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -892,7 +892,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('year')->orderBy('year')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -910,7 +910,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('hour')->orderBy('hour')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -933,7 +933,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('day')->orderBy('day')->get(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -950,7 +950,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -973,7 +973,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -990,7 +990,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('month')->orderBy('month')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1007,7 +1007,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('year')->orderBy('year')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1031,7 +1031,7 @@ class KingMonitorUserExceeded extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1063,7 +1063,7 @@ class KingMonitorUserExceeded extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1086,7 +1086,7 @@ class KingMonitorUserExceeded extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1118,7 +1118,7 @@ class KingMonitorUserExceeded extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1141,7 +1141,7 @@ class KingMonitorUserExceeded extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1164,7 +1164,7 @@ class KingMonitorUserExceeded extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1183,7 +1183,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('hour')->orderBy('hour')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1206,7 +1206,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('day')->orderBy('day')->get(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1223,7 +1223,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1246,7 +1246,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1263,7 +1263,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('month')->orderBy('month')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1280,7 +1280,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('year')->orderBy('year')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1298,7 +1298,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('hour')->orderBy('hour')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1321,7 +1321,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('day')->orderBy('day')->get(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1338,7 +1338,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1361,7 +1361,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1378,7 +1378,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('month')->orderBy('month')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1395,7 +1395,7 @@ class KingMonitorUserExceeded extends Model {
                 )->groupBy('year')->orderBy('year')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1419,7 +1419,7 @@ class KingMonitorUserExceeded extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1451,7 +1451,7 @@ class KingMonitorUserExceeded extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1474,7 +1474,7 @@ class KingMonitorUserExceeded extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1506,7 +1506,7 @@ class KingMonitorUserExceeded extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1529,7 +1529,7 @@ class KingMonitorUserExceeded extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1552,7 +1552,7 @@ class KingMonitorUserExceeded extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1569,15 +1569,15 @@ class KingMonitorUserExceeded extends Model {
             $total = $this->userRequestHistoricalTotal($kingUserId);
 
             $response = [
-                'today' => $today->original,
-                'week' => $week->original,
-                'month' => $month->original,
-                'quarter' => $quarter->original,
-                'year' => $year->original,
-                'total' => $total->original,
+                'today' => $today,
+                'week' => $week,
+                'month' => $month,
+                'quarter' => $quarter,
+                'year' => $year,
+                'total' => $total,
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1593,15 +1593,15 @@ class KingMonitorUserExceeded extends Model {
             $total = $this->requestHistoricalTotal();
 
             $response = [
-                'today' => $today->original,
-                'week' => $week->original,
-                'month' => $month->original,
-                'quarter' => $quarter->original,
-                'year' => $year->original,
-                'total' => $total->original,
+                'today' => $today,
+                'week' => $week,
+                'month' => $month,
+                'quarter' => $quarter,
+                'year' => $year,
+                'total' => $total,
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1617,15 +1617,15 @@ class KingMonitorUserExceeded extends Model {
             $total = $this->userErrorHistoricalTotal($kingUserId);
 
             $response = [
-                'today' => $today->original,
-                'week' => $week->original,
-                'month' => $month->original,
-                'quarter' => $quarter->original,
-                'year' => $year->original,
-                'total' => $total->original,
+                'today' => $today,
+                'week' => $week,
+                'month' => $month,
+                'quarter' => $quarter,
+                'year' => $year,
+                'total' => $total,
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1641,15 +1641,15 @@ class KingMonitorUserExceeded extends Model {
             $total = $this->errorHistoricalTotal();
 
             $response = [
-                'today' => $today->original,
-                'week' => $week->original,
-                'month' => $month->original,
-                'quarter' => $quarter->original,
-                'year' => $year->original,
-                'total' => $total->original,
+                'today' => $today,
+                'week' => $week,
+                'month' => $month,
+                'quarter' => $quarter,
+                'year' => $year,
+                'total' => $total,
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1658,11 +1658,11 @@ class KingMonitorUserExceeded extends Model {
     public function historical() {
         try {
             $response = [
-                'request' => $this->requestHistorical()->original,
-                'errors' => $this->errorHistorical()->original,
+                'request' => $this->requestHistorical(),
+                'errors' => $this->errorHistorical(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -1671,11 +1671,11 @@ class KingMonitorUserExceeded extends Model {
     public function userHistorical($kingUserId) {
         try {
             $response = [
-                'request' => $this->userRequestHistorical($kingUserId)->original,
-                'errors' => $this->userErrorHistorical($kingUserId)->original,
+                'request' => $this->userRequestHistorical($kingUserId),
+                'errors' => $this->userErrorHistorical($kingUserId),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (\Exception $e) {
             return $e->getMessage();
         }

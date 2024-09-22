@@ -108,7 +108,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -125,7 +125,7 @@ class KingMonitor extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count() + KingMonitorError::where('method', '=', 'DELETE')->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -195,7 +195,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -247,7 +247,7 @@ class KingMonitor extends Model {
                     ])->where('king_user_id', '=', $kingUserId)->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -273,7 +273,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -290,7 +290,7 @@ class KingMonitor extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count() + KingMonitorError::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -363,7 +363,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -415,7 +415,7 @@ class KingMonitor extends Model {
                     ])->where('king_user_id', '=', $kingUserId)->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -437,7 +437,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -454,7 +454,7 @@ class KingMonitor extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count() + KingMonitorError::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -476,7 +476,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -493,7 +493,7 @@ class KingMonitor extends Model {
                 'DELETE' => KingMonitor::where('king_user_id', '=', $kingUserId)->where('method', '=', 'DELETE')->count() + KingMonitorError::where('king_user_id', '=', $kingUserId)->where('method', '=', 'DELETE')->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -506,9 +506,9 @@ class KingMonitor extends Model {
     public function userRequestStatisticsToday($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestStatisticsToday($kingUserId)->original;
+            $response = $king->userRequestStatisticsToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -518,9 +518,9 @@ class KingMonitor extends Model {
     public function userRequestMethodStatisticsToday($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestMethodStatisticsToday($kingUserId)->original;
+            $response = $king->userRequestMethodStatisticsToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -531,9 +531,9 @@ class KingMonitor extends Model {
     public function userRequestStatisticsWeek($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestStatisticsWeek($kingUserId)->original;
+            $response = $king->userRequestStatisticsWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -543,9 +543,9 @@ class KingMonitor extends Model {
     public function userRequestMethodStatisticsWeek($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestMethodStatisticsWeek($kingUserId)->original;
+            $response = $king->userRequestMethodStatisticsWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -556,9 +556,9 @@ class KingMonitor extends Model {
     public function userRequestStatisticsMonth($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestStatisticsMonth($kingUserId)->original;
+            $response = $king->userRequestStatisticsMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -568,9 +568,9 @@ class KingMonitor extends Model {
     public function userRequestMethodStatisticsMonth($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestMethodStatisticsMonth($kingUserId)->original;
+            $response = $king->userRequestMethodStatisticsMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -581,9 +581,9 @@ class KingMonitor extends Model {
     public function userRequestStatisticsQuarter($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestStatisticsQuarter($kingUserId)->original;
+            $response = $king->userRequestStatisticsQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -593,9 +593,9 @@ class KingMonitor extends Model {
     public function userRequestMethodStatisticsQuarter($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestMethodStatisticsQuarter($kingUserId)->original;
+            $response = $king->userRequestMethodStatisticsQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -606,9 +606,9 @@ class KingMonitor extends Model {
     public function userRequestStatisticsYear($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestStatisticsYear($kingUserId)->original;
+            $response = $king->userRequestStatisticsYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -618,9 +618,9 @@ class KingMonitor extends Model {
     public function userRequestMethodStatisticsYear($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestMethodStatisticsYear($kingUserId)->original;
+            $response = $king->userRequestMethodStatisticsYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -631,9 +631,9 @@ class KingMonitor extends Model {
     public function userRequestStatisticsTotal($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestStatisticsTotal($kingUserId)->original;
+            $response = $king->userRequestStatisticsTotal($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -643,9 +643,9 @@ class KingMonitor extends Model {
     public function userRequestMethodStatisticsTotal($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestMethodStatisticsTotal($kingUserId)->original;
+            $response = $king->userRequestMethodStatisticsTotal($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -657,9 +657,9 @@ class KingMonitor extends Model {
     public function requestStatisticsToday() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatisticsToday()->original;
+            $response = $king->requestStatisticsToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -669,9 +669,9 @@ class KingMonitor extends Model {
     public function requestMethodStatisticsToday() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestMethodStatisticsToday()->original;
+            $response = $king->requestMethodStatisticsToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -681,9 +681,9 @@ class KingMonitor extends Model {
     public function requestStatisticsFrequentUserToday() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatisticsFrequentUserToday()->original;
+            $response = $king->requestStatisticsFrequentUserToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -694,9 +694,9 @@ class KingMonitor extends Model {
     public function requestStatisticsWeek() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatisticsWeek()->original;
+            $response = $king->requestStatisticsWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -706,9 +706,9 @@ class KingMonitor extends Model {
     public function requestMethodStatisticsWeek() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestMethodStatisticsWeek()->original;
+            $response = $king->requestMethodStatisticsWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -718,9 +718,9 @@ class KingMonitor extends Model {
     public function requestStatisticsFrequentUserWeek() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatisticsFrequentUserWeek()->original;
+            $response = $king->requestStatisticsFrequentUserWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -731,9 +731,9 @@ class KingMonitor extends Model {
     public function requestStatisticsMonth() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatisticsMonth()->original;
+            $response = $king->requestStatisticsMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -743,9 +743,9 @@ class KingMonitor extends Model {
     public function requestMethodStatisticsMonth() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestMethodStatisticsMonth()->original;
+            $response = $king->requestMethodStatisticsMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -755,9 +755,9 @@ class KingMonitor extends Model {
     public function requestStatisticsFrequentUserMonth() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatisticsFrequentUserMonth()->original;
+            $response = $king->requestStatisticsFrequentUserMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -768,9 +768,9 @@ class KingMonitor extends Model {
     public function requestStatisticsQuarter() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatisticsQuarter()->original;
+            $response = $king->requestStatisticsQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -780,9 +780,9 @@ class KingMonitor extends Model {
     public function requestMethodStatisticsQuarter() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestMethodStatisticsQuarter()->original;
+            $response = $king->requestMethodStatisticsQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -792,9 +792,9 @@ class KingMonitor extends Model {
     public function requestStatisticsFrequentUserQuarter() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatisticsFrequentUserQuarter()->original;
+            $response = $king->requestStatisticsFrequentUserQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -805,9 +805,9 @@ class KingMonitor extends Model {
     public function requestStatisticsYear() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatisticsYear()->original;
+            $response = $king->requestStatisticsYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -817,9 +817,9 @@ class KingMonitor extends Model {
     public function requestMethodStatisticsYear() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestMethodStatisticsYear()->original;
+            $response = $king->requestMethodStatisticsYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -829,9 +829,9 @@ class KingMonitor extends Model {
     public function requestStatisticsFrequentUserYear() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatisticsFrequentUserYear()->original;
+            $response = $king->requestStatisticsFrequentUserYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -842,9 +842,9 @@ class KingMonitor extends Model {
     public function requestStatisticsTotal() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatisticsTotal()->original;
+            $response = $king->requestStatisticsTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -854,9 +854,9 @@ class KingMonitor extends Model {
     public function requestMethodStatisticsTotal() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestMethodStatisticsTotal()->original;
+            $response = $king->requestMethodStatisticsTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -866,9 +866,9 @@ class KingMonitor extends Model {
     public function requestStatisticsFrequentUserTotal() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatisticsFrequentUserTotal()->original;
+            $response = $king->requestStatisticsFrequentUserTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -882,9 +882,9 @@ class KingMonitor extends Model {
     public function userErrorStatisticsToday($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorStatisticsToday($kingUserId)->original;
+            $response = $king->userErrorStatisticsToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -894,9 +894,9 @@ class KingMonitor extends Model {
     public function userErrorMethodStatisticsToday($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorMethodStatisticsToday($kingUserId)->original;
+            $response = $king->userErrorMethodStatisticsToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -907,9 +907,9 @@ class KingMonitor extends Model {
     public function userErrorStatisticsWeek($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorStatisticsWeek($kingUserId)->original;
+            $response = $king->userErrorStatisticsWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -919,9 +919,9 @@ class KingMonitor extends Model {
     public function userErrorMethodStatisticsWeek($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorMethodStatisticsWeek($kingUserId)->original;
+            $response = $king->userErrorMethodStatisticsWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -932,9 +932,9 @@ class KingMonitor extends Model {
     public function userErrorStatisticsMonth($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorStatisticsMonth($kingUserId)->original;
+            $response = $king->userErrorStatisticsMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -944,9 +944,9 @@ class KingMonitor extends Model {
     public function userErrorMethodStatisticsMonth($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorMethodStatisticsMonth($kingUserId)->original;
+            $response = $king->userErrorMethodStatisticsMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -957,9 +957,9 @@ class KingMonitor extends Model {
     public function userErrorStatisticsQuarter($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorStatisticsQuarter($kingUserId)->original;
+            $response = $king->userErrorStatisticsQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -969,9 +969,9 @@ class KingMonitor extends Model {
     public function userErrorMethodStatisticsQuarter($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorMethodStatisticsQuarter($kingUserId)->original;
+            $response = $king->userErrorMethodStatisticsQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -982,9 +982,9 @@ class KingMonitor extends Model {
     public function userErrorStatisticsYear($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorStatisticsYear($kingUserId)->original;
+            $response = $king->userErrorStatisticsYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -994,9 +994,9 @@ class KingMonitor extends Model {
     public function userErrorMethodStatisticsYear($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorMethodStatisticsYear($kingUserId)->original;
+            $response = $king->userErrorMethodStatisticsYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1007,9 +1007,9 @@ class KingMonitor extends Model {
     public function userErrorStatisticsTotal($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorStatisticsTotal($kingUserId)->original;
+            $response = $king->userErrorStatisticsTotal($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1019,9 +1019,9 @@ class KingMonitor extends Model {
     public function userErrorMethodStatisticsTotal($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorMethodStatisticsTotal($kingUserId)->original;
+            $response = $king->userErrorMethodStatisticsTotal($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1033,9 +1033,9 @@ class KingMonitor extends Model {
     public function errorStatisticsToday() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatisticsToday()->original;
+            $response = $king->errorStatisticsToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1045,9 +1045,9 @@ class KingMonitor extends Model {
     public function errorMethodStatisticsToday() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorMethodStatisticsToday()->original;
+            $response = $king->errorMethodStatisticsToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1057,9 +1057,9 @@ class KingMonitor extends Model {
     public function errorStatisticsFrequentUserToday() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatisticsFrequentUserToday()->original;
+            $response = $king->errorStatisticsFrequentUserToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1070,9 +1070,9 @@ class KingMonitor extends Model {
     public function errorStatisticsWeek() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatisticsWeek()->original;
+            $response = $king->errorStatisticsWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1082,9 +1082,9 @@ class KingMonitor extends Model {
     public function errorMethodStatisticsWeek() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorMethodStatisticsWeek()->original;
+            $response = $king->errorMethodStatisticsWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1094,9 +1094,9 @@ class KingMonitor extends Model {
     public function errorStatisticsFrequentUserWeek() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatisticsFrequentUserWeek()->original;
+            $response = $king->errorStatisticsFrequentUserWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1107,9 +1107,9 @@ class KingMonitor extends Model {
     public function errorStatisticsMonth() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatisticsMonth()->original;
+            $response = $king->errorStatisticsMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1119,9 +1119,9 @@ class KingMonitor extends Model {
     public function errorMethodStatisticsMonth() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorMethodStatisticsMonth()->original;
+            $response = $king->errorMethodStatisticsMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1131,9 +1131,9 @@ class KingMonitor extends Model {
     public function errorStatisticsFrequentUserMonth() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatisticsFrequentUserMonth()->original;
+            $response = $king->errorStatisticsFrequentUserMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1144,9 +1144,9 @@ class KingMonitor extends Model {
     public function errorStatisticsQuarter() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatisticsQuarter()->original;
+            $response = $king->errorStatisticsQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1156,9 +1156,9 @@ class KingMonitor extends Model {
     public function errorMethodStatisticsQuarter() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorMethodStatisticsQuarter()->original;
+            $response = $king->errorMethodStatisticsQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1168,9 +1168,9 @@ class KingMonitor extends Model {
     public function errorStatisticsFrequentUserQuarter() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatisticsFrequentUserQuarter()->original;
+            $response = $king->errorStatisticsFrequentUserQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1181,9 +1181,9 @@ class KingMonitor extends Model {
     public function errorStatisticsYear() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatisticsYear()->original;
+            $response = $king->errorStatisticsYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1193,9 +1193,9 @@ class KingMonitor extends Model {
     public function errorMethodStatisticsYear() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorMethodStatisticsYear()->original;
+            $response = $king->errorMethodStatisticsYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1205,9 +1205,9 @@ class KingMonitor extends Model {
     public function errorStatisticsFrequentUserYear() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatisticsFrequentUserYear()->original;
+            $response = $king->errorStatisticsFrequentUserYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1218,9 +1218,9 @@ class KingMonitor extends Model {
     public function errorStatisticsTotal() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatisticsTotal()->original;
+            $response = $king->errorStatisticsTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1230,9 +1230,9 @@ class KingMonitor extends Model {
     public function errorMethodStatisticsTotal() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorMethodStatisticsTotal()->original;
+            $response = $king->errorMethodStatisticsTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1242,9 +1242,9 @@ class KingMonitor extends Model {
     public function errorStatisticsFrequentUserTotal() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatisticsFrequentUserTotal()->original;
+            $response = $king->errorStatisticsFrequentUserTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1256,9 +1256,9 @@ class KingMonitor extends Model {
     public function requestStatisticsEndpointTotal() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatisticsEndpointTotal()->original;
+            $response = $king->requestStatisticsEndpointTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1269,9 +1269,9 @@ class KingMonitor extends Model {
     public function errorStatisticsEndpointTotal() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatisticsEndpointTotal()->original;
+            $response = $king->errorStatisticsEndpointTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1299,7 +1299,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1316,7 +1316,7 @@ class KingMonitor extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereDate('created_at', '=', date('Y-m-d'))->count() + KingMonitorError::where('method', '=', 'DELETE')->whereDate('created_at', '=', date('Y-m-d'))->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1330,7 +1330,7 @@ class KingMonitor extends Model {
                 'error' => KingMonitorError::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1410,7 +1410,7 @@ class KingMonitor extends Model {
                 ],
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1462,7 +1462,7 @@ class KingMonitor extends Model {
                     ])->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1482,7 +1482,7 @@ class KingMonitor extends Model {
                 ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1512,7 +1512,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1529,7 +1529,7 @@ class KingMonitor extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count() + KingMonitorError::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1543,7 +1543,7 @@ class KingMonitor extends Model {
                 'error' => KingMonitorError::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1626,7 +1626,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1678,7 +1678,7 @@ class KingMonitor extends Model {
                     ])->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1698,7 +1698,7 @@ class KingMonitor extends Model {
                 ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1724,7 +1724,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1741,7 +1741,7 @@ class KingMonitor extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->count() + KingMonitorError::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1755,7 +1755,7 @@ class KingMonitor extends Model {
                 'error' => KingMonitorError::whereYear('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1781,7 +1781,7 @@ class KingMonitor extends Model {
                 ],
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1798,7 +1798,7 @@ class KingMonitor extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->count() + KingMonitorError::where('method', '=', 'DELETE')->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1812,7 +1812,7 @@ class KingMonitor extends Model {
                 'error' => KingMonitor::where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1823,9 +1823,9 @@ class KingMonitor extends Model {
     public function userRequestStatistics($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestStatistics($kingUserId)->original;
+            $response = $king->userRequestStatistics($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1835,9 +1835,9 @@ class KingMonitor extends Model {
     public function userErrorStatistics($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorStatistics($kingUserId)->original;
+            $response = $king->userErrorStatistics($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1847,9 +1847,9 @@ class KingMonitor extends Model {
     public function requestStatistics() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestStatistics()->original;
+            $response = $king->requestStatistics();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1859,9 +1859,9 @@ class KingMonitor extends Model {
     public function errorStatistics() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorStatistics()->original;
+            $response = $king->errorStatistics();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1871,11 +1871,11 @@ class KingMonitor extends Model {
     public function userStatistics($kingUserId) {
         try {
             $response = [
-                'request' => $this->userRequestStatistics($kingUserId)->original,
-                'errors' => $this->userErrorStatistics($kingUserId)->original,
+                'request' => $this->userRequestStatistics($kingUserId),
+                'errors' => $this->userErrorStatistics($kingUserId),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1885,11 +1885,11 @@ class KingMonitor extends Model {
     public function statistics() {
         try {
             $response = [
-                'request' => $this->requestStatistics()->original,
-                'errors' => $this->errorStatistics()->original,
+                'request' => $this->requestStatistics(),
+                'errors' => $this->errorStatistics(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1902,9 +1902,9 @@ class KingMonitor extends Model {
     public function userRequestStatisticsExceededToday($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestStatisticsToday($kingUserId)->original;
+            $response = $king->userRequestStatisticsToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1914,9 +1914,9 @@ class KingMonitor extends Model {
     public function userRequestStatisticsExceededWeek($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestStatisticsWeek($kingUserId)->original;
+            $response = $king->userRequestStatisticsWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1926,9 +1926,9 @@ class KingMonitor extends Model {
     public function userRequestStatisticsExceededMonth($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestStatisticsMonth($kingUserId)->original;
+            $response = $king->userRequestStatisticsMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1938,9 +1938,9 @@ class KingMonitor extends Model {
     public function userRequestStatisticsExceededQuarter($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestStatisticsQuarter($kingUserId)->original;
+            $response = $king->userRequestStatisticsQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1950,9 +1950,9 @@ class KingMonitor extends Model {
     public function userRequestStatisticsExceededYear($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestStatisticsYear($kingUserId)->original;
+            $response = $king->userRequestStatisticsYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1962,9 +1962,9 @@ class KingMonitor extends Model {
     public function userRequestStatisticsExceededTotal($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestStatisticsTotal($kingUserId)->original;
+            $response = $king->userRequestStatisticsTotal($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1975,9 +1975,9 @@ class KingMonitor extends Model {
     public function userErrorStatisticsExceededToday($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userErrorStatisticsToday($kingUserId)->original;
+            $response = $king->userErrorStatisticsToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1987,9 +1987,9 @@ class KingMonitor extends Model {
     public function userErrorStatisticsExceededWeek($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userErrorStatisticsWeek($kingUserId)->original;
+            $response = $king->userErrorStatisticsWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -1999,9 +1999,9 @@ class KingMonitor extends Model {
     public function userErrorStatisticsExceededMonth($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userErrorStatisticsMonth($kingUserId)->original;
+            $response = $king->userErrorStatisticsMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2011,9 +2011,9 @@ class KingMonitor extends Model {
     public function userErrorStatisticsExceededQuarter($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userErrorStatisticsQuarter($kingUserId)->original;
+            $response = $king->userErrorStatisticsQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2023,9 +2023,9 @@ class KingMonitor extends Model {
     public function userErrorStatisticsExceededYear($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userErrorStatisticsYear($kingUserId)->original;
+            $response = $king->userErrorStatisticsYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2035,9 +2035,9 @@ class KingMonitor extends Model {
     public function userErrorStatisticsExceededTotal($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userErrorStatisticsTotal($kingUserId)->original;
+            $response = $king->userErrorStatisticsTotal($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2048,9 +2048,9 @@ class KingMonitor extends Model {
     public function userStatisticsExceededToday($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userStatisticsToday($kingUserId)->original;
+            $response = $king->userStatisticsToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2060,9 +2060,9 @@ class KingMonitor extends Model {
     public function userStatisticsExceededWeek($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userStatisticsWeek($kingUserId)->original;
+            $response = $king->userStatisticsWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2072,9 +2072,9 @@ class KingMonitor extends Model {
     public function userStatisticsExceededMonth($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userStatisticsMonth($kingUserId)->original;
+            $response = $king->userStatisticsMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2084,9 +2084,9 @@ class KingMonitor extends Model {
     public function userStatisticsExceededQuarter($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userStatisticsQuarter($kingUserId)->original;
+            $response = $king->userStatisticsQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2096,9 +2096,9 @@ class KingMonitor extends Model {
     public function userStatisticsExceededYear($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userStatisticsYear($kingUserId)->original;
+            $response = $king->userStatisticsYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2108,9 +2108,9 @@ class KingMonitor extends Model {
     public function userStatisticsExceededTotal($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestStatistics($kingUserId)->original;
+            $response = $king->userRequestStatistics($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2121,9 +2121,9 @@ class KingMonitor extends Model {
     public function userRequestStatisticsExceeded($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestStatistics($kingUserId)->original;
+            $response = $king->userRequestStatistics($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -2133,9 +2133,9 @@ class KingMonitor extends Model {
     public function userErrorStatisticsExceeded($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestStatistics($kingUserId)->original;
+            $response = $king->userRequestStatistics($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -2145,9 +2145,9 @@ class KingMonitor extends Model {
     public function userStatisticsExceeded($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userStatistics($kingUserId)->original;
+            $response = $king->userStatistics($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -2159,9 +2159,9 @@ class KingMonitor extends Model {
     public function requestStatisticsExceededToday() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestStatisticsToday()->original;
+            $response = $king->requestStatisticsToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2171,9 +2171,9 @@ class KingMonitor extends Model {
     public function requestStatisticsExceededWeek() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestStatisticsWeek()->original;
+            $response = $king->requestStatisticsWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2183,9 +2183,9 @@ class KingMonitor extends Model {
     public function requestStatisticsExceededMonth() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestStatisticsMonth()->original;
+            $response = $king->requestStatisticsMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2195,9 +2195,9 @@ class KingMonitor extends Model {
     public function requestStatisticsExceededQuarter() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestStatisticsQuarter()->original;
+            $response = $king->requestStatisticsQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2207,9 +2207,9 @@ class KingMonitor extends Model {
     public function requestStatisticsExceededYear() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestStatisticsYear()->original;
+            $response = $king->requestStatisticsYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2219,9 +2219,9 @@ class KingMonitor extends Model {
     public function requestStatisticsExceededTotal() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestStatisticsTotal()->original;
+            $response = $king->requestStatisticsTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2232,9 +2232,9 @@ class KingMonitor extends Model {
     public function errorStatisticsExceededToday() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorStatisticsToday()->original;
+            $response = $king->errorStatisticsToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2244,9 +2244,9 @@ class KingMonitor extends Model {
     public function errorStatisticsExceededWeek() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorStatisticsWeek()->original;
+            $response = $king->errorStatisticsWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2256,9 +2256,9 @@ class KingMonitor extends Model {
     public function errorStatisticsExceededMonth() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorStatisticsMonth()->original;
+            $response = $king->errorStatisticsMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2268,9 +2268,9 @@ class KingMonitor extends Model {
     public function errorStatisticsExceededQuarter() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorStatisticsQuarter()->original;
+            $response = $king->errorStatisticsQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2280,9 +2280,9 @@ class KingMonitor extends Model {
     public function errorStatisticsExceededYear() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorStatisticsYear()->original;
+            $response = $king->errorStatisticsYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2292,9 +2292,9 @@ class KingMonitor extends Model {
     public function errorStatisticsExceededTotal() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorStatisticsTotal()->original;
+            $response = $king->errorStatisticsTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2305,9 +2305,9 @@ class KingMonitor extends Model {
     public function statisticsExceededToday() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->statisticsToday()->original;
+            $response = $king->statisticsToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2317,9 +2317,9 @@ class KingMonitor extends Model {
     public function statisticsExceededWeek() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->statisticsWeek()->original;
+            $response = $king->statisticsWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2329,9 +2329,9 @@ class KingMonitor extends Model {
     public function statisticsExceededMonth() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->statisticsMonth()->original;
+            $response = $king->statisticsMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2341,9 +2341,9 @@ class KingMonitor extends Model {
     public function statisticsExceededQuarter() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->statisticsQuarter()->original;
+            $response = $king->statisticsQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2353,9 +2353,9 @@ class KingMonitor extends Model {
     public function statisticsExceededYear() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->statisticsYear()->original;
+            $response = $king->statisticsYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2365,9 +2365,9 @@ class KingMonitor extends Model {
     public function statisticsExceededTotal() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->statisticsTotal()->original;
+            $response = $king->statisticsTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2378,9 +2378,9 @@ class KingMonitor extends Model {
     public function requestStatisticsExceeded() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestStatistics()->original;
+            $response = $king->requestStatistics();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2390,9 +2390,9 @@ class KingMonitor extends Model {
     public function errorStatisticsExceeded() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorStatistics()->original;
+            $response = $king->errorStatistics();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2402,9 +2402,9 @@ class KingMonitor extends Model {
     public function statisticsExceeded() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->statistics()->original;
+            $response = $king->statistics();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2416,9 +2416,9 @@ class KingMonitor extends Model {
     public function userRequestHistoricalExceededToday($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestHistoricalToday($kingUserId)->original;
+            $response = $king->userRequestHistoricalToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2428,9 +2428,9 @@ class KingMonitor extends Model {
     public function userRequestHistoricalExceededWeek($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestHistoricalWeek($kingUserId)->original;
+            $response = $king->userRequestHistoricalWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2440,9 +2440,9 @@ class KingMonitor extends Model {
     public function userRequestHistoricalExceededMonth($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestHistoricalMonth($kingUserId)->original;
+            $response = $king->userRequestHistoricalMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2452,9 +2452,9 @@ class KingMonitor extends Model {
     public function userRequestHistoricalExceededQuarter($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestHistoricalQuarter($kingUserId)->original;
+            $response = $king->userRequestHistoricalQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2464,9 +2464,9 @@ class KingMonitor extends Model {
     public function userRequestHistoricalExceededYear($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestHistoricalYear($kingUserId)->original;
+            $response = $king->userRequestHistoricalYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2476,9 +2476,9 @@ class KingMonitor extends Model {
     public function userRequestHistoricalExceededTotal($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestHistoricalTotal($kingUserId)->original;
+            $response = $king->userRequestHistoricalTotal($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2489,9 +2489,9 @@ class KingMonitor extends Model {
     public function userErrorHistoricalExceededToday($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userErrorHistoricalToday($kingUserId)->original;
+            $response = $king->userErrorHistoricalToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2501,9 +2501,9 @@ class KingMonitor extends Model {
     public function userErrorHistoricalExceededWeek($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userErrorHistoricalWeek($kingUserId)->original;
+            $response = $king->userErrorHistoricalWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2513,9 +2513,9 @@ class KingMonitor extends Model {
     public function userErrorHistoricalExceededMonth($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userErrorHistoricalMonth($kingUserId)->original;
+            $response = $king->userErrorHistoricalMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2525,9 +2525,9 @@ class KingMonitor extends Model {
     public function userErrorHistoricalExceededQuarter($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userErrorHistoricalQuarter($kingUserId)->original;
+            $response = $king->userErrorHistoricalQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2537,9 +2537,9 @@ class KingMonitor extends Model {
     public function userErrorHistoricalExceededYear($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userErrorHistoricalYear($kingUserId)->original;
+            $response = $king->userErrorHistoricalYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2549,9 +2549,9 @@ class KingMonitor extends Model {
     public function userErrorHistoricalExceededTotal($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userErrorHistoricalTotal($kingUserId)->original;
+            $response = $king->userErrorHistoricalTotal($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2562,9 +2562,9 @@ class KingMonitor extends Model {
     public function userHistoricalExceededToday($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userHistoricalToday($kingUserId)->original;
+            $response = $king->userHistoricalToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2574,9 +2574,9 @@ class KingMonitor extends Model {
     public function userHistoricalExceededWeek($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userHistoricalWeek($kingUserId)->original;
+            $response = $king->userHistoricalWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2586,9 +2586,9 @@ class KingMonitor extends Model {
     public function userHistoricalExceededMonth($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userHistoricalMonth($kingUserId)->original;
+            $response = $king->userHistoricalMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2598,9 +2598,9 @@ class KingMonitor extends Model {
     public function userHistoricalExceededQuarter($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userHistoricalQuarter($kingUserId)->original;
+            $response = $king->userHistoricalQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2610,9 +2610,9 @@ class KingMonitor extends Model {
     public function userHistoricalExceededYear($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userHistoricalYear($kingUserId)->original;
+            $response = $king->userHistoricalYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2622,9 +2622,9 @@ class KingMonitor extends Model {
     public function userHistoricalExceededTotal($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userHistoricalTotal($kingUserId)->original;
+            $response = $king->userHistoricalTotal($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2635,9 +2635,9 @@ class KingMonitor extends Model {
     public function userRequestHistoricalExceeded($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userRequestHistorical($kingUserId)->original;
+            $response = $king->userRequestHistorical($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2647,9 +2647,9 @@ class KingMonitor extends Model {
     public function userErrorHistoricalExceeded($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userErrorHistorical($kingUserId)->original;
+            $response = $king->userErrorHistorical($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2659,9 +2659,9 @@ class KingMonitor extends Model {
     public function userHistoricalExceeded($kingUserId) {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->userHistorical($kingUserId)->original;
+            $response = $king->userHistorical($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2673,9 +2673,9 @@ class KingMonitor extends Model {
     public function requestHistoricalExceededToday() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestHistoricalToday()->original;
+            $response = $king->requestHistoricalToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2685,9 +2685,9 @@ class KingMonitor extends Model {
     public function requestHistoricalExceededWeek() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestHistoricalWeek()->original;
+            $response = $king->requestHistoricalWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2697,9 +2697,9 @@ class KingMonitor extends Model {
     public function requestHistoricalExceededMonth() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestHistoricalMonth()->original;
+            $response = $king->requestHistoricalMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2709,9 +2709,9 @@ class KingMonitor extends Model {
     public function requestHistoricalExceededQuarter() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestHistoricalQuarter()->original;
+            $response = $king->requestHistoricalQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2721,9 +2721,9 @@ class KingMonitor extends Model {
     public function requestHistoricalExceededYear() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestHistoricalYear()->original;
+            $response = $king->requestHistoricalYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2733,9 +2733,9 @@ class KingMonitor extends Model {
     public function requestHistoricalExceededTotal() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestHistoricalTotal()->original;
+            $response = $king->requestHistoricalTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2746,9 +2746,9 @@ class KingMonitor extends Model {
     public function errorHistoricalExceededToday() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorHistoricalToday()->original;
+            $response = $king->errorHistoricalToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2758,9 +2758,9 @@ class KingMonitor extends Model {
     public function errorHistoricalExceededWeek() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorHistoricalWeek()->original;
+            $response = $king->errorHistoricalWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2770,9 +2770,9 @@ class KingMonitor extends Model {
     public function errorHistoricalExceededMonth() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorHistoricalMonth()->original;
+            $response = $king->errorHistoricalMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2782,9 +2782,9 @@ class KingMonitor extends Model {
     public function errorHistoricalExceededQuarter() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorHistoricalQuarter()->original;
+            $response = $king->errorHistoricalQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2794,9 +2794,9 @@ class KingMonitor extends Model {
     public function errorHistoricalExceededYear() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorHistoricalYear()->original;
+            $response = $king->errorHistoricalYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2806,9 +2806,9 @@ class KingMonitor extends Model {
     public function errorHistoricalExceededTotal() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorHistoricalTotal()->original;
+            $response = $king->errorHistoricalTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2819,9 +2819,9 @@ class KingMonitor extends Model {
     public function historicalExceededToday() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->historicalToday()->original;
+            $response = $king->historicalToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2831,9 +2831,9 @@ class KingMonitor extends Model {
     public function historicalExceededWeek() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->historicalWeek()->original;
+            $response = $king->historicalWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2843,9 +2843,9 @@ class KingMonitor extends Model {
     public function historicalExceededMonth() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->historicalMonth()->original;
+            $response = $king->historicalMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2855,9 +2855,9 @@ class KingMonitor extends Model {
     public function historicalExceededQuarter() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->historicalQuarter()->original;
+            $response = $king->historicalQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2867,9 +2867,9 @@ class KingMonitor extends Model {
     public function historicalExceededYear() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->historicalYear()->original;
+            $response = $king->historicalYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2879,9 +2879,9 @@ class KingMonitor extends Model {
     public function historicalExceededTotal() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->historicalTotal()->original;
+            $response = $king->historicalTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2892,9 +2892,9 @@ class KingMonitor extends Model {
     public function requestHistoricalExceeded() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->requestHistorical()->original;
+            $response = $king->requestHistorical();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2904,9 +2904,9 @@ class KingMonitor extends Model {
     public function errorHistoricalExceeded() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->errorHistorical()->original;
+            $response = $king->errorHistorical();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2916,9 +2916,9 @@ class KingMonitor extends Model {
     public function historicalExceeded() {
         try {
             $king = new KingMonitorUserExceeded();
-            $response = $king->historical()->original;
+            $response = $king->historical();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2931,9 +2931,9 @@ class KingMonitor extends Model {
     public function userStatisticsAlertToday($kingUserId) {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->userStatisticsToday($kingUserId)->original;
+            $response = $king->userStatisticsToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2943,9 +2943,9 @@ class KingMonitor extends Model {
     public function userStatisticsAlertWeek($kingUserId) {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->userStatisticsWeek($kingUserId)->original;
+            $response = $king->userStatisticsWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2955,9 +2955,9 @@ class KingMonitor extends Model {
     public function userStatisticsAlertMonth($kingUserId) {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->userStatisticsMonth($kingUserId)->original;
+            $response = $king->userStatisticsMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2967,9 +2967,9 @@ class KingMonitor extends Model {
     public function userStatisticsAlertQuarter($kingUserId) {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->userStatisticsQuarter($kingUserId)->original;
+            $response = $king->userStatisticsQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2979,9 +2979,9 @@ class KingMonitor extends Model {
     public function userStatisticsAlertYear($kingUserId) {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->userStatisticsYear($kingUserId)->original;
+            $response = $king->userStatisticsYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -2991,9 +2991,9 @@ class KingMonitor extends Model {
     public function userStatisticsAlertTotal($kingUserId) {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->userStatisticsTotal($kingUserId)->original;
+            $response = $king->userStatisticsTotal($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3004,9 +3004,9 @@ class KingMonitor extends Model {
     public function statisticsAlertToday() {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->statisticsToday()->original;
+            $response = $king->statisticsToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3016,9 +3016,9 @@ class KingMonitor extends Model {
     public function statisticsAlertWeek() {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->statisticsWeek()->original;
+            $response = $king->statisticsWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3028,9 +3028,9 @@ class KingMonitor extends Model {
     public function statisticsAlertMonth() {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->statisticsMonth()->original;
+            $response = $king->statisticsMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3040,9 +3040,9 @@ class KingMonitor extends Model {
     public function statisticsAlertQuarter() {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->statisticsQuarter()->original;
+            $response = $king->statisticsQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3052,9 +3052,9 @@ class KingMonitor extends Model {
     public function statisticsAlertYear() {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->statisticsYear()->original;
+            $response = $king->statisticsYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3064,9 +3064,9 @@ class KingMonitor extends Model {
     public function statisticsAlertTotal() {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->statisticsTotal()->original;
+            $response = $king->statisticsTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3078,9 +3078,9 @@ class KingMonitor extends Model {
     public function userHistoricalAlertToday($kingUserId) {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->userHistoricalToday($kingUserId)->original;
+            $response = $king->userHistoricalToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3090,9 +3090,9 @@ class KingMonitor extends Model {
     public function userHistoricalAlertWeek($kingUserId) {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->userHistoricalWeek($kingUserId)->original;
+            $response = $king->userHistoricalWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3102,9 +3102,9 @@ class KingMonitor extends Model {
     public function userHistoricalAlertMonth($kingUserId) {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->userHistoricalMonth($kingUserId)->original;
+            $response = $king->userHistoricalMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3114,9 +3114,9 @@ class KingMonitor extends Model {
     public function userHistoricalAlertQuarter($kingUserId) {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->userHistoricalQuarter($kingUserId)->original;
+            $response = $king->userHistoricalQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3126,9 +3126,9 @@ class KingMonitor extends Model {
     public function userHistoricalAlertYear($kingUserId) {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->userHistoricalYear($kingUserId)->original;
+            $response = $king->userHistoricalYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3138,9 +3138,9 @@ class KingMonitor extends Model {
     public function userHistoricalAlertTotal($kingUserId) {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->userHistoricalTotal($kingUserId)->original;
+            $response = $king->userHistoricalTotal($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3151,9 +3151,9 @@ class KingMonitor extends Model {
     public function historicalAlertToday() {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->historicalToday()->original;
+            $response = $king->historicalToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3163,9 +3163,9 @@ class KingMonitor extends Model {
     public function historicalAlertWeek() {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->historicalWeek()->original;
+            $response = $king->historicalWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3175,9 +3175,9 @@ class KingMonitor extends Model {
     public function historicalAlertMonth() {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->historicalMonth()->original;
+            $response = $king->historicalMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3187,9 +3187,9 @@ class KingMonitor extends Model {
     public function historicalAlertQuarter() {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->historicalQuarter()->original;
+            $response = $king->historicalQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3199,9 +3199,9 @@ class KingMonitor extends Model {
     public function historicalAlertYear() {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->historicalYear()->original;
+            $response = $king->historicalYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3211,9 +3211,9 @@ class KingMonitor extends Model {
     public function historicalAlertTotal() {
         try {
             $king = new KingMonitorAlert();
-            $response = $king->historicalTotal()->original;
+            $response = $king->historicalTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3226,9 +3226,9 @@ class KingMonitor extends Model {
     public function userRequestHistoricalToday($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestHistoricalToday($kingUserId)->original;
+            $response = $king->userRequestHistoricalToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3238,9 +3238,9 @@ class KingMonitor extends Model {
     public function userRequestHistoricalWeek($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestHistoricalWeek($kingUserId)->original;
+            $response = $king->userRequestHistoricalWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3250,9 +3250,9 @@ class KingMonitor extends Model {
     public function userRequestHistoricalMonth($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestHistoricalMonth($kingUserId)->original;
+            $response = $king->userRequestHistoricalMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3262,9 +3262,9 @@ class KingMonitor extends Model {
     public function userRequestHistoricalQuarter($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestHistoricalQuarter($kingUserId)->original;
+            $response = $king->userRequestHistoricalQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3274,9 +3274,9 @@ class KingMonitor extends Model {
     public function userRequestHistoricalYear($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestHistoricalYear($kingUserId)->original;
+            $response = $king->userRequestHistoricalYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3286,9 +3286,9 @@ class KingMonitor extends Model {
     public function userRequestHistoricalTotal($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestHistoricalTotal($kingUserId)->original;
+            $response = $king->userRequestHistoricalTotal($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3299,9 +3299,9 @@ class KingMonitor extends Model {
     public function userErrorHistoricalToday($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorHistoricalToday($kingUserId)->original;
+            $response = $king->userErrorHistoricalToday($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3311,9 +3311,9 @@ class KingMonitor extends Model {
     public function userErrorHistoricalWeek($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorHistoricalWeek($kingUserId)->original;
+            $response = $king->userErrorHistoricalWeek($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3323,9 +3323,9 @@ class KingMonitor extends Model {
     public function userErrorHistoricalMonth($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorHistoricalMonth($kingUserId)->original;
+            $response = $king->userErrorHistoricalMonth($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3335,9 +3335,9 @@ class KingMonitor extends Model {
     public function userErrorHistoricalQuarter($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorHistoricalQuarter($kingUserId)->original;
+            $response = $king->userErrorHistoricalQuarter($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3347,9 +3347,9 @@ class KingMonitor extends Model {
     public function userErrorHistoricalYear($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorHistoricalYear($kingUserId)->original;
+            $response = $king->userErrorHistoricalYear($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3359,9 +3359,9 @@ class KingMonitor extends Model {
     public function userErrorHistoricalTotal($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorHistoricalTotal($kingUserId)->original;
+            $response = $king->userErrorHistoricalTotal($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3386,7 +3386,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3422,7 +3422,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3446,7 +3446,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3482,7 +3482,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3506,7 +3506,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3530,7 +3530,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3542,9 +3542,9 @@ class KingMonitor extends Model {
     public function requestHistoricalToday() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestHistoricalToday()->original;
+            $response = $king->requestHistoricalToday();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3554,9 +3554,9 @@ class KingMonitor extends Model {
     public function requestHistoricalWeek() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestHistoricalWeek()->original;
+            $response = $king->requestHistoricalWeek();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3566,9 +3566,9 @@ class KingMonitor extends Model {
     public function requestHistoricalMonth() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestHistoricalMonth()->original;
+            $response = $king->requestHistoricalMonth();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3578,9 +3578,9 @@ class KingMonitor extends Model {
     public function requestHistoricalQuarter() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestHistoricalQuarter()->original;
+            $response = $king->requestHistoricalQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3590,9 +3590,9 @@ class KingMonitor extends Model {
     public function requestHistoricalYear() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestHistoricalYear()->original;
+            $response = $king->requestHistoricalYear();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3602,9 +3602,9 @@ class KingMonitor extends Model {
     public function requestHistoricalTotal() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestHistoricalTotal()->original;
+            $response = $king->requestHistoricalTotal();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3615,9 +3615,9 @@ class KingMonitor extends Model {
     public function errorHistoricalToday() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorHistoricalToday()->original;
+            $response = $king->errorHistoricalToday();
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3627,9 +3627,9 @@ class KingMonitor extends Model {
     public function errorHistoricalWeek() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorHistoricalWeek()->original;
+            $response = $king->errorHistoricalWeek();
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3639,9 +3639,9 @@ class KingMonitor extends Model {
     public function errorHistoricalMonth() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorHistoricalMonth()->original;
+            $response = $king->errorHistoricalMonth();
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3651,9 +3651,9 @@ class KingMonitor extends Model {
     public function errorHistoricalQuarter() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorHistoricalQuarter()->original;
+            $response = $king->errorHistoricalQuarter();
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3663,9 +3663,9 @@ class KingMonitor extends Model {
     public function errorHistoricalYear() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorHistoricalYear()->original;
+            $response = $king->errorHistoricalYear();
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3675,9 +3675,9 @@ class KingMonitor extends Model {
     public function errorHistoricalTotal() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorHistoricalTotal()->original;
+            $response = $king->errorHistoricalTotal();
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3702,7 +3702,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3738,7 +3738,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3762,7 +3762,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3798,7 +3798,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3822,7 +3822,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3845,7 +3845,7 @@ class KingMonitor extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3855,9 +3855,9 @@ class KingMonitor extends Model {
     public function userRequestHistorical($kingUserId) {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->userRequestHistorical($kingUserId)->original;
+            $response = $king->userRequestHistorical($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3866,9 +3866,9 @@ class KingMonitor extends Model {
     public function userErrorHistorical($kingUserId) {
         try {
             $king = new KingMonitorError();
-            $response = $king->userErrorHistorical($kingUserId)->original;
+            $response = $king->userErrorHistorical($kingUserId);
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3877,9 +3877,9 @@ class KingMonitor extends Model {
     public function requestHistorical() {
         try {
             $king = new KingMonitorRequest();
-            $response = $king->requestHistorical()->original;
+            $response = $king->requestHistorical();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3888,9 +3888,9 @@ class KingMonitor extends Model {
     public function errorHistorical() {
         try {
             $king = new KingMonitorError();
-            $response = $king->errorHistorical()->original;
+            $response = $king->errorHistorical();
 
-            return response()->json($response);
+            return $response;
         } catch(Exception $e) {
             return $e->getMessage();
         }
@@ -3899,11 +3899,11 @@ class KingMonitor extends Model {
     public function historical() {
         try {
             $response = [
-                'request' => $this->requestHistorical()->original,
-                'errors' => $this->errorHistorical()->original,
+                'request' => $this->requestHistorical(),
+                'errors' => $this->errorHistorical(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3912,11 +3912,11 @@ class KingMonitor extends Model {
     public function userHistorical($kingUserId) {
         try {
             $response = [
-                'request' => $this->userRequestHistorical($kingUserId)->original,
-                'errors' => $this->userErrorHistorical($kingUserId)->original,
+                'request' => $this->userRequestHistorical($kingUserId),
+                'errors' => $this->userErrorHistorical($kingUserId),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -3925,87 +3925,87 @@ class KingMonitor extends Model {
     /****************************************************************** AVG REQUEST ******************************************************************/
     public function averageRequestTimeToday() {
         $king = new KingMonitorRequest();
-        $response = $king->averageRequestTimeToday()->original;
+        $response = $king->averageRequestTimeToday();
 
-        return response()->json($response);
+        return $response;
     }
 
     public function averageRequestTimeWeek() {
         $king = new KingMonitorRequest();
-        $response = $king->averageRequestTimeWeek()->original;
+        $response = $king->averageRequestTimeWeek();
 
-        return response()->json($response);
+        return $response;
     }
 
     public function averageRequestTimeMonth() {
         $king = new KingMonitorRequest();
-        $response = $king->averageRequestTimeMonth()->original;
+        $response = $king->averageRequestTimeMonth();
 
-        return response()->json($response);
+        return $response;
     }
 
     public function averageRequestTimeQuarter() {
         $king = new KingMonitorRequest();
-        $response = $king->averageRequestTimeQuarter()->original;
+        $response = $king->averageRequestTimeQuarter();
 
-        return response()->json($response);
+        return $response;
     }
 
     public function averageRequestTimeYear() {
         $king = new KingMonitorRequest();
-        $response = $king->averageRequestTimeYear()->original;
+        $response = $king->averageRequestTimeYear();
 
-        return response()->json($response);
+        return $response;
     }
 
     public function averageRequestTimeTotal() {
         $king = new KingMonitorRequest();
-        $response = $king->averageRequestTimeTotal()->original;
+        $response = $king->averageRequestTimeTotal();
 
-        return response()->json($response);
+        return $response;
     }
 
     /****************************************************************** AVG ERROR ******************************************************************/
     public function averageErrorTimeToday() {
         $king = new KingMonitorError();
-        $response = $king->averageErrorTimeToday()->original;
+        $response = $king->averageErrorTimeToday();
 
-        return response()->json($response);
+        return $response;
     }
 
     public function averageErrorTimeWeek() {
         $king = new KingMonitorError();
-        $response = $king->averageErrorTimeWeek()->original;
+        $response = $king->averageErrorTimeWeek();
 
-        return response()->json($response);
+        return $response;
     }
 
     public function averageErrorTimeMonth() {
         $king = new KingMonitorError();
-        $response = $king->averageErrorTimeMonth()->original;
+        $response = $king->averageErrorTimeMonth();
 
-        return response()->json($response);
+        return $response;
     }
 
     public function averageErrorTimeQuarter() {
         $king = new KingMonitorError();
-        $response = $king->averageErrorTimeQuarter()->original;
+        $response = $king->averageErrorTimeQuarter();
 
-        return response()->json($response);
+        return $response;
     }
 
     public function averageErrorTimeYear() {
         $king = new KingMonitorError();
-        $response = $king->averageErrorTimeYear()->original;
+        $response = $king->averageErrorTimeYear();
 
-        return response()->json($response);
+        return $response;
     }
 
     public function averageErrorTimeTotal() {
         $king = new KingMonitorError();
-        $response = $king->averageErrorTimeTotal()->original;
+        $response = $king->averageErrorTimeTotal();
 
-        return response()->json($response);
+        return $response;
     }
 
     /****************************************************************** AVG ******************************************************************/
@@ -4015,11 +4015,11 @@ class KingMonitor extends Model {
             $kingError = new KingMonitorError();
 
             $response = [
-                'request' =>  $kingRequest->averageRequestTimeToday()->original,
-                'error' =>  $kingError->averageErrorTimeToday()->original
+                'request' =>  $kingRequest->averageRequestTimeToday(),
+                'error' =>  $kingError->averageErrorTimeToday()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -4031,11 +4031,11 @@ class KingMonitor extends Model {
             $kingError = new KingMonitorError();
 
             $response = [
-                'request' =>  $kingRequest->averageRequestTimeWeek()->original,
-                'error' =>  $kingError->averageErrorTimeWeek()->original
+                'request' =>  $kingRequest->averageRequestTimeWeek(),
+                'error' =>  $kingError->averageErrorTimeWeek()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -4047,11 +4047,11 @@ class KingMonitor extends Model {
             $kingError = new KingMonitorError();
 
             $response = [
-                'request' =>  $kingRequest->averageRequestTimeMonth()->original,
-                'error' =>  $kingError->averageErrorTimeMonth()->original
+                'request' =>  $kingRequest->averageRequestTimeMonth(),
+                'error' =>  $kingError->averageErrorTimeMonth()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -4063,11 +4063,11 @@ class KingMonitor extends Model {
             $kingError = new KingMonitorError();
 
             $response = [
-                'request' =>  $kingRequest->averageRequestTimeQuarter()->original,
-                'error' =>  $kingError->averageErrorTimeQuarter()->original
+                'request' =>  $kingRequest->averageRequestTimeQuarter(),
+                'error' =>  $kingError->averageErrorTimeQuarter()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -4079,11 +4079,11 @@ class KingMonitor extends Model {
             $kingError = new KingMonitorError();
 
             $response = [
-                'request' =>  $kingRequest->averageRequestTimeYear()->original,
-                'error' =>  $kingError->averageErrorTimeYear()->original
+                'request' =>  $kingRequest->averageRequestTimeYear(),
+                'error' =>  $kingError->averageErrorTimeYear()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -4095,11 +4095,11 @@ class KingMonitor extends Model {
             $kingError = new KingMonitorError();
 
             $response = [
-                'request' =>  $kingRequest->averageRequestTimeTotal()->original,
-                'error' =>  $kingError->averageErrorTimeTotal()->original
+                'request' =>  $kingRequest->averageRequestTimeTotal(),
+                'error' =>  $kingError->averageErrorTimeTotal()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }

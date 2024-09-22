@@ -63,7 +63,7 @@ class KingMonitorRequest extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -80,7 +80,7 @@ class KingMonitorRequest extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -124,7 +124,7 @@ class KingMonitorRequest extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -156,7 +156,7 @@ class KingMonitorRequest extends Model {
                 ])->where('king_user_id', '=', $kingUserId)->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -182,7 +182,7 @@ class KingMonitorRequest extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -199,7 +199,7 @@ class KingMonitorRequest extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -246,7 +246,7 @@ class KingMonitorRequest extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -278,7 +278,7 @@ class KingMonitorRequest extends Model {
                 ])->where('king_user_id', '=', $kingUserId)->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -300,7 +300,7 @@ class KingMonitorRequest extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -317,7 +317,7 @@ class KingMonitorRequest extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -339,7 +339,7 @@ class KingMonitorRequest extends Model {
                 ]
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -356,7 +356,7 @@ class KingMonitorRequest extends Model {
                 'DELETE' => KingMonitor::where('king_user_id', '=', $kingUserId)->where('method', '=', 'DELETE')->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -381,7 +381,7 @@ class KingMonitorRequest extends Model {
                 'user' => KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -398,7 +398,7 @@ class KingMonitorRequest extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereDate('created_at', '=', date('Y-m-d'))->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -411,7 +411,7 @@ class KingMonitorRequest extends Model {
                 'user' => KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -459,7 +459,7 @@ class KingMonitorRequest extends Model {
                 ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -490,7 +490,7 @@ class KingMonitorRequest extends Model {
                 ])->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -505,7 +505,7 @@ class KingMonitorRequest extends Model {
                 ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -532,7 +532,7 @@ class KingMonitorRequest extends Model {
                 'user' => KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de peticiones del mes
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -549,7 +549,7 @@ class KingMonitorRequest extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -562,7 +562,7 @@ class KingMonitorRequest extends Model {
                 'user' => KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -613,7 +613,7 @@ class KingMonitorRequest extends Model {
                 ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -645,7 +645,7 @@ class KingMonitorRequest extends Model {
                 ])->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -661,7 +661,7 @@ class KingMonitorRequest extends Model {
                 ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -684,7 +684,7 @@ class KingMonitorRequest extends Model {
                 'user' => KingMonitor::whereYear('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -701,7 +701,7 @@ class KingMonitorRequest extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -714,7 +714,7 @@ class KingMonitorRequest extends Model {
                 'user' => KingMonitor::whereYear('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -737,7 +737,7 @@ class KingMonitorRequest extends Model {
                 'user' => KingMonitor::where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -754,7 +754,7 @@ class KingMonitorRequest extends Model {
                 'DELETE' => KingMonitor::where('method', '=', 'DELETE')->count(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -767,7 +767,7 @@ class KingMonitorRequest extends Model {
                 'user' => KingMonitor::where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -784,15 +784,15 @@ class KingMonitorRequest extends Model {
             $total = $this->userRequestStatisticsTotal($kingUserId);
 
             $response = [
-                'today' => $today->original,
-                'week' => $week->original,
-                'month' => $month->original,
-                'quarter' => $quarter->original,
-                'year' => $year->original,
-                'total' => $total->original,
+                'today' => $today,
+                'week' => $week,
+                'month' => $month,
+                'quarter' => $quarter,
+                'year' => $year,
+                'total' => $total,
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -808,15 +808,15 @@ class KingMonitorRequest extends Model {
             $total = $this->requestStatisticsTotal();
 
             $response = [
-                'today' => $today->original,
-                'week' => $week->original,
-                'month' => $month->original,
-                'quarter' => $quarter->original,
-                'year' => $year->original,
-                'total' => $total->original,
+                'today' => $today,
+                'week' => $week,
+                'month' => $month,
+                'quarter' => $quarter,
+                'year' => $year,
+                'total' => $total,
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -846,7 +846,7 @@ class KingMonitorRequest extends Model {
                 ];
             }
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -865,7 +865,7 @@ class KingMonitorRequest extends Model {
                 )->groupBy('hour')->orderBy('hour')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -888,7 +888,7 @@ class KingMonitorRequest extends Model {
                 )->groupBy('day')->orderBy('day')->get(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -905,7 +905,7 @@ class KingMonitorRequest extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -928,7 +928,7 @@ class KingMonitorRequest extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -945,7 +945,7 @@ class KingMonitorRequest extends Model {
                 )->groupBy('month')->orderBy('month')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -962,7 +962,7 @@ class KingMonitorRequest extends Model {
                 )->groupBy('year')->orderBy('year')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -981,7 +981,7 @@ class KingMonitorRequest extends Model {
                 )->groupBy('hour')->orderBy('hour')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1004,7 +1004,7 @@ class KingMonitorRequest extends Model {
                 )->groupBy('day')->orderBy('day')->get(),
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1021,7 +1021,7 @@ class KingMonitorRequest extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1044,7 +1044,7 @@ class KingMonitorRequest extends Model {
                 )->groupBy('day')->orderBy('day')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1061,7 +1061,7 @@ class KingMonitorRequest extends Model {
                 )->groupBy('month')->orderBy('month')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1078,7 +1078,7 @@ class KingMonitorRequest extends Model {
                 )->groupBy('year')->orderBy('year')->get()
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1095,15 +1095,15 @@ class KingMonitorRequest extends Model {
             $total = $this->userRequestHistoricalTotal($kingUserId);
 
             $response = [
-                'today' => $today->original,
-                'week' => $week->original,
-                'month' => $month->original,
-                'quarter' => $quarter->original,
-                'year' => $year->original,
-                'total' => $total->original,
+                'today' => $today,
+                'week' => $week,
+                'month' => $month,
+                'quarter' => $quarter,
+                'year' => $year,
+                'total' => $total,
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1119,15 +1119,15 @@ class KingMonitorRequest extends Model {
             $total = $this->requestHistoricalTotal();
 
             $response = [
-                'today' => $today->original,
-                'week' => $week->original,
-                'month' => $month->original,
-                'quarter' => $quarter->original,
-                'year' => $year->original,
-                'total' => $total->original,
+                'today' => $today,
+                'week' => $week,
+                'month' => $month,
+                'quarter' => $quarter,
+                'year' => $year,
+                'total' => $total,
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1158,7 +1158,7 @@ class KingMonitorRequest extends Model {
                 'max' => (!empty($intervals)) ? max($intervals) : null
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1191,7 +1191,7 @@ class KingMonitorRequest extends Model {
                 'max' => (!empty($intervals)) ? max($intervals) : null
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1221,7 +1221,7 @@ class KingMonitorRequest extends Model {
                 'max' => (!empty($intervals)) ? max($intervals) : null
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1254,7 +1254,7 @@ class KingMonitorRequest extends Model {
                 'max' => (!empty($intervals)) ? max($intervals) : null
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1284,7 +1284,7 @@ class KingMonitorRequest extends Model {
                 'max' => (!empty($intervals)) ? max($intervals) : null
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -1314,7 +1314,7 @@ class KingMonitorRequest extends Model {
                 'max' => (!empty($intervals)) ? max($intervals) : null
             ];
 
-            return response()->json($response);
+            return $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
