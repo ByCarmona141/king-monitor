@@ -25,12 +25,11 @@ class KingMonitor extends Model {
      */
     protected $fillable = [
         'king_user_id',
-        'king_type_action_id',
-        'origin',
         'tuple',
         'method',
         'endpoint',
         'headers',
+        'token',
         'ip',
         'params',
         'code',
@@ -45,7 +44,6 @@ class KingMonitor extends Model {
     protected $casts = [
         'id' => 'integer',
         'king_user_id' => 'integer',
-        'king_type_action_id' => 'integer',
     ];
 
     // Funcion que retorna si se supero el limite de peticiones del usuario al día
@@ -4195,13 +4193,12 @@ class KingMonitor extends Model {
     }
 
     // Guardamos los errores en el monitor (Es lo mismo que el metodo monitor de KingMonitorError)
-    public function monitorError($king_type_error_id, $error = NULL, $message = NULL) {
+    public function monitorError($error = NULL, $message = NULL) {
         try {
             // Guardar los datos en la base de datos
             $king_monitor_errors = new KingMonitorError();
 
             $king_monitor_errors->king_user_id = (auth()->user() === NULL) ? NULL : auth()->user()->id;
-            $king_monitor_errors->king_type_error_id = $king_type_error_id;
             $king_monitor_errors->method = request()->method();
             $king_monitor_errors->endpoint = request()->path();
             $king_monitor_errors->headers = (request()->header() === NULL) ? NULL : json_encode(Arr::except(request()->header(), ['authorization'])); // Mandamos los headers sin el authorization que es donde esta el token
@@ -4271,13 +4268,12 @@ class KingMonitor extends Model {
         }
     }
 
-    public function monitorErrorUnauthenticated($king_type_error_id, $error = NULL, $message = NULL) {
+    public function monitorErrorUnauthenticated($error = NULL, $message = NULL) {
         try {
             // Guardar los datos en la base de datos
             $king_monitor_errors = new KingMonitorError();
 
             $king_monitor_errors->king_user_id = (auth()->user() === NULL) ? NULL : auth()->user()->id;
-            $king_monitor_errors->king_type_error_id = $king_type_error_id;
             $king_monitor_errors->method = request()->method();
             $king_monitor_errors->endpoint = request()->path();
             $king_monitor_errors->headers = (request()->header() === NULL) ? NULL : json_encode(Arr::except(request()->header(), ['authorization'])); // Mandamos los headers sin el authorization que es donde esta el token
