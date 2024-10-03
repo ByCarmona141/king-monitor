@@ -22,6 +22,12 @@ public function kingIndex(): KingCategoryCollection {
 }
 ```
 
+## Public Config
+
+```bash
+php artisan vendor:publish king-monitor-config
+```
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first

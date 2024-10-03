@@ -21,12 +21,11 @@ class KingMonitorRequest extends Model {
      */
     protected $fillable = [
         'king_user_id',
-        'king_type_action_id',
-        'origin',
         'tuple',
         'method',
         'endpoint',
         'headers',
+        'token',
         'ip',
         'params',
         'code',
@@ -41,7 +40,6 @@ class KingMonitorRequest extends Model {
     protected $casts = [
         'id' => 'integer',
         'king_user_id' => 'integer',
-        'king_type_action_id' => 'integer',
     ];
 
     /****************************************************************** STATISTICS ******************************************************************/
