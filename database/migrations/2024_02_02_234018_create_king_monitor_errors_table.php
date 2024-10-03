@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('king_monitor_errors', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('king_user_id')->nullable()->constrained()->comment('Usuario que realizo la accion');
+            $table->foreignId('king_type_error_id')->constrained()->comment('Tipo de error que se genero');
             $table->string('method', 255)->comment('Metodo HTTP para la accion');
             $table->text('endpoint')->comment('Endpoint de la accion realizada');
             $table->text('headers')->nullable()->comment('headers de la accion');

@@ -20,7 +20,7 @@ class KingMonitorController extends Controller {
     /*********************************************** MONITOR ***********************************************/
     public function monitor(Request $request) {
         $kingMonitor = new KingMonitor();
-        return $kingMonitor->monitor($request, $request->tuple);
+        return $kingMonitor->monitor($request, $request->origin, $request->tuple);
     }
 
     /****************************************************************** STATISTICS USER ******************************************************************/

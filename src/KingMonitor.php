@@ -19,14 +19,14 @@ class KingMonitor {
         return $kingMonitor->monitor($response, $tuple, $withoutResource);
     }
 
-    public function monitorError($error = NULL, $message = NULL) {
+    public function monitorError($king_type_error_id, $error = NULL, $message = NULL) {
         $kingMonitor = new KingMonitorModel();
-        return $kingMonitor->monitorError($error, $message);
+        return $kingMonitor->monitorError($king_type_error_id, $error, $message);
     }
 
-    public function monitorErrorUnauthenticated($error = NULL, $message = NULL) {
+    public function monitorErrorUnauthenticated($king_type_error_id, $error = NULL, $message = NULL) {
         $kingMonitor = new KingMonitorModel();
-        return $kingMonitor->monitorErrorUnauthenticated($error, $message);
+        return $kingMonitor->monitorErrorUnauthenticated($king_type_error_id, $error, $message);
     }
 
     /****************************************************************** USER STATISTICS ******************************************************************/
