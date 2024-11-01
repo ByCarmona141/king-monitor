@@ -2,8 +2,11 @@
 
 namespace ByCarmona141\KingMonitor;
 
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
+use ByCarmona141\KingMonitor\Middleware\MonitorAuth;
 
+use Illuminate\Contracts\Http\Kernel;
 use ByCarmona141\KingMonitor\Console\Commands\KingMonitorCommand;
 
 class KingMonitorServiceProvider extends ServiceProvider {
@@ -20,6 +23,9 @@ class KingMonitorServiceProvider extends ServiceProvider {
         // Registro de rutas
         $this->loadRoutesFrom($this->basePath('routes/web.php'));
         $this->loadRoutesFrom($this->basePath('routes/api.php'));
+
+        // Publicar Middleware
+        $this->app->make(Kernel::class)->pushMiddleware(MonitorAuth::class);
 
         // Registro de vistas
         $this->loadViewsFrom(
