@@ -9,44 +9,6 @@ use Illuminate\Routing\Controller;
 use ByCarmona141\KingMonitor\Models\KingMonitorError;
 
 class KingMonitorErrorController extends Controller {
-    /**
-     *  Mostrar los kingMonitorError
-     *  @OA\Get (path="/api/v1/kingMonitorError/statistics", tags={"kingMonitorError"},
-     *      @OA\Response(response=200, description="OK",
-     *          @OA\MediaType(mediaType="application/vnd.api+json",
-     *              @OA\Schema(
-     *                  @OA\Property(type="array", property="data",
-     *                      @OA\Items(type="object",
-     *                          @OA\Property(property="type", type="string", example="kingMonitorError"),
-     *                          @OA\Property(property="id", type="string", example="1"),
-     *                          @OA\Property(type="object", property="attributes",
-     *                              @OA\Property(property="king_user_id", type="number", example="1"),
-     *                              @OA\Property(property="method", type="string", example="GET"),
-     *                              @OA\Property(property="endpoint", type="string", example="api/v1/kingMonitorError"),
-     *                              @OA\Property(property="headers", type="string", example="example"),
-     *                              @OA\Property(property="ip", type="string", example="example"),
-     *                              @OA\Property(property="params", type="string", example="example"),
-     *                              @OA\Property(property="error", type="string", example="example"),
-     *                              @OA\Property(property="message", type="string", example="example"),
-     *                          ),
-     *                          @OA\Property(type="object", property="links",
-     *                              @OA\Property(property="self", type="string", example="http://localhost/api/v1/kingMonitorError/1"),
-     *                          )
-     *                      )
-     *                  ),
-     *                  @OA\Property(type="object", property="links",
-     *                      @OA\Property(property="self", type="string", example="http://localhost/api/v1/kingMonitorError"),
-     *                  )
-     *              ),
-     *          )
-     *      )
-     *  )
-     */
-    public function statisticsError(Request $request) {
-        $kingMonitorError = new KingMonitorError();
-        return $kingMonitorError->statisticsError($request, 2);
-    }
-
     /****************************************************************** USER STATISTICS ******************************************************************/
     // ---------------------------------------------------------------- USER STATISTICS TODAY ----------------------------------------------------------------
     public function userErrorStatisticsToday($king_user_id) {
