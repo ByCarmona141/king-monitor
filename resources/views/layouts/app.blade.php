@@ -9,6 +9,8 @@
             @yield('title')
         </title>
 
+        @yield('style')
+
         <script src="https://cdn.tailwindcss.com"></script>
 
         <!-- Fonts -->
