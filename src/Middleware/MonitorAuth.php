@@ -27,7 +27,7 @@ class MonitorAuth {
             // Guardamos la alerta
             $king_monitor_alert = new KingMonitorAlert();
 
-            $king_monitor_alert->king_user_id = auth()->user()->id;
+            $king_monitor_alert->king_user_id = auth()->id();
             $king_monitor_alert->token = (request()->header() === NULL) ? NULL : request()->bearerToken();
             $king_monitor_alert->ip = request()->getClientIp(); // Crypt::encryptString($request->getClientIp());
             $king_monitor_alert->save();
