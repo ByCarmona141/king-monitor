@@ -22,6 +22,7 @@ return new class extends Migration {
             $table->longText('params')->nullable()->comment('Datos enviados para la accion');
             $table->string('code', 255)->comment('Codigo de la respuesta');
             $table->longText('response')->comment('Respuesta de la accion');
+            $table->unsignedBigInteger('response_size')->nullable()->comment('Tamaño de la respuesta');
             $table->timestamps();
         });
 
