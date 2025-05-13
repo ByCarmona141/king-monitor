@@ -11,6 +11,10 @@ return [
         'token_request_limit' => env('TOKEN_REQUEST_LIMIT', 1000),
     ],
 
+    'response' => [
+        'size' => env('RESPONSE_SIZE_LIMIT', 500000),
+    ],
+
     'alerts' => [
         'monitor_alert' => env('MONITOR_ALERT', true),
         'user_between_alert' => env('USER_BETWEEN_ALERT', 3600),
