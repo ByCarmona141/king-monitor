@@ -34,6 +34,7 @@ class KingMonitor extends Model {
         'params',
         'code',
         'response',
+        'response_size',
     ];
 
     /**
@@ -4133,6 +4134,10 @@ class KingMonitor extends Model {
 
             // Validar el tamaño de la respuesta, y si supera cierto limite solo guardar una parte de la respuesta, agregar en el archivo de configuracion el tamaño de la respuesta que queremos guardar
             $king_monitors->response = ($response === NULL) ? NULL : json_encode($response); //Crypt::encryptString(json_encode($response));
+
+            // Obtenemos el tamaño de la respuesta
+            $king_monitors->response_size = ($response === NULL) ? NULL : strlen($response);
+
 
             // Guardamos los datos en la bd
             $king_monitors->save();
