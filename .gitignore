@@ -5,3 +5,5 @@ coverage.txt
 /.vscode
 coverage/
 vendor/
+/.obsidian
+/.trash
