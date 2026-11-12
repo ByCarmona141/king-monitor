@@ -6,19 +6,15 @@ use Exception;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class KingMonitorRequest extends Model {
+class KingMonitorRequest extends Model
+{
     use HasFactory;
 
     protected $table = 'king_monitors';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'king_user_id',
         'tuple',
@@ -32,1289 +28,261 @@ class KingMonitorRequest extends Model {
         'response',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
     protected $casts = [
-        'id' => 'integer',
+        'id'           => 'integer',
         'king_user_id' => 'integer',
     ];
 
-    /****************************************************************** STATISTICS ******************************************************************/
-    /****************************************************************** USER REQUEST STATISTICS ******************************************************************/
-    // ---------------------------------------------------------------- USER REQUEST STATISTICS TODAY ----------------------------------------------------------------
-    // Estadisticas de peticiones de un usuario (today)
-    public function userRequestStatisticsToday($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de peticiones de hoy del usuario
-                //'lastMinute' => KingMonitor::where('created_at', '>=', Carbon::now()->subHour())->count(), // Cantidad de peticiones en la ultima hora
-                'method' => [ // Cantidad de peticiones en metodos del dia
-                    'mostCommon' => KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->pluck('method')->mode(), // Metodo con la mayor cantidad de peticiones del dia del usuario
-                    'GET' => KingMonitor::where('method', '=', 'GET')->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(),
-                    'POST' => KingMonitor::where('method', '=', 'POST')->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(),
-                    'PUT' => KingMonitor::where('method', '=', 'PUT')->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(),
-                    'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(),
-                    'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(),
-                ]
-            ];
+    /****************************************************************** QUERY SCOPES ******************************************************************/
 
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function scopeForPeriod(Builder $query, string $period): Builder
+    {
+        return match ($period) {
+            'today'   => $query->whereDate('created_at', today()),
+            'week'    => $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]),
+            'month'   => $query->whereYear('created_at', now()->year)->whereMonth('created_at', now()->month),
+            'quarter' => $query->whereBetween('created_at', [Carbon::now()->startOfQuarter(), Carbon::now()->endOfQuarter()]),
+            'year'    => $query->whereYear('created_at', now()->year),
+            default   => $query, // total
+        };
     }
 
-    // Estadisticas de los metodos HTTP de un usuario (today)
-    public function userRequestMethodStatisticsToday($kingUserId) {
-        try {
-            $response = [
-                'GET' => KingMonitor::where('method', '=', 'GET')->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(),
-                'POST' => KingMonitor::where('method', '=', 'POST')->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(),
-                'PUT' => KingMonitor::where('method', '=', 'PUT')->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(),
-                'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(),
-                'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function scopeForUser(Builder $query, int $userId): Builder
+    {
+        return $query->where('king_user_id', $userId);
     }
 
-    // ---------------------------------------------------------------- STATISTICS REQUEST USERS WEEK ----------------------------------------------------------------
-    // Estadisticas de peticiones de un usuario (week)
-    public function userRequestStatisticsWeek($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de peticiones de la semana
-                //'lastDayWeek' => KingMonitor::where('created_at', '=', Carbon::now()->endOfWeek())->count(), // Cantidad de peticiones en el ultimo dia de la semana
-                'method' => [ // Total de peticiones en metodos de la semana
-                    'mostCommon' => KingMonitor::whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->where('king_user_id', '=', $kingUserId)->pluck('method')->mode(),
-                    'GET' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->where('king_user_id', '=', $kingUserId)->count(),
-                    'POST' => KingMonitor::where('method', '=', 'POST')->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->where('king_user_id', '=', $kingUserId)->count(),
-                    'PUT' => KingMonitor::where('method', '=', 'PUT')->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->where('king_user_id', '=', $kingUserId)->count(),
-                    'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->where('king_user_id', '=', $kingUserId)->count(),
-                    'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->where('king_user_id', '=', $kingUserId)->count(),
-                ]
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function scopeOfMethod(Builder $query, string $method): Builder
+    {
+        return $query->where('method', $method);
     }
 
-    // Estadisticas de los metodos HTTP de un usuario (week)
-    public function userRequestMethodStatisticsWeek($kingUserId) {
-        try {
-            $response = [
-                'GET' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->count(),
-                'POST' => KingMonitor::where('method', '=', 'POST')->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->count(),
-                'PUT' => KingMonitor::where('method', '=', 'PUT')->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->count(),
-                'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->count(),
-                'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->count(),
-            ];
+    /****************************************************************** PRIVATE HELPERS ******************************************************************/
 
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    private function buildMethodBreakdown(string $period, ?int $userId = null): array
+    {
+        $query = fn(string $method) => $this->baseQuery($period, $userId)->ofMethod($method)->count();
+
+        return [
+            'mostCommon' => $this->baseQuery($period, $userId)->pluck('method')->mode(),
+            'GET'        => $query('GET'),
+            'POST'       => $query('POST'),
+            'PUT'        => $query('PUT'),
+            'PATCH'      => $query('PATCH'),
+            'DELETE'     => $query('DELETE'),
+        ];
     }
 
-    // ---------------------------------------------------------------- STATISTICS REQUEST USERS MONTH ----------------------------------------------------------------
-    // Estadisticas de peticiones de un usuario (month)
-    public function userRequestStatisticsMonth($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                //'lastWeekMonth' => KingMonitor::whereBetween('created_at', [
-                //    Carbon::now()->endOfMonth()->subDays(6),
-                //    Carbon::now()->endOfMonth()
-                //])->count(), // Cantidad de peticiones de la ultima semana del mes
-                'method' => [ // Total de peticiones en metodos del mes
-                    'mostCommon' => KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('method')->mode(),
-                    'GET' => KingMonitor::where('method', '=', 'GET')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                    'POST' => KingMonitor::where('method', '=', 'POST')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                    'PUT' => KingMonitor::where('method', '=', 'PUT')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                    'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                    'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                ]
-            ];
+    private function buildStatistics(string $period, ?int $userId = null): array
+    {
+        $base = $this->baseQuery($period, $userId);
 
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+        return [
+            'total'  => $base->count(),
+            'method' => $this->buildMethodBreakdown($period, $userId),
+            'user'   => $userId
+                ? null
+                : self::forPeriod($period)->whereNotNull('king_user_id')->pluck('king_user_id')->mode(),
+        ];
     }
 
-    // Estadisticas de los metodos HTTP de un usuario (month)
-    public function userRequestMethodStatisticsMonth($kingUserId) {
-        try {
-            $response = [
-                'GET' => KingMonitor::where('method', '=', 'GET')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                'POST' => KingMonitor::where('method', '=', 'POST')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                'PUT' => KingMonitor::where('method', '=', 'PUT')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    private function buildFrequentUser(string $period): array
+    {
+        return [
+            'user' => self::forPeriod($period)
+                ->whereNotNull('king_user_id')
+                ->pluck('king_user_id')
+                ->mode(),
+        ];
     }
 
-    // ---------------------------------------------------------------- STATISTICS REQUEST USERS QUARTER ----------------------------------------------------------------
-    // Estadisticas de peticiones de un usuario (quarter)
-    public function userRequestStatisticsQuarter($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->count(),
-                //'lastMonthQuarter' => KingMonitor::whereBetween('created_at', [
-                //    Carbon::now()->endOfQuarter()->subMonth(2),
-                //    Carbon::now()->endOfQuarter()
-                //])->count(), // Cantidad de peticiones del ultimo mes del trimestre
-                'method' => [ // Total de peticiones en metodos del trimestre
-                    'mostCommon' => KingMonitor::whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->where('king_user_id', '=', $kingUserId)->pluck('method')->mode(),
-                    'GET' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->where('king_user_id', '=', $kingUserId)->count(),
-                    'POST' => KingMonitor::where('method', '=', 'POST')->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->where('king_user_id', '=', $kingUserId)->count(),
-                    'PUT' => KingMonitor::where('method', '=', 'PUT')->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->where('king_user_id', '=', $kingUserId)->count(),
-                    'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->where('king_user_id', '=', $kingUserId)->count(),
-                    'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->where('king_user_id', '=', $kingUserId)->count(),
-                ]
-            ];
+    private function buildHistorical(string $period, ?int $userId = null): array
+    {
+        $alias  = $this->aliasForPeriod($period);
+        $format = $this->groupFormatForPeriod($period);
 
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+        return [
+            'total'   => $this->baseQuery($period, $userId)->count(),
+            'details' => $this->baseQuery($period, $userId)
+                ->select(
+                    DB::raw("DATE_FORMAT(created_at, '{$format}') as {$alias}"),
+                    DB::raw('count(*) as total')
+                )
+                ->groupBy($alias)
+                ->orderBy($alias)
+                ->get(),
+        ];
     }
 
-    // Estadisticas de los metodos HTTP de un usuario (quarter)
-    public function userRequestMethodStatisticsQuarter($kingUserId) {
-        try {
-            $response = [
-                'GET' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->count(),
-                'POST' => KingMonitor::where('method', '=', 'POST')->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->count(),
-                'PUT' => KingMonitor::where('method', '=', 'PUT')->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->count(),
-                'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->count(),
-                'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->count(),
-            ];
+    private function buildAverageTime(string $period): array
+    {
+        $records = self::forPeriod($period)->orderBy('created_at')->get();
 
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
+        if ($records->count() < 2) {
+            return ['min' => null, 'avg' => null, 'max' => null];
         }
+
+        $intervals = $records->zip($records->slice(1))->map(
+            fn($pair) => $pair[1]->created_at->diffInSeconds($pair[0]->created_at)
+        );
+
+        return [
+            'min' => $intervals->min(),
+            'avg' => $intervals->average(),
+            'max' => $intervals->max(),
+        ];
     }
 
-    // ---------------------------------------------------------------- STATISTICS REQUEST USERS YEAR ----------------------------------------------------------------
-    // Estadisticas de peticiones de un usuario (year)
-    public function userRequestStatisticsYear($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitor::whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                'method' => [ // Cantidad de peticiones a metodos del año
-                    'mostCommon' => KingMonitor::whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('method')->mode(),
-                    'GET' => KingMonitor::where('method', '=', 'GET')->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                    'POST' => KingMonitor::where('method', '=', 'POST')->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                    'PUT' => KingMonitor::where('method', '=', 'PUT')->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                    'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                    'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                ]
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    private function buildAllPeriods(callable $builder): array
+    {
+        return [
+            'today'   => $builder('today'),
+            'week'    => $builder('week'),
+            'month'   => $builder('month'),
+            'quarter' => $builder('quarter'),
+            'year'    => $builder('year'),
+            'total'   => $builder('total'),
+        ];
     }
 
-    // Estadisticas de los metodos HTTP de un usuario (year)
-    public function userRequestMethodStatisticsYear($kingUserId) {
-        try {
-            $response = [
-                'GET' => KingMonitor::where('method', '=', 'GET')->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                'POST' => KingMonitor::where('method', '=', 'POST')->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                'PUT' => KingMonitor::where('method', '=', 'PUT')->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-                'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(),
-            ];
+    private function baseQuery(string $period, ?int $userId = null): Builder
+    {
+        $query = self::forPeriod($period);
 
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+        return $userId ? $query->forUser($userId) : $query;
     }
 
-    // ---------------------------------------------------------------- STATISTICS REQUEST USERS TOTAL ----------------------------------------------------------------
-    // Estadisticas de peticiones de un usuario (total)
-    public function userRequestStatisticsTotal($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitor::where('king_user_id', '=', $kingUserId)->count(), // Cantidad de peticiones en total
-                'method' => [
-                    'mostCommon' => KingMonitor::where('king_user_id', '=', $kingUserId)->pluck('method')->mode(), // Metodo con la mayor cantidad de peticiones
-                    'GET' => KingMonitor::where('king_user_id', '=', $kingUserId)->where('method', '=', 'GET')->count(),
-                    'POST' => KingMonitor::where('king_user_id', '=', $kingUserId)->where('method', '=', 'POST')->count(),
-                    'PUT' => KingMonitor::where('king_user_id', '=', $kingUserId)->where('method', '=', 'PUT')->count(),
-                    'PATCH' => KingMonitor::where('king_user_id', '=', $kingUserId)->where('method', '=', 'PATCH')->count(),
-                    'DELETE' => KingMonitor::where('king_user_id', '=', $kingUserId)->where('method', '=', 'DELETE')->count(),
-                ]
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    private function groupFormatForPeriod(string $period): string
+    {
+        return match ($period) {
+            'today'                    => '%H',
+            'week', 'month', 'quarter' => '%d',
+            'year'                     => '%M',
+            default                    => '%Y',
+        };
     }
 
-    // Estadisticas de los metodos HTTP de un usuario (total)
-    public function userRequestMethodStatisticsTotal($kingUserId) {
-        try {
-            $response = [
-                'GET' => KingMonitor::where('king_user_id', '=', $kingUserId)->where('method', '=', 'GET')->count(),
-                'POST' => KingMonitor::where('king_user_id', '=', $kingUserId)->where('method', '=', 'POST')->count(),
-                'PUT' => KingMonitor::where('king_user_id', '=', $kingUserId)->where('method', '=', 'PUT')->count(),
-                'PATCH' => KingMonitor::where('king_user_id', '=', $kingUserId)->where('method', '=', 'PATCH')->count(),
-                'DELETE' => KingMonitor::where('king_user_id', '=', $kingUserId)->where('method', '=', 'DELETE')->count(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    private function aliasForPeriod(string $period): string
+    {
+        return match ($period) {
+            'today'                    => 'hour',
+            'week', 'month', 'quarter' => 'day',
+            'year'                     => 'month',
+            default                    => 'year',
+        };
     }
 
-    /****************************************************************** STATISTICS REQUEST ******************************************************************/
-    // ---------------------------------------------------------------- STATISTICS TODAY REQUEST ----------------------------------------------------------------
-    // Estadisticas de peticiones (today)
-    public function requestStatisticsToday() {
-        try {
-            $response = [
-                'total' => KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->count(),
-                //'lastMinute' => KingMonitor::where('created_at', '>=', Carbon::now()->subHour())->count(), // Cantidad de peticiones en la ultima hora
-                'method' => [
-                    'mostCommon' => KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->pluck('method')->mode(),
-                    'GET' => KingMonitor::where('method', '=', 'GET')->whereDate('created_at', '=', date('Y-m-d'))->count(),
-                    'POST' => KingMonitor::where('method', '=', 'POST')->whereDate('created_at', '=', date('Y-m-d'))->count(),
-                    'PUT' => KingMonitor::where('method', '=', 'PUT')->whereDate('created_at', '=', date('Y-m-d'))->count(),
-                    'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereDate('created_at', '=', date('Y-m-d'))->count(),
-                    'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereDate('created_at', '=', date('Y-m-d'))->count(),
-                ],
-                'user' => KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
-            ];
+    /****************************************************************** USER STATISTICS ******************************************************************/
 
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
+    public function userRequestStatisticsToday(int $userId): array   { return $this->buildStatistics('today',   $userId); }
+    public function userRequestStatisticsWeek(int $userId): array    { return $this->buildStatistics('week',    $userId); }
+    public function userRequestStatisticsMonth(int $userId): array   { return $this->buildStatistics('month',   $userId); }
+    public function userRequestStatisticsQuarter(int $userId): array { return $this->buildStatistics('quarter', $userId); }
+    public function userRequestStatisticsYear(int $userId): array    { return $this->buildStatistics('year',    $userId); }
+    public function userRequestStatisticsTotal(int $userId): array   { return $this->buildStatistics('total',   $userId); }
 
-    // Estadisticas de los metodos HTTP (today)
-    public function requestMethodStatisticsToday() {
-        try {
-            $response = [
-                'GET' => KingMonitor::where('method', '=', 'GET')->whereDate('created_at', '=', date('Y-m-d'))->count(),
-                'POST' => KingMonitor::where('method', '=', 'POST')->whereDate('created_at', '=', date('Y-m-d'))->count(),
-                'PUT' => KingMonitor::where('method', '=', 'PUT')->whereDate('created_at', '=', date('Y-m-d'))->count(),
-                'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereDate('created_at', '=', date('Y-m-d'))->count(),
-                'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereDate('created_at', '=', date('Y-m-d'))->count(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Usuario con la mayor cantidad de peticiones (today)
-    public function requestStatisticsFrequentUserToday() {
-        try {
-            $response = [
-                'user' => KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // ---------------------------------------------------------------- STATISTICS WEEK REQUEST ----------------------------------------------------------------
-    // Estadisticas de peticiones (week)
-    public function requestStatisticsWeek() {
-        try {
-            $response = [
-                'total' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->count(),
-                //'lastDayWeek' => KingMonitor::where('created_at', '=', Carbon::now()->endOfWeek())->count(), // Cantidad de peticiones en el ultimo dia de la semana
-                'method' => [ // Total de peticiones en metodos de la semana
-                    'mostCommon' => KingMonitor::whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->pluck('method')->mode(),
-                    'GET' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->count(),
-                    'POST' => KingMonitor::where('method', '=', 'POST')->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->count(),
-                    'PUT' => KingMonitor::where('method', '=', 'PUT')->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->count(),
-                    'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->count(),
-                    'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->count(),
-                ],
-                'user' =>  KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function requestMethodStatisticsWeek() {
-        try {
-            $response = [
-                'GET' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->count(),
-                'POST' => KingMonitor::where('method', '=', 'POST')->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->count(),
-                'PUT' => KingMonitor::where('method', '=', 'PUT')->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->count(),
-                'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->count(),
-                'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->count(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function requestStatisticsFrequentUserWeek() {
-        try {
-            $response = [
-                'user' =>  KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // ---------------------------------------------------------------- STATISTICS MONTH REQUEST ----------------------------------------------------------------
-    // Estadisticas de peticiones (month)
-    public function requestStatisticsMonth() {
-        try {
-            $response = [
-                'total' => KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
-                //'lastWeekMonth' => KingMonitor::whereBetween('created_at', [
-                //    Carbon::now()->endOfMonth()->subDays(6),
-                //    Carbon::now()->endOfMonth()
-                //])->count(), // Cantidad de peticiones de la ultima semana del mes
-                'method' => [
-                    'mostCommon' => KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->pluck('method')->mode(),
-                    'GET' => KingMonitor::where('method', '=', 'GET')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
-                    'POST' => KingMonitor::where('method', '=', 'POST')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
-                    'PUT' => KingMonitor::where('method', '=', 'PUT')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
-                    'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
-                    'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
-                ],
-                'user' => KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de peticiones del mes
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Estadisticas de los metodos HTTP (month)
-    public function requestMethodStatisticsMonth() {
-        try {
-            $response = [
-                'GET' => KingMonitor::where('method', '=', 'GET')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
-                'POST' => KingMonitor::where('method', '=', 'POST')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
-                'PUT' => KingMonitor::where('method', '=', 'PUT')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
-                'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
-                'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Usuario con la mayor cantidad de peticiones (month)
-    public function requestStatisticsFrequentUserMonth() {
-        try {
-            $response = [
-                'user' => KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // ---------------------------------------------------------------- STATISTICS QUARTER REQUEST ----------------------------------------------------------------
-    // Estadisticas de peticiones (quarter)
-    public function requestStatisticsQuarter() {
-        try {
-            $response = [
-                'total' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->count(),
-                //'lastMonthQuarter' => KingMonitor::whereBetween('created_at', [
-                //    Carbon::now()->endOfQuarter()->subMonth(2),
-                //    Carbon::now()->endOfQuarter()
-                //])->count(), // Cantidad de peticiones del ultimo mes del trimestre
-                'method' => [
-                    'mostCommon' => KingMonitor::whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->pluck('method')->mode(),
-                    'GET' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->count(),
-                    'POST' => KingMonitor::where('method', '=', 'POST')->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->count(),
-                    'PUT' => KingMonitor::where('method', '=', 'PUT')->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->count(),
-                    'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->count(),
-                    'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->count(),
-                ],
-                'user' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Estadisticas de los metodos HTTP (quarter)
-    public function requestMethodStatisticsQuarter() {
-        try {
-            $response = [
-                'GET' => KingMonitor::where('method', '=', 'GET')->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->count(),
-                'POST' => KingMonitor::where('method', '=', 'POST')->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->count(),
-                'PUT' => KingMonitor::where('method', '=', 'PUT')->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->count(),
-                'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->count(),
-                'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->count(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Usuario con la mayor cantidad de peticiones (quarter)
-    public function requestStatisticsFrequentUserQuarter() {
-        try {
-            $response = [
-                'user' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // ---------------------------------------------------------------- REQUEST STATISTICS YEAR ----------------------------------------------------------------
-    // Estadisticas de peticiones (year)
-    public function requestStatisticsYear() {
-        try {
-            $response = [
-                'total' => KingMonitor::whereYear('created_at', '=', now())->count(),
-                'method' => [
-                    'mostCommon' => KingMonitor::whereYear('created_at', '=', now())->pluck('method')->mode(),
-                    'GET' => KingMonitor::where('method', '=', 'GET')->whereYear('created_at', '=', now())->count(),
-                    'POST' => KingMonitor::where('method', '=', 'POST')->whereYear('created_at', '=', now())->count(),
-                    'PUT' => KingMonitor::where('method', '=', 'PUT')->whereYear('created_at', '=', now())->count(),
-                    'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereYear('created_at', '=', now())->count(),
-                    'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->count(),
-                ],
-                'user' => KingMonitor::whereYear('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Estadisticas de los metodos HTTP (year)
-    public function requestMethodStatisticsYear() {
-        try {
-            $response = [
-                'GET' => KingMonitor::where('method', '=', 'GET')->whereYear('created_at', '=', now())->count(),
-                'POST' => KingMonitor::where('method', '=', 'POST')->whereYear('created_at', '=', now())->count(),
-                'PUT' => KingMonitor::where('method', '=', 'PUT')->whereYear('created_at', '=', now())->count(),
-                'PATCH' => KingMonitor::where('method', '=', 'PATCH')->whereYear('created_at', '=', now())->count(),
-                'DELETE' => KingMonitor::where('method', '=', 'DELETE')->whereYear('created_at', '=', now())->count(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Usuario con la mayor cantidad de peticiones (year)
-    public function requestStatisticsFrequentUserYear() {
-        try {
-            $response = [
-                'user' => KingMonitor::whereYear('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // ---------------------------------------------------------------- REQUEST STATISTICS TOTAL ----------------------------------------------------------------
-    // Estadisticas de peticiones (total)
-    public function requestStatisticsTotal() {
-        try {
-            $response = [
-                'total' => KingMonitor::all()->count(),
-                'method' => [
-                    'mostCommon' => KingMonitor::pluck('method')->mode(),
-                    'GET' => KingMonitor::where('method', '=', 'GET')->count(),
-                    'POST' => KingMonitor::where('method', '=', 'POST')->count(),
-                    'PUT' => KingMonitor::where('method', '=', 'PUT')->count(),
-                    'PATCH' => KingMonitor::where('method', '=', 'PATCH')->count(),
-                    'DELETE' => KingMonitor::where('method', '=', 'DELETE')->count(),
-                ],
-                'user' => KingMonitor::where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Estadisticas de los metodos HTTP (total)
-    public function requestMethodStatisticsTotal() {
-        try {
-            $response = [
-                'GET' => KingMonitor::where('method', '=', 'GET')->count(),
-                'POST' => KingMonitor::where('method', '=', 'POST')->count(),
-                'PUT' => KingMonitor::where('method', '=', 'PUT')->count(),
-                'PATCH' => KingMonitor::where('method', '=', 'PATCH')->count(),
-                'DELETE' => KingMonitor::where('method', '=', 'DELETE')->count(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Usuario con la mayor cantidad de peticiones (total)
-    public function requestStatisticsFrequentUserTotal() {
-        try {
-            $response = [
-                'user' => KingMonitor::where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
+    public function userRequestMethodStatisticsToday(int $userId): array   { return $this->buildMethodBreakdown('today',   $userId); }
+    public function userRequestMethodStatisticsWeek(int $userId): array    { return $this->buildMethodBreakdown('week',    $userId); }
+    public function userRequestMethodStatisticsMonth(int $userId): array   { return $this->buildMethodBreakdown('month',   $userId); }
+    public function userRequestMethodStatisticsQuarter(int $userId): array { return $this->buildMethodBreakdown('quarter', $userId); }
+    public function userRequestMethodStatisticsYear(int $userId): array    { return $this->buildMethodBreakdown('year',    $userId); }
+    public function userRequestMethodStatisticsTotal(int $userId): array   { return $this->buildMethodBreakdown('total',   $userId); }
 
     /****************************************************************** STATISTICS ******************************************************************/
-    public function userRequestStatistics($kingUserId) {
-        try {
-            $today = $this->userRequestStatisticsToday($kingUserId);
-            $week = $this->userRequestStatisticsWeek($kingUserId);
-            $month = $this->userRequestStatisticsMonth($kingUserId);
-            $quarter = $this->userRequestStatisticsQuarter($kingUserId);
-            $year = $this->userRequestStatisticsYear($kingUserId);
-            $total = $this->userRequestStatisticsTotal($kingUserId);
 
-            $response = [
-                'today' => $today,
-                'week' => $week,
-                'month' => $month,
-                'quarter' => $quarter,
-                'year' => $year,
-                'total' => $total,
-            ];
+    public function requestStatisticsToday(): array   { return $this->buildStatistics('today'); }
+    public function requestStatisticsWeek(): array    { return $this->buildStatistics('week'); }
+    public function requestStatisticsMonth(): array   { return $this->buildStatistics('month'); }
+    public function requestStatisticsQuarter(): array { return $this->buildStatistics('quarter'); }
+    public function requestStatisticsYear(): array    { return $this->buildStatistics('year'); }
+    public function requestStatisticsTotal(): array   { return $this->buildStatistics('total'); }
 
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function requestMethodStatisticsToday(): array   { return $this->buildMethodBreakdown('today'); }
+    public function requestMethodStatisticsWeek(): array    { return $this->buildMethodBreakdown('week'); }
+    public function requestMethodStatisticsMonth(): array   { return $this->buildMethodBreakdown('month'); }
+    public function requestMethodStatisticsQuarter(): array { return $this->buildMethodBreakdown('quarter'); }
+    public function requestMethodStatisticsYear(): array    { return $this->buildMethodBreakdown('year'); }
+    public function requestMethodStatisticsTotal(): array   { return $this->buildMethodBreakdown('total'); }
+
+    public function requestStatisticsFrequentUserToday(): array   { return $this->buildFrequentUser('today'); }
+    public function requestStatisticsFrequentUserWeek(): array    { return $this->buildFrequentUser('week'); }
+    public function requestStatisticsFrequentUserMonth(): array   { return $this->buildFrequentUser('month'); }
+    public function requestStatisticsFrequentUserQuarter(): array { return $this->buildFrequentUser('quarter'); }
+    public function requestStatisticsFrequentUserYear(): array    { return $this->buildFrequentUser('year'); }
+    public function requestStatisticsFrequentUserTotal(): array   { return $this->buildFrequentUser('total'); }
+
+    /****************************************************************** AGGREGATE STATISTICS ******************************************************************/
+
+    public function userRequestStatistics(int $userId): array
+    {
+        return $this->buildAllPeriods(fn($p) => $this->buildStatistics($p, $userId));
     }
 
-    public function requestStatistics() {
-        try {
-            $today = $this->requestStatisticsToday();
-            $week = $this->requestStatisticsWeek();
-            $month = $this->requestStatisticsMonth();
-            $quarter = $this->requestStatisticsQuarter();
-            $year = $this->requestStatisticsYear();
-            $total = $this->requestStatisticsTotal();
-
-            $response = [
-                'today' => $today,
-                'week' => $week,
-                'month' => $month,
-                'quarter' => $quarter,
-                'year' => $year,
-                'total' => $total,
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function requestStatistics(): array
+    {
+        return $this->buildAllPeriods(fn($p) => $this->buildStatistics($p));
     }
 
-    /****************************************************************** STATISTICS ENDPOINTS ******************************************************************/
-    // ---------------------------------------------------------------- STATISTICS ENDPOINTS ----------------------------------------------------------------
-    // Obtener los endpoints con mayor cantidad de peticiones y errores (aun hace falta)
-    public function requestStatisticsEndpointTotal() {
-        try {
-            $response = [];
+    /****************************************************************** ENDPOINT STATISTICS ******************************************************************/
 
-            // Route::getRoutes()
-            foreach (config('king-monitor.monitor.endpoint_statistics') as $endpoint) {
-                // Arreglo con la cantidad de peticiones del dia
-                $response[] = [
-                    'name' => $endpoint,
-                    'total' => KingMonitor::where('endpoint', 'like', $endpoint . '%')->count(),
-                    'method' => [ // Total de metodos ocupados de hoy
-                        'GET' => KingMonitor::where('endpoint', 'like', $endpoint . '%')->where('method', '=', 'GET')->count(),
-                        'POST' => KingMonitor::where('endpoint', 'like', $endpoint . '%')->where('method', '=', 'POST')->count(),
-                        'PUT' => KingMonitor::where('endpoint', 'like', $endpoint . '%')->where('method', '=', 'PUT')->count(),
-                        'PATCH' => KingMonitor::where('endpoint', 'like', $endpoint . '%')->where('method', '=', 'PATCH')->count(),
-                        'DELETE' => KingMonitor::where('endpoint', 'like', $endpoint . '%')->where('method', '=', 'DELETE')->count(),
-                    ],
-                    'user' =>  KingMonitor::where('endpoint', 'like', $endpoint . '%')->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de peticiones
-                ];
-            }
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function requestStatisticsEndpointTotal(): array
+    {
+        return collect(config('king-monitor.monitor.endpoint_statistics'))
+            ->map(fn(string $endpoint) => [
+                'name'   => $endpoint,
+                'total'  => self::where('endpoint', 'like', "{$endpoint}%")->count(),
+                'method' => [
+                    'GET'    => self::where('endpoint', 'like', "{$endpoint}%")->ofMethod('GET')->count(),
+                    'POST'   => self::where('endpoint', 'like', "{$endpoint}%")->ofMethod('POST')->count(),
+                    'PUT'    => self::where('endpoint', 'like', "{$endpoint}%")->ofMethod('PUT')->count(),
+                    'PATCH'  => self::where('endpoint', 'like', "{$endpoint}%")->ofMethod('PATCH')->count(),
+                    'DELETE' => self::where('endpoint', 'like', "{$endpoint}%")->ofMethod('DELETE')->count(),
+                ],
+                'user' => self::where('endpoint', 'like', "{$endpoint}%")
+                    ->whereNotNull('king_user_id')
+                    ->pluck('king_user_id')
+                    ->mode(),
+            ])
+            ->values()
+            ->toArray();
     }
+
+    /****************************************************************** USER HISTORICAL ******************************************************************/
+
+    public function userRequestHistoricalToday(int $userId): array   { return $this->buildHistorical('today',   $userId); }
+    public function userRequestHistoricalWeek(int $userId): array    { return $this->buildHistorical('week',    $userId); }
+    public function userRequestHistoricalMonth(int $userId): array   { return $this->buildHistorical('month',   $userId); }
+    public function userRequestHistoricalQuarter(int $userId): array { return $this->buildHistorical('quarter', $userId); }
+    public function userRequestHistoricalYear(int $userId): array    { return $this->buildHistorical('year',    $userId); }
+    public function userRequestHistoricalTotal(int $userId): array   { return $this->buildHistorical('total',   $userId); }
 
     /****************************************************************** HISTORICAL ******************************************************************/
-    // ---------------------------------------------------------------- USER HISTORICAL REQUEST ----------------------------------------------------------------
-    // Historico del usuario por dia dividido en horas (today)
-    public function userRequestHistoricalToday($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
-                    DB::raw('count(*) as total')
-                )->groupBy('hour')->orderBy('hour')->get()
-            ];
 
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function requestHistoricalToday(): array   { return $this->buildHistorical('today'); }
+    public function requestHistoricalWeek(): array    { return $this->buildHistorical('week'); }
+    public function requestHistoricalMonth(): array   { return $this->buildHistorical('month'); }
+    public function requestHistoricalQuarter(): array { return $this->buildHistorical('quarter'); }
+    public function requestHistoricalYear(): array    { return $this->buildHistorical('year'); }
+    public function requestHistoricalTotal(): array   { return $this->buildHistorical('total'); }
+
+    /****************************************************************** AGGREGATE HISTORICAL ******************************************************************/
+
+    public function userRequestHistorical(int $userId): array
+    {
+        return $this->buildAllPeriods(fn($p) => $this->buildHistorical($p, $userId));
     }
 
-    // Historico del usuario por semana dividido en dias (week)
-    public function userRequestHistoricalWeek($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function requestHistorical(): array
+    {
+        return $this->buildAllPeriods(fn($p) => $this->buildHistorical($p));
     }
 
-    // Historico del usuario por mes dividido en dias (month)
-    public function userRequestHistoricalMonth($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
+    /****************************************************************** AVERAGE TIME ******************************************************************/
 
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico del usuario por trimestre dividido en dias (quarter)
-    public function userRequestHistoricalQuarter($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico del usuario por año dividido en dias (year)
-    public function userRequestHistoricalYear($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitor::whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitor::whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%M") as month'),
-                    DB::raw('count(*) as total')
-                )->groupBy('month')->orderBy('month')->get()
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico del usuario por total dividido en años (total)
-    public function userRequestHistoricalTotal($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitor::where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitor::where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
-                    DB::raw('count(*) as total')
-                )->groupBy('year')->orderBy('year')->get()
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    /****************************************************************** HISTORICAL ******************************************************************/
-    // ---------------------------------------------------------------- HISTORICAL REQUEST ----------------------------------------------------------------
-    // Historico de peticiones por dia dividido en horas (today)
-    public function requestHistoricalToday() {
-        try {
-            $response = [
-                'total' => KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->count(), // Total de peticiones
-                'details' => KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->select(
-                    DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
-                    DB::raw('count(*) as total')
-                )->groupBy('hour')->orderBy('hour')->get()
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por semana dividido en dias (week)
-    public function requestHistoricalWeek() {
-        try {
-            $response = [
-                'total' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->count(), // Total de peticiones
-                'details' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por mes dividido en dias (month)
-    public function requestHistoricalMonth() {
-        try {
-            $response = [
-                'total' => KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(), // Total de peticiones
-                'details' => KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por trimestre dividido en dias (quarter)
-    public function requestHistoricalQuarter() {
-        try {
-            $response = [
-                'total' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->count(), // Total de peticiones
-                'details' => KingMonitor::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por año dividido en dias (year)
-    public function requestHistoricalYear() {
-        try {
-            $response = [
-                'total' => KingMonitor::whereYear('created_at', '=', now())->count(), // Total de peticiones del usuario
-                'details' => KingMonitor::whereYear('created_at', '=', now())->select(
-                    DB::raw('DATE_FORMAT(created_at, "%M") as month'),
-                    DB::raw('count(*) as total')
-                )->groupBy('month')->orderBy('month')->get()
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por total dividido en años (total)
-    public function requestHistoricalTotal() {
-        try {
-            $response = [
-                'total' => KingMonitor::all()->count(), // Total de peticiones del usuario
-                'details' => KingMonitor::select(
-                    DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
-                    DB::raw('count(*) as total')
-                )->groupBy('year')->orderBy('year')->get()
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    /****************************************************************** HISTORICAL ******************************************************************/
-    public function userRequestHistorical($kingUserId) {
-        try {
-            $today = $this->userRequestHistoricalToday($kingUserId);
-            $week = $this->userRequestHistoricalWeek($kingUserId);
-            $month = $this->userRequestHistoricalMonth($kingUserId);
-            $quarter = $this->userRequestHistoricalQuarter($kingUserId);
-            $year = $this->userRequestHistoricalYear($kingUserId);
-            $total = $this->userRequestHistoricalTotal($kingUserId);
-
-            $response = [
-                'today' => $today,
-                'week' => $week,
-                'month' => $month,
-                'quarter' => $quarter,
-                'year' => $year,
-                'total' => $total,
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function requestHistorical() {
-        try {
-            $today = $this->requestHistoricalToday();
-            $week = $this->requestHistoricalWeek();
-            $month = $this->requestHistoricalMonth();
-            $quarter = $this->requestHistoricalQuarter();
-            $year = $this->requestHistoricalYear();
-            $total = $this->requestHistoricalTotal();
-
-            $response = [
-                'today' => $today,
-                'week' => $week,
-                'month' => $month,
-                'quarter' => $quarter,
-                'year' => $year,
-                'total' => $total,
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    /****************************************************************** AVG REQUEST ******************************************************************/
-    public function averageRequestTimeToday() {
-        try {
-            $time = KingMonitor::whereDate('created_at', '=', date('Y-m-d'))->orderBy('created_at', 'asc')->get();
-
-            $intervals = [];
-
-            // Calcular los intervalos
-            for ($i = 1; $i < count($time); $i++) {
-                $intervals[] = $time[$i]->created_at->diffInSeconds($time[$i - 1]->created_at); // Agregar el intervalo al array
-            }
-
-            // Calcular el promedio
-            if (!empty($intervals)) {
-                $averageInterval = array_sum($intervals) / count($intervals); // Promedio en segundos
-            } else {
-                $averageInterval = null; // No hay intervalos para calcular
-            }
-
-            $response = [
-                'min' => (!empty($intervals)) ? min($intervals) : null,
-                'avg' => $averageInterval,
-                'max' => (!empty($intervals)) ? max($intervals) : null
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function averageRequestTimeWeek() {
-        try {
-            $time = KingMonitor::whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->orderBy('created_at', 'asc')->get();
-
-            $intervals = [];
-
-            // Calcular los intervalos
-            for ($i = 1; $i < count($time); $i++) {
-                $intervals[] = $time[$i]->created_at->diffInSeconds($time[$i - 1]->created_at); // Agregar el intervalo al array
-            }
-
-            // Calcular el promedio
-            if (!empty($intervals)) {
-                $averageInterval = array_sum($intervals) / count($intervals); // Promedio en segundos
-            } else {
-                $averageInterval = null; // No hay intervalos para calcular
-            }
-
-            $response = [
-                'min' => (!empty($intervals)) ? min($intervals) : null,
-                'avg' => $averageInterval,
-                'max' => (!empty($intervals)) ? max($intervals) : null
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function averageRequestTimeMonth() {
-        try {
-            $time = KingMonitor::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->orderBy('created_at', 'asc')->get();
-
-            $intervals = [];
-
-            // Calcular los intervalos
-            for ($i = 1; $i < count($time); $i++) {
-                $intervals[] = $time[$i]->created_at->diffInSeconds($time[$i - 1]->created_at); // Agregar el intervalo al array
-            }
-
-            // Calcular el promedio
-            if (!empty($intervals)) {
-                $averageInterval = array_sum($intervals) / count($intervals); // Promedio en segundos
-            } else {
-                $averageInterval = null; // No hay intervalos para calcular
-            }
-
-            $response = [
-                'min' => (!empty($intervals)) ? min($intervals) : null,
-                'avg' => $averageInterval,
-                'max' => (!empty($intervals)) ? max($intervals) : null
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function averageRequestTimeQuarter() {
-        try {
-            $time = KingMonitor::whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->orderBy('created_at', 'asc')->get();
-
-            $intervals = [];
-
-            // Calcular los intervalos
-            for ($i = 1; $i < count($time); $i++) {
-                $intervals[] = $time[$i]->created_at->diffInSeconds($time[$i - 1]->created_at); // Agregar el intervalo al array
-            }
-
-            // Calcular el promedio
-            if (!empty($intervals)) {
-                $averageInterval = array_sum($intervals) / count($intervals); // Promedio en segundos
-            } else {
-                $averageInterval = null; // No hay intervalos para calcular
-            }
-
-            $response = [
-                'min' => (!empty($intervals)) ? min($intervals) : null,
-                'avg' => $averageInterval,
-                'max' => (!empty($intervals)) ? max($intervals) : null
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function averageRequestTimeYear() {
-        try {
-            $time = KingMonitor::whereYear('created_at', '=', now())->orderBy('created_at', 'asc')->get();
-
-            $intervals = [];
-
-            // Calcular los intervalos
-            for ($i = 1; $i < count($time); $i++) {
-                $intervals[] = $time[$i]->created_at->diffInSeconds($time[$i - 1]->created_at); // Agregar el intervalo al array
-            }
-
-            // Calcular el promedio
-            if (!empty($intervals)) {
-                $averageInterval = array_sum($intervals) / count($intervals); // Promedio en segundos
-            } else {
-                $averageInterval = null; // No hay intervalos para calcular
-            }
-
-            $response = [
-                'min' => (!empty($intervals)) ? min($intervals) : null,
-                'avg' => $averageInterval,
-                'max' => (!empty($intervals)) ? max($intervals) : null
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function averageRequestTimeTotal() {
-        try {
-            $time = KingMonitor::orderBy('created_at', 'asc')->get();
-
-            $intervals = [];
-
-            // Calcular los intervalos
-            for ($i = 1; $i < count($time); $i++) {
-                $intervals[] = $time[$i]->created_at->diffInSeconds($time[$i - 1]->created_at); // Agregar el intervalo al array
-            }
-
-            // Calcular el promedio
-            if (!empty($intervals)) {
-                $averageInterval = array_sum($intervals) / count($intervals); // Promedio en segundos
-            } else {
-                $averageInterval = null; // No hay intervalos para calcular
-            }
-
-            $response = [
-                'min' => (!empty($intervals)) ? min($intervals) : null,
-                'avg' => $averageInterval,
-                'max' => (!empty($intervals)) ? max($intervals) : null
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
+    public function averageRequestTimeToday(): array   { return $this->buildAverageTime('today'); }
+    public function averageRequestTimeWeek(): array    { return $this->buildAverageTime('week'); }
+    public function averageRequestTimeMonth(): array   { return $this->buildAverageTime('month'); }
+    public function averageRequestTimeQuarter(): array { return $this->buildAverageTime('quarter'); }
+    public function averageRequestTimeYear(): array    { return $this->buildAverageTime('year'); }
+    public function averageRequestTimeTotal(): array   { return $this->buildAverageTime('total'); }
 }

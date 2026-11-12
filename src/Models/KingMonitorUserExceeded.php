@@ -3,1681 +3,382 @@
 namespace ByCarmona141\KingMonitor\Models;
 
 use Carbon\Carbon;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
-class KingMonitorUserExceeded extends Model {
+class KingMonitorUserExceeded extends Model
+{
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
+    public const TYPE_REQUEST = 1;
+    public const TYPE_ERROR   = 2;
+
     protected $fillable = [
+        'type',
         'king_user_id',
         'token',
         'ip',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
     protected $casts = [
-        'id' => 'integer',
-        'king_user_id' => 'integer'
+        'id'           => 'integer',
+        'king_user_id' => 'integer',
     ];
 
-    // Metodo para revisar si el usuario ya fue registrado en la tabla de KingMonitorUserExceeded
-    public function limit(): bool {
-        $result = false;
+    /****************************************************************** QUERY SCOPES ******************************************************************/
 
-        $kingUserId = NULL;
+    public function scopeForPeriod(Builder $query, string $period): Builder
+    {
+        return match ($period) {
+            'today'   => $query->whereDate('created_at', today()),
+            'week'    => $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]),
+            'month'   => $query->whereYear('created_at', now()->year)->whereMonth('created_at', now()->month),
+            'quarter' => $query->whereBetween('created_at', [Carbon::now()->startOfQuarter(), Carbon::now()->endOfQuarter()]),
+            'year'    => $query->whereYear('created_at', now()->year),
+            default   => $query, // total
+        };
+    }
 
-        if(auth()->user() !== NULL) {
-            $kingUserId = auth()->user()->id;
+    public function scopeOfType(Builder $query, int $type): Builder
+    {
+        return $query->where('type', $type);
+    }
+
+    /****************************************************************** LIMIT ******************************************************************/
+
+    public function limit(): bool
+    {
+        return $this->hasExceededToday(self::TYPE_REQUEST);
+    }
+
+    public function limitError(): bool
+    {
+        return $this->hasExceededToday(self::TYPE_ERROR);
+    }
+
+    private function hasExceededToday(int $type): bool
+    {
+        $userId = auth()->id();
+
+        return self::whereDate('created_at', today())
+                ->ofType($type)
+                ->where('king_user_id', $userId)
+                ->exists()
+            && self::whereDate('created_at', today())
+                ->where('token', request()->bearerToken())
+                ->exists()
+            && self::whereDate('created_at', today())
+                ->where('ip', request()->getClientIp())
+                ->exists();
+    }
+
+    /****************************************************************** PRIVATE HELPERS ******************************************************************/
+
+    private function buildExceeded(string $period, string $field): mixed
+    {
+        return self::forPeriod($period)->distinct()->pluck($field);
+    }
+
+    private function buildUserStatistics(string $period, int $userId, ?int $type = null): array
+    {
+        $query = fn() => $type
+            ? self::forPeriod($period)->ofType($type)->where('king_user_id', $userId)
+            : self::forPeriod($period)->where('king_user_id', $userId);
+
+        return [
+            'total' => $query()->count(),
+            'ip'    => $query()->whereNotNull('ip')->pluck('ip')->mode(),
+        ];
+    }
+
+    private function buildGlobalStatistics(string $period, ?int $type = null): array
+    {
+        $query = fn() => $type
+            ? self::forPeriod($period)->ofType($type)
+            : self::forPeriod($period);
+
+        return [
+            'total' => $query()->count(),
+            'user'  => $query()->whereNotNull('king_user_id')->pluck('king_user_id')->mode(),
+            'ip'    => $query()->whereNotNull('ip')->pluck('ip')->mode(),
+        ];
+    }
+
+    private function buildHistorical(string $period, ?int $type = null, ?int $userId = null): array
+    {
+        $alias  = $this->aliasForPeriod($period);
+        $format = $this->groupFormatForPeriod($period);
+
+        $base = $type ? self::ofType($type) : self::query();
+
+        if ($userId) {
+            $base->where('king_user_id', $userId);
         }
 
-        // Si el usuario y el token ya fue registrado en la tabla de KingMonitorUserExceeded
-        if(KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('type', '=', 1)->where('king_user_id', '=', $kingUserId)->count() > 0 && KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('token', '=', request()->bearerToken())->count() > 0 && KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('ip', '=', request()->getClientIp())->count() > 0) {
-            $result = true;
-        }
-
-        return $result;
+        return [
+            'total'   => (clone $base)->forPeriod($period)->count(),
+            'details' => (clone $base)->forPeriod($period)
+                ->select(
+                    DB::raw("DATE_FORMAT(created_at, '{$format}') as {$alias}"),
+                    DB::raw('count(*) as total')
+                )
+                ->groupBy($alias)
+                ->orderBy($alias)
+                ->get(),
+        ];
     }
 
-    // Metodo para revisar si el usuario ya fue registrado en la tabla de KingMonitorUserExceeded
-    public function limitError(): bool {
-        $result = false;
+    private function buildCombinedHistorical(string $period, ?int $userId = null): array
+    {
+        $base = $userId ? self::where('king_user_id', $userId) : self::query();
 
-        $kingUserId = NULL;
-
-        if(auth()->user() !== NULL) {
-            $kingUserId = auth()->user()->id;
-        }
-
-        // Si el usuario y el token ya fue registrado en la tabla de KingMonitorUserExceeded
-        if(KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('type', '=', 2)->where('king_user_id', '=', $kingUserId)->count() > 0 && KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('token', '=', request()->bearerToken())->count() > 0 && KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('ip', '=', request()->getClientIp())->count() > 0) {
-            $result = true;
-        }
-
-        return $result;
+        return [
+            'total'   => (clone $base)->forPeriod($period)->count(),
+            'details' => [
+                'request' => $this->buildHistorical($period, self::TYPE_REQUEST, $userId)['details'],
+                'error'   => $this->buildHistorical($period, self::TYPE_ERROR, $userId)['details'],
+            ],
+        ];
     }
 
-    /****************************************************************** USER ******************************************************************/
-    // ---------------------------------------------------------------- USER EXCEEDED TODAY ----------------------------------------------------------------
-    // Obtenemos los usuarios que excedieron el limite de peticiones (today)
-    public function userExceededToday() {
-        return KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->distinct()->pluck('king_user_id');
+    private function buildAllPeriods(callable $builder): array
+    {
+        return [
+            'today'   => $builder('today'),
+            'week'    => $builder('week'),
+            'month'   => $builder('month'),
+            'quarter' => $builder('quarter'),
+            'year'    => $builder('year'),
+            'total'   => $builder('total'),
+        ];
     }
 
-    // ---------------------------------------------------------------- USER EXCEEDED WEEK ----------------------------------------------------------------
-    // Obtenemos los usuarios que excedieron el limite de peticiones (week)
-    public function userExceededWeek() {
-        return KingMonitorUserExceeded::whereBetween('created_at', [
-            Carbon::now()->startOfWeek(),
-            Carbon::now()->endOfWeek()
-        ])->distinct()->pluck('king_user_id');
+    private function groupFormatForPeriod(string $period): string
+    {
+        return match ($period) {
+            'today'                    => '%H',
+            'week', 'month', 'quarter' => '%d',
+            'year'                     => '%M',
+            default                    => '%Y',
+        };
     }
 
-    // ---------------------------------------------------------------- USER EXCEEDED MONTH ----------------------------------------------------------------
-    // Obtenemos los usuarios que excedieron el limite de peticiones (month)
-    public function userExceededMonth() {
-        return KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->distinct()->pluck('king_user_id');
+    private function aliasForPeriod(string $period): string
+    {
+        return match ($period) {
+            'today'                    => 'hour',
+            'week', 'month', 'quarter' => 'day',
+            'year'                     => 'month',
+            default                    => 'year',
+        };
     }
 
-    // ---------------------------------------------------------------- USER EXCEEDED QUARTER ----------------------------------------------------------------
-    // Obtenemos los usuarios que excedieron el limite de peticiones (quarter)
-    public function userExceededQuarter() {
-        return KingMonitorUserExceeded::whereBetween('created_at', [
-            Carbon::now()->startOfQuarter(),
-            Carbon::now()->endOfQuarter()
-        ])->distinct()->pluck('king_user_id');
+    /**
+     * Evita registrar el mismo exceso dos veces en el mismo día
+     * para el mismo usuario + token + IP.
+     */
+    public static function alreadyRegisteredToday(): bool
+    {
+        return static::query()
+            ->whereDate('created_at', today())
+            ->where('type', self::TYPE_ERROR)
+            ->where(function ($q) {
+                $q->where('king_user_id', auth()->id())
+                    ->orWhere('token', request()->bearerToken());
+            })
+            ->exists();
     }
 
-    // ---------------------------------------------------------------- USER EXCEEDED YEAR ----------------------------------------------------------------
-    // Obtenemos los usuarios que excedieron el limite de peticiones (year)
-    public function userExceededYear() {
-        return KingMonitorUserExceeded::whereYear('created_at', '=', now())->distinct()->pluck('king_user_id');
-    }
+    /****************************************************************** EXCEEDED: USER / TOKEN / IP ******************************************************************/
 
-    // ---------------------------------------------------------------- USER EXCEEDED TOTAL ----------------------------------------------------------------
-    // Obtenemos los usuarios que excedieron el limite de peticiones (total)
-    public function userExceededTotal() {
-        return KingMonitorUserExceeded::distinct()->pluck('king_user_id');
-    }
+    public function userExceededToday(): mixed   { return $this->buildExceeded('today',   'king_user_id'); }
+    public function userExceededWeek(): mixed    { return $this->buildExceeded('week',    'king_user_id'); }
+    public function userExceededMonth(): mixed   { return $this->buildExceeded('month',   'king_user_id'); }
+    public function userExceededQuarter(): mixed { return $this->buildExceeded('quarter', 'king_user_id'); }
+    public function userExceededYear(): mixed    { return $this->buildExceeded('year',    'king_user_id'); }
+    public function userExceededTotal(): mixed   { return $this->buildExceeded('total',   'king_user_id'); }
 
-    /****************************************************************** TOKEN ******************************************************************/
-    // ---------------------------------------------------------------- TOKEN EXCEEDED TODAY ----------------------------------------------------------------
-    // Obtenemos los tokens que excedieron el limite de peticiones (today)
-    public function tokenExceededToday() {
-        return KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->distinct()->pluck('token');
-    }
+    public function tokenExceededToday(): mixed   { return $this->buildExceeded('today',   'token'); }
+    public function tokenExceededWeek(): mixed    { return $this->buildExceeded('week',    'token'); }
+    public function tokenExceededMonth(): mixed   { return $this->buildExceeded('month',   'token'); }
+    public function tokenExceededQuarter(): mixed { return $this->buildExceeded('quarter', 'token'); }
+    public function tokenExceededYear(): mixed    { return $this->buildExceeded('year',    'token'); }
+    public function tokenExceededTotal(): mixed   { return $this->buildExceeded('total',   'token'); }
 
-    // ---------------------------------------------------------------- TOKEN EXCEEDED WEEK ----------------------------------------------------------------
-    // Obtenemos los tokens que excedieron el limite de peticiones (week)
-    public function tokenExceededWeek() {
-        return KingMonitorUserExceeded::whereBetween('created_at', [
-            Carbon::now()->startOfWeek(),
-            Carbon::now()->endOfWeek()
-        ])->distinct()->pluck('token');
-    }
+    public function ipExceededToday(): mixed   { return $this->buildExceeded('today',   'ip'); }
+    public function ipExceededWeek(): mixed    { return $this->buildExceeded('week',    'ip'); }
+    public function ipExceededMonth(): mixed   { return $this->buildExceeded('month',   'ip'); }
+    public function ipExceededQuarter(): mixed { return $this->buildExceeded('quarter', 'ip'); }
+    public function ipExceededYear(): mixed    { return $this->buildExceeded('year',    'ip'); }
+    public function ipExceededTotal(): mixed   { return $this->buildExceeded('total',   'ip'); }
 
-    // ---------------------------------------------------------------- TOKEN EXCEEDED MONTH ----------------------------------------------------------------
-    // Obtenemos los tokens que excedieron el limite de peticiones (month)
-    public function tokenExceededMonth() {
-        return KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->distinct()->pluck('token');
-    }
-
-    // ---------------------------------------------------------------- TOKEN EXCEEDED QUARTER ----------------------------------------------------------------
-    // Obtenemos los tokens que excedieron el limite de peticiones (quarter)
-    public function tokenExceededQuarter() {
-        return KingMonitorUserExceeded::whereBetween('created_at', [
-            Carbon::now()->startOfQuarter(),
-            Carbon::now()->endOfQuarter()
-        ])->distinct()->pluck('token');
-    }
-
-    // ---------------------------------------------------------------- TOKEN EXCEEDED YEAR ----------------------------------------------------------------
-    // Obtenemos los tokens que excedieron el limite de peticiones (year)
-    public function tokenExceededYear() {
-        return KingMonitorUserExceeded::whereYear('created_at', '=', now())->distinct()->pluck('token');
-    }
-
-    // ---------------------------------------------------------------- TOKEN EXCEEDED TOTAL ----------------------------------------------------------------
-    // Obtenemos los tokens que excedieron el limite de peticiones (total)
-    public function tokenExceededTotal() {
-        return KingMonitorUserExceeded::distinct()->pluck('token');
-    }
-
-    /****************************************************************** IP ******************************************************************/
-    // ---------------------------------------------------------------- IP EXCEEDED TODAY ----------------------------------------------------------------
-    // Obtenemos las IP que excedieron el limite de peticiones (today)
-    public function ipExceededToday() {
-        return KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->distinct()->pluck('ip');
-    }
-
-    // ---------------------------------------------------------------- IP EXCEEDED WEEK ----------------------------------------------------------------
-    // Obtenemos las IP que excedieron el limite de peticiones (week)
-    public function ipExceededWeek() {
-        return KingMonitorUserExceeded::whereBetween('created_at', [
-            Carbon::now()->startOfWeek(),
-            Carbon::now()->endOfWeek()
-        ])->distinct()->pluck('ip');
-    }
-
-    // ---------------------------------------------------------------- IP EXCEEDED MONTH ----------------------------------------------------------------
-    // Obtenemos las IP que excedieron el limite de peticiones (month)
-    public function ipExceededMonth() {
-        return KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->distinct()->pluck('ip');
-    }
-
-    // ---------------------------------------------------------------- IP EXCEEDED QUARTER ----------------------------------------------------------------
-    // Obtenemos las IP que excedieron el limite de peticiones (quarter)
-    public function ipExceededQuarter() {
-        return KingMonitorUserExceeded::whereBetween('created_at', [
-            Carbon::now()->startOfQuarter(),
-            Carbon::now()->endOfQuarter()
-        ])->distinct()->pluck('ip');
-    }
-
-    // ---------------------------------------------------------------- IP EXCEEDED YEAR ----------------------------------------------------------------
-    // Obtenemos las IP que excedieron el limite de peticiones (year)
-    public function ipExceededYear() {
-        return KingMonitorUserExceeded::whereYear('created_at', '=', now())->distinct()->pluck('ip');
-    }
-
-    // ---------------------------------------------------------------- IP EXCEEDED TOTAL ----------------------------------------------------------------
-    // Obtenemos las IP que excedieron el limite de peticiones (total)
-    public function ipExceededTotal() {
-        return KingMonitorUserExceeded::distinct()->pluck('ip');
-    }
-
-    /****************************************************************** STATISTICS ******************************************************************/
     /****************************************************************** USER STATISTICS ******************************************************************/
-    // ---------------------------------------------------------------- USER STATISTICS REQUEST ----------------------------------------------------------------
-    // Estadisticas de peticiones del usuario (today)
-    public function userRequestStatisticsToday($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
 
-        return $response;
-    }
+    public function userRequestStatisticsExceededToday(int $userId): array   { return $this->buildUserStatistics('today',   $userId, self::TYPE_REQUEST); }
+    public function userRequestStatisticsExceededWeek(int $userId): array    { return $this->buildUserStatistics('week',    $userId, self::TYPE_REQUEST); }
+    public function userRequestStatisticsExceededMonth(int $userId): array   { return $this->buildUserStatistics('month',   $userId, self::TYPE_REQUEST); }
+    public function userRequestStatisticsExceededQuarter(int $userId): array { return $this->buildUserStatistics('quarter', $userId, self::TYPE_REQUEST); }
+    public function userRequestStatisticsExceededYear(int $userId): array    { return $this->buildUserStatistics('year',    $userId, self::TYPE_REQUEST); }
+    public function userRequestStatisticsExceededTotal(int $userId): array   { return $this->buildUserStatistics('total',   $userId, self::TYPE_REQUEST); }
 
-    // Estadisticas de peticiones del usuario (week)
-    public function userRequestStatisticsWeek($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
+    public function userErrorStatisticsExceededToday(int $userId): array   { return $this->buildUserStatistics('today',   $userId, self::TYPE_ERROR); }
+    public function userErrorStatisticsExceededWeek(int $userId): array    { return $this->buildUserStatistics('week',    $userId, self::TYPE_ERROR); }
+    public function userErrorStatisticsExceededMonth(int $userId): array   { return $this->buildUserStatistics('month',   $userId, self::TYPE_ERROR); }
+    public function userErrorStatisticsExceededQuarter(int $userId): array { return $this->buildUserStatistics('quarter', $userId, self::TYPE_ERROR); }
+    public function userErrorStatisticsExceededYear(int $userId): array    { return $this->buildUserStatistics('year',    $userId, self::TYPE_ERROR); }
+    public function userErrorStatisticsExceededTotal(int $userId): array   { return $this->buildUserStatistics('total',   $userId, self::TYPE_ERROR); }
 
-        return $response;
-    }
-
-    // Estadisticas de peticiones del usuario (month)
-    public function userRequestStatisticsMonth($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de peticiones del usuario (quarter)
-    public function userRequestStatisticsQuarter($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de peticiones del usuario (year)
-    public function userRequestStatisticsYear($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de peticiones del usuario (total)
-    public function userRequestStatisticsTotal($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 1)->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::where('type', '=', 1)->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // ---------------------------------------------------------------- USER STATISTICS ERROR ----------------------------------------------------------------
-    // Estadisticas de errores del usuario (today)
-    public function userErrorStatisticsToday($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de errores del usuario (week)
-    public function userErrorStatisticsWeek($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de errores del usuario (month)
-    public function userErrorStatisticsMonth($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de errores del usuario (quarter)
-    public function userErrorStatisticsQuarter($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de errores del usuario (year)
-    public function userErrorStatisticsYear($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de errores del usuario (total)
-    public function userErrorStatisticsTotal($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 2)->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::where('type', '=', 2)->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // ---------------------------------------------------------------- USER STATISTICS ----------------------------------------------------------------
-    // Estadisticas del usuario (today)
-    public function userStatisticsToday($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas del usuario (week)
-    public function userStatisticsWeek($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas del usuario (month)
-    public function userStatisticsMonth($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas del usuario (quarter)
-    public function userStatisticsQuarter($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas del usuario (year)
-    public function userStatisticsYear($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas del usuario (total)
-    public function userStatisticsTotal($kingUserId) {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('king_user_id', '=', $kingUserId)->count(), // Cantidad de usuarios que excedieron el limite
-            'ip' => KingMonitorUserExceeded::where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // ---------------------------------------------------------------- STATISTICS USER ----------------------------------------------------------------
-    // Estadisticas de peticiones
-    public function userRequestStatistics($kingUserId) {
-        $today = $this->userRequestStatisticsToday($kingUserId);
-        $week = $this->userRequestStatisticsWeek($kingUserId);
-        $month = $this->userRequestStatisticsMonth($kingUserId);
-        $quarter = $this->userRequestStatisticsQuarter($kingUserId);
-        $year = $this->userRequestStatisticsYear($kingUserId);
-        $total = $this->userRequestStatisticsTotal($kingUserId);
-
-        $response = [
-            'today' => $today,
-            'week' => $week,
-            'month' => $month,
-            'quarter' => $quarter,
-            'year' => $year,
-            'total' => $total,
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de errores
-    public function userErrorStatistics($kingUserId) {
-        $today = $this->userErrorStatisticsToday($kingUserId);
-        $week = $this->userErrorStatisticsWeek($kingUserId);
-        $month = $this->userErrorStatisticsMonth($kingUserId);
-        $quarter = $this->userErrorStatisticsQuarter($kingUserId);
-        $year = $this->userErrorStatisticsYear($kingUserId);
-        $total = $this->userErrorStatisticsTotal($kingUserId);
-
-        $response = [
-            'today' => $today,
-            'week' => $week,
-            'month' => $month,
-            'quarter' => $quarter,
-            'year' => $year,
-            'total' => $total,
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de peticiones y errores
-    public function userStatistics($kingUserId) {
-        $response = [
-            'request' => $this->userRequestStatistics($kingUserId),
-            'errors' => $this->userErrorStatistics($kingUserId),
-        ];
-
-        return $response;
-    }
+    public function userStatisticsExceededToday(int $userId): array   { return $this->buildUserStatistics('today',   $userId); }
+    public function userStatisticsExceededWeek(int $userId): array    { return $this->buildUserStatistics('week',    $userId); }
+    public function userStatisticsExceededMonth(int $userId): array   { return $this->buildUserStatistics('month',   $userId); }
+    public function userStatisticsExceededQuarter(int $userId): array { return $this->buildUserStatistics('quarter', $userId); }
+    public function userStatisticsExceededYear(int $userId): array    { return $this->buildUserStatistics('year',    $userId); }
+    public function userStatisticsExceededTotal(int $userId): array   { return $this->buildUserStatistics('total',   $userId); }
 
     /****************************************************************** STATISTICS ******************************************************************/
-    // ---------------------------------------------------------------- REQUEST STATISTICS ----------------------------------------------------------------
-    // Estadisticas de peticiones (today)
-    public function requestStatisticsToday() {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
 
-        return $response;
+    public function requestStatisticsExceededToday(): array   { return $this->buildGlobalStatistics('today',   self::TYPE_REQUEST); }
+    public function requestStatisticsExceededWeek(): array    { return $this->buildGlobalStatistics('week',    self::TYPE_REQUEST); }
+    public function requestStatisticsExceededMonth(): array   { return $this->buildGlobalStatistics('month',   self::TYPE_REQUEST); }
+    public function requestStatisticsExceededQuarter(): array { return $this->buildGlobalStatistics('quarter', self::TYPE_REQUEST); }
+    public function requestStatisticsExceededYear(): array    { return $this->buildGlobalStatistics('year',    self::TYPE_REQUEST); }
+    public function requestStatisticsExceededTotal(): array   { return $this->buildGlobalStatistics('total',   self::TYPE_REQUEST); }
+
+    public function errorStatisticsExceededToday(): array   { return $this->buildGlobalStatistics('today',   self::TYPE_ERROR); }
+    public function errorStatisticsExceededWeek(): array    { return $this->buildGlobalStatistics('week',    self::TYPE_ERROR); }
+    public function errorStatisticsExceededMonth(): array   { return $this->buildGlobalStatistics('month',   self::TYPE_ERROR); }
+    public function errorStatisticsExceededQuarter(): array { return $this->buildGlobalStatistics('quarter', self::TYPE_ERROR); }
+    public function errorStatisticsExceededYear(): array    { return $this->buildGlobalStatistics('year',    self::TYPE_ERROR); }
+    public function errorStatisticsExceededTotal(): array   { return $this->buildGlobalStatistics('total',   self::TYPE_ERROR); }
+
+    public function statisticsExceededToday(): array   { return $this->buildGlobalStatistics('today'); }
+    public function statisticsExceededWeek(): array    { return $this->buildGlobalStatistics('week'); }
+    public function statisticsExceededMonth(): array   { return $this->buildGlobalStatistics('month'); }
+    public function statisticsExceededQuarter(): array { return $this->buildGlobalStatistics('quarter'); }
+    public function statisticsExceededYear(): array    { return $this->buildGlobalStatistics('year'); }
+    public function statisticsExceededTotal(): array   { return $this->buildGlobalStatistics('total'); }
+
+    /****************************************************************** AGGREGATE STATISTICS ******************************************************************/
+
+    public function userRequestStatisticsExceeded(int $userId): array
+    {
+        return $this->buildAllPeriods(fn($p) => $this->buildUserStatistics($p, $userId, self::TYPE_REQUEST));
     }
 
-    // Estadisticas de peticiones (week)
-    public function requestStatisticsWeek() {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
+    public function userErrorStatisticsExceeded(int $userId): array
+    {
+        return $this->buildAllPeriods(fn($p) => $this->buildUserStatistics($p, $userId, self::TYPE_ERROR));
     }
 
-    // Estadisticas de peticiones (month)
-    public function requestStatisticsMonth() {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
+    public function userStatisticsExceeded(int $userId): array
+    {
+        return [
+            'request' => $this->userRequestStatistics($userId),
+            'errors'  => $this->userErrorStatistics($userId),
         ];
-
-        return $response;
     }
 
-    // Estadisticas de peticiones (quarter)
-    public function requestStatisticsQuarter() {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
+    public function requestStatisticsExceeded(): array
+    {
+        return $this->buildAllPeriods(fn($p) => $this->buildGlobalStatistics($p, self::TYPE_REQUEST));
     }
 
-    // Estadisticas de peticiones (year)
-    public function requestStatisticsYear() {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
+    public function errorStatisticsExceeded(): array
+    {
+        return $this->buildAllPeriods(fn($p) => $this->buildGlobalStatistics($p, self::TYPE_ERROR));
     }
 
-    // Estadisticas de peticiones (total)
-    public function requestStatisticsTotal() {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 1)->count(), // Cantidad de usuarios que excedieron el limite de peticiones
-            'user' => KingMonitorUserExceeded::where('type', '=', 1)->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos de peticiones
-            'ip' => KingMonitorUserExceeded::where('type', '=', 1)->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos de peticiones
+    public function statisticsExceeded(): array
+    {
+        return [
+            'request' => $this->requestStatisticsExceeded(),
+            'errors'  => $this->errorStatisticsExceeded(),
         ];
-
-        return $response;
     }
 
-    // ---------------------------------------------------------------- ERROR STATISTICS ----------------------------------------------------------------
-    // Estadisticas de errores (today)
-    public function errorStatisticsToday() {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de errores (week)
-    public function errorStatisticsWeek() {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de errores (month)
-    public function errorStatisticsMonth() {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de errores (quarter)
-    public function errorStatisticsQuarter() {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de errores (year)
-    public function errorStatisticsYear() {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de errores (total)
-    public function errorStatisticsTotal() {
-        $response = [
-            'total' => KingMonitorUserExceeded::where('type', '=', 2)->count(), // Cantidad de usuarios que excedieron el limite de errores
-            'user' => KingMonitorUserExceeded::where('type', '=', 2)->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos de errores
-            'ip' => KingMonitorUserExceeded::where('type', '=', 2)->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos de errores
-        ];
-
-        return $response;
-    }
-
-    // ---------------------------------------------------------------- STATISTICS ----------------------------------------------------------------
-    // Estadisticas (today)
-    public function statisticsToday() {
-        $response = [
-            'total' => KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas (week)
-    public function statisticsWeek() {
-        $response = [
-            'total' => KingMonitorUserExceeded::whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas (month)
-    public function statisticsMonth() {
-        $response = [
-            'total' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas (quarter)
-    public function statisticsQuarter() {
-        $response = [
-            'total' => KingMonitorUserExceeded::whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas (year)
-    public function statisticsYear() {
-        $response = [
-            'total' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas (total)
-    public function statisticsTotal() {
-        $response = [
-            'total' => KingMonitorUserExceeded::all()->count(), // Cantidad de usuarios que excedieron el limite
-            'user' => KingMonitorUserExceeded::all()->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos
-            'ip' => KingMonitorUserExceeded::all()->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos
-        ];
-
-        return $response;
-    }
-
-    // ---------------------------------------------------------------- STATISTICS ----------------------------------------------------------------
-    // Estadisticas de peticiones
-    public function requestStatistics() {
-        $today = $this->requestStatisticsToday();
-        $week = $this->requestStatisticsWeek();
-        $month = $this->requestStatisticsMonth();
-        $quarter = $this->requestStatisticsQuarter();
-        $year = $this->requestStatisticsYear();
-        $total = $this->requestStatisticsTotal();
-
-        $response = [
-            'today' => $today,
-            'week' => $week,
-            'month' => $month,
-            'quarter' => $quarter,
-            'year' => $year,
-            'total' => $total,
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de errores
-    public function errorStatistics() {
-        $today = $this->errorStatisticsToday();
-        $week = $this->errorStatisticsWeek();
-        $month = $this->errorStatisticsMonth();
-        $quarter = $this->errorStatisticsQuarter();
-        $year = $this->errorStatisticsYear();
-        $total = $this->errorStatisticsTotal();
-
-        $response = [
-            'today' => $today,
-            'week' => $week,
-            'month' => $month,
-            'quarter' => $quarter,
-            'year' => $year,
-            'total' => $total,
-        ];
-
-        return $response;
-    }
-
-    // Estadisticas de peticiones y errores
-    public function statistics() {
-        $response = [
-            'request' => $this->requestStatistics(),
-            'errors' => $this->errorStatistics(),
-        ];
-
-        return $response;
-    }
-
-    /****************************************************************** HISTORICAL ******************************************************************/
     /****************************************************************** USER HISTORICAL ******************************************************************/
-    // ---------------------------------------------------------------- USER REQUEST HISTORICAL ----------------------------------------------------------------
-    // Historico de peticiones del usuario (today)
-    public function userRequestHistoricalToday($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
-                    DB::raw('count(*) as total')
-                )->groupBy('hour')->orderBy('hour')->get()
-            ];
 
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
+    public function userRequestHistoricalExceededToday(int $userId): array   { return $this->buildHistorical('today',   self::TYPE_REQUEST, $userId); }
+    public function userRequestHistoricalExceededWeek(int $userId): array    { return $this->buildHistorical('week',    self::TYPE_REQUEST, $userId); }
+    public function userRequestHistoricalExceededMonth(int $userId): array   { return $this->buildHistorical('month',   self::TYPE_REQUEST, $userId); }
+    public function userRequestHistoricalExceededQuarter(int $userId): array { return $this->buildHistorical('quarter', self::TYPE_REQUEST, $userId); }
+    public function userRequestHistoricalExceededYear(int $userId): array    { return $this->buildHistorical('year',    self::TYPE_REQUEST, $userId); }
+    public function userRequestHistoricalExceededTotal(int $userId): array   { return $this->buildHistorical('total',   self::TYPE_REQUEST, $userId); }
 
-    // Historico de peticiones del usuario (week)
-    public function userRequestHistoricalWeek($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get(),
-            ];
+    public function userErrorHistoricalExceededToday(int $userId): array   { return $this->buildHistorical('today',   self::TYPE_ERROR, $userId); }
+    public function userErrorHistoricalExceededWeek(int $userId): array    { return $this->buildHistorical('week',    self::TYPE_ERROR, $userId); }
+    public function userErrorHistoricalExceededMonth(int $userId): array   { return $this->buildHistorical('month',   self::TYPE_ERROR, $userId); }
+    public function userErrorHistoricalExceededQuarter(int $userId): array { return $this->buildHistorical('quarter', self::TYPE_ERROR, $userId); }
+    public function userErrorHistoricalExceededYear(int $userId): array    { return $this->buildHistorical('year',    self::TYPE_ERROR, $userId); }
+    public function userErrorHistoricalExceededTotal(int $userId): array   { return $this->buildHistorical('total',   self::TYPE_ERROR, $userId); }
 
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (month)
-    public function userRequestHistoricalMonth($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (quarter)
-    public function userRequestHistoricalQuarter($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (year)
-    public function userRequestHistoricalYear($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->select(
-                    DB::raw('DATE_FORMAT(created_at, "%M") as month'),
-                    DB::raw('count(*) as total')
-                )->groupBy('month')->orderBy('month')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (total)
-    public function userRequestHistoricalTotal($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 1)->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 1)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
-                    DB::raw('count(*) as total')
-                )->groupBy('year')->orderBy('year')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // ---------------------------------------------------------------- USER ERROR HISTORICAL ----------------------------------------------------------------
-    // Historico de peticiones del usuario (today)
-    public function userErrorHistoricalToday($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
-                    DB::raw('count(*) as total')
-                )->groupBy('hour')->orderBy('hour')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (week)
-    public function userErrorHistoricalWeek($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get(),
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (month)
-    public function userErrorHistoricalMonth($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (quarter)
-    public function userErrorHistoricalQuarter($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (year)
-    public function userErrorHistoricalYear($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->select(
-                    DB::raw('DATE_FORMAT(created_at, "%M") as month'),
-                    DB::raw('count(*) as total')
-                )->groupBy('month')->orderBy('month')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (total)
-    public function userErrorHistoricalTotal($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 2)->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 2)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
-                    DB::raw('count(*) as total')
-                )->groupBy('year')->orderBy('year')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // ---------------------------------------------------------------- USER HISTORICAL ----------------------------------------------------------------
-    // Historico de peticiones del usuario (today)
-    public function userHistoricalToday($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => [
-                    'request' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->select(
-                        DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('hour')->orderBy('hour')->get(),
-                    'error' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->select(
-                        DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('hour')->orderBy('hour')->get()
-                ]
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (week)
-    public function userHistoricalWeek($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => [
-                    'request' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->where('king_user_id', '=', $kingUserId)->select(
-                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('day')->orderBy('day')->get(),
-                    'error' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->where('king_user_id', '=', $kingUserId)->select(
-                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('day')->orderBy('day')->get()
-                ]
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (month)
-    public function userHistoricalMonth($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => [
-                    'request' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->select(
-                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('day')->orderBy('day')->get(),
-                    'error' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->select(
-                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('day')->orderBy('day')->get()
-                ]
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (quarter)
-    public function userHistoricalQuarter($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de peticiones del usuario
-                'details' => [
-                    'request' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->where('king_user_id', '=', $kingUserId)->select(
-                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('day')->orderBy('day')->get(),
-                    'error' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->where('king_user_id', '=', $kingUserId)->select(
-                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('day')->orderBy('day')->get()
-                ]
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (year)
-    public function userHistoricalYear($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->count(), // Total de peticiones del usuario
-                'details' => [
-                    'request' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->select(
-                        DB::raw('DATE_FORMAT(created_at, "%M") as month'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('month')->orderBy('month')->get(),
-                    'error' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->select(
-                        DB::raw('DATE_FORMAT(created_at, "%M") as month'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('month')->orderBy('month')->get()
-                ]
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones del usuario (total)
-    public function userHistoricalTotal($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::all()->count(), // Total de peticiones del usuario
-                'details' => [
-                    'request' => KingMonitorUserExceeded::where('type', '=', 1)->select(
-                        DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('year')->orderBy('year')->get(),
-                    'error' => KingMonitorUserExceeded::where('type', '=', 2)->select(
-                        DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('year')->orderBy('year')->get()
-                ]
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
+    public function userHistoricalExceededToday(int $userId): array   { return $this->buildCombinedHistorical('today',   $userId); }
+    public function userHistoricalExceededWeek(int $userId): array    { return $this->buildCombinedHistorical('week',    $userId); }
+    public function userHistoricalExceededMonth(int $userId): array   { return $this->buildCombinedHistorical('month',   $userId); }
+    public function userHistoricalExceededQuarter(int $userId): array { return $this->buildCombinedHistorical('quarter', $userId); }
+    public function userHistoricalExceededYear(int $userId): array    { return $this->buildCombinedHistorical('year',    $userId); }
+    public function userHistoricalExceededTotal(int $userId): array   { return $this->buildCombinedHistorical('total',   $userId); }
 
     /****************************************************************** HISTORICAL ******************************************************************/
-    // ---------------------------------------------------------------- REQUEST HISTORICAL ----------------------------------------------------------------
-    // Historico de peticiones por dia dividido en horas (today)
-    public function requestHistoricalToday() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->count(), // Total de peticiones
-                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->select(
-                    DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
-                    DB::raw('count(*) as total')
-                )->groupBy('hour')->orderBy('hour')->get()
-            ];
 
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
+    public function requestHistoricalExceededToday(): array   { return $this->buildHistorical('today',   self::TYPE_REQUEST); }
+    public function requestHistoricalExceededWeek(): array    { return $this->buildHistorical('week',    self::TYPE_REQUEST); }
+    public function requestHistoricalExceededMonth(): array   { return $this->buildHistorical('month',   self::TYPE_REQUEST); }
+    public function requestHistoricalExceededQuarter(): array { return $this->buildHistorical('quarter', self::TYPE_REQUEST); }
+    public function requestHistoricalExceededYear(): array    { return $this->buildHistorical('year',    self::TYPE_REQUEST); }
+    public function requestHistoricalExceededTotal(): array   { return $this->buildHistorical('total',   self::TYPE_REQUEST); }
+
+    public function errorHistoricalExceededToday(): array   { return $this->buildHistorical('today',   self::TYPE_ERROR); }
+    public function errorHistoricalExceededWeek(): array    { return $this->buildHistorical('week',    self::TYPE_ERROR); }
+    public function errorHistoricalExceededMonth(): array   { return $this->buildHistorical('month',   self::TYPE_ERROR); }
+    public function errorHistoricalExceededQuarter(): array { return $this->buildHistorical('quarter', self::TYPE_ERROR); }
+    public function errorHistoricalExceededYear(): array    { return $this->buildHistorical('year',    self::TYPE_ERROR); }
+    public function errorHistoricalExceededTotal(): array   { return $this->buildHistorical('total',   self::TYPE_ERROR); }
+
+    public function historicalExceededToday(): array   { return $this->buildCombinedHistorical('today'); }
+    public function historicalExceededWeek(): array    { return $this->buildCombinedHistorical('week'); }
+    public function historicalExceededMonth(): array   { return $this->buildCombinedHistorical('month'); }
+    public function historicalExceededQuarter(): array { return $this->buildCombinedHistorical('quarter'); }
+    public function historicalExceededYear(): array    { return $this->buildCombinedHistorical('year'); }
+    public function historicalExceededTotal(): array   { return $this->buildCombinedHistorical('total'); }
+
+    /****************************************************************** AGGREGATE HISTORICAL ******************************************************************/
+
+    public function userRequestHistoricalExceeded(int $userId): array
+    {
+        return $this->buildAllPeriods(fn($p) => $this->buildHistorical($p, self::TYPE_REQUEST, $userId));
     }
 
-    // Historico de peticiones por semana dividido en dias (week)
-    public function requestHistoricalWeek() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->count(), // Total de peticiones
-                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get(),
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
+    public function userErrorHistoricalExceeded(int $userId): array
+    {
+        return $this->buildAllPeriods(fn($p) => $this->buildHistorical($p, self::TYPE_ERROR, $userId));
     }
 
-    // Historico de peticiones por mes dividido en dias (month)
-    public function requestHistoricalMonth() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(), // Total de peticiones
-                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
+    public function userHistoricalExceeded(int $userId): array
+    {
+        return [
+            'request' => $this->userRequestHistoricalExceeded($userId),
+            'errors'  => $this->userErrorHistoricalExceeded($userId),
+        ];
     }
 
-    // Historico de peticiones por trimestre dividido en dias (quarter)
-    public function requestHistoricalQuarter() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->count(), // Total de peticiones
-                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
+    public function requestHistoricalExceeded(): array
+    {
+        return $this->buildAllPeriods(fn($p) => $this->buildHistorical($p, self::TYPE_REQUEST));
     }
 
-    // Historico de peticiones por año dividido en dias (year)
-    public function requestHistoricalYear() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->select(
-                    DB::raw('DATE_FORMAT(created_at, "%M") as month'),
-                    DB::raw('count(*) as total')
-                )->groupBy('month')->orderBy('month')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
+    public function errorHistoricalExceeded(): array
+    {
+        return $this->buildAllPeriods(fn($p) => $this->buildHistorical($p, self::TYPE_ERROR));
     }
 
-    // Historico de peticiones por total dividido en años (total)
-    public function requestHistoricalTotal() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 1)->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 1)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
-                    DB::raw('count(*) as total')
-                )->groupBy('year')->orderBy('year')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // ---------------------------------------------------------------- ERROR HISTORICAL ----------------------------------------------------------------
-    // Historico de peticiones por dia dividido en horas (today)
-    public function errorHistoricalToday() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->count(), // Total de peticiones
-                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->select(
-                    DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
-                    DB::raw('count(*) as total')
-                )->groupBy('hour')->orderBy('hour')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por semana dividido en dias (week)
-    public function errorHistoricalWeek() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->count(), // Total de peticiones
-                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get(),
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por mes dividido en dias (month)
-    public function errorHistoricalMonth() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(), // Total de peticiones
-                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por trimestre dividido en dias (quarter)
-    public function errorHistoricalQuarter() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->count(), // Total de peticiones
-                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por año dividido en dias (year)
-    public function errorHistoricalYear() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->select(
-                    DB::raw('DATE_FORMAT(created_at, "%M") as month'),
-                    DB::raw('count(*) as total')
-                )->groupBy('month')->orderBy('month')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por total dividido en años (total)
-    public function errorHistoricalTotal() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::where('type', '=', 2)->count(), // Total de peticiones del usuario
-                'details' => KingMonitorUserExceeded::where('type', '=', 2)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
-                    DB::raw('count(*) as total')
-                )->groupBy('year')->orderBy('year')->get()
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // ---------------------------------------------------------------- HISTORICAL ----------------------------------------------------------------
-    // Historico de peticiones por dia dividido en horas (today)
-    public function historicalToday() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::whereDate('created_at', '=', date('Y-m-d'))->count(), // Total de peticiones
-                'details' => [
-                    'request' =>  KingMonitorUserExceeded::where('type', '=', 1)->whereDate('created_at', '=', date('Y-m-d'))->select(
-                        DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('hour')->orderBy('hour')->get(),
-                    'error' =>  KingMonitorUserExceeded::where('type', '=', 2)->whereDate('created_at', '=', date('Y-m-d'))->select(
-                        DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('hour')->orderBy('hour')->get()
-                ]
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por semana dividido en dias (week)
-    public function historicalWeek() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->count(), // Total de peticiones
-                'details' => [
-                    'request' =>  KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->select(
-                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('day')->orderBy('day')->get(),
-                    'error' =>  KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                        Carbon::now()->startOfWeek(),
-                        Carbon::now()->endOfWeek()
-                    ])->select(
-                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('day')->orderBy('day')->get()
-                ]
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por mes dividido en dias (month)
-    public function historicalMonth() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(), // Total de peticiones
-                'details' => [
-                    'request' =>  KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->select(
-                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('day')->orderBy('day')->get(),
-                    'error' =>  KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->select(
-                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('day')->orderBy('day')->get()
-                ]
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por trimestre dividido en dias (quarter)
-    public function historicalQuarter() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->count(), // Total de peticiones
-                'details' => [
-                    'request' =>  KingMonitorUserExceeded::where('type', '=', 1)->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->select(
-                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('day')->orderBy('day')->get(),
-                    'error' =>  KingMonitorUserExceeded::where('type', '=', 2)->whereBetween('created_at', [
-                        Carbon::now()->startOfQuarter(),
-                        Carbon::now()->endOfQuarter()
-                    ])->select(
-                        DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('day')->orderBy('day')->get()
-                ]
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por año dividido en dias (year)
-    public function historicalYear() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::whereYear('created_at', '=', now())->count(), // Total de peticiones del usuario
-                'details' => [
-                    'request' =>  KingMonitorUserExceeded::where('type', '=', 1)->whereYear('created_at', '=', now())->select(
-                        DB::raw('DATE_FORMAT(created_at, "%M") as month'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('month')->orderBy('month')->get(),
-                    'error' =>  KingMonitorUserExceeded::where('type', '=', 2)->whereYear('created_at', '=', now())->select(
-                        DB::raw('DATE_FORMAT(created_at, "%M") as month'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('month')->orderBy('month')->get()
-                ]
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // Historico de peticiones por total dividido en años (total)
-    public function historicalTotal() {
-        try {
-            $response = [
-                'total' => KingMonitorUserExceeded::all()->count(), // Total de peticiones del usuario
-                'details' => [
-                    'request' =>  KingMonitorUserExceeded::where('type', '=', 1)->select(
-                        DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('year')->orderBy('year')->get(),
-                    'error' =>  KingMonitorUserExceeded::where('type', '=', 2)->select(
-                        DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
-                        DB::raw('count(*) as total')
-                    )->groupBy('year')->orderBy('year')->get()
-                ]
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    /****************************************************************** HISTORICAL ******************************************************************/
-    public function userRequestHistorical($kingUserId) {
-        try {
-            $today = $this->userRequestHistoricalToday($kingUserId);
-            $week = $this->userRequestHistoricalWeek($kingUserId);
-            $month = $this->userRequestHistoricalMonth($kingUserId);
-            $quarter = $this->userRequestHistoricalQuarter($kingUserId);
-            $year = $this->userRequestHistoricalYear($kingUserId);
-            $total = $this->userRequestHistoricalTotal($kingUserId);
-
-            $response = [
-                'today' => $today,
-                'week' => $week,
-                'month' => $month,
-                'quarter' => $quarter,
-                'year' => $year,
-                'total' => $total,
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function requestHistorical() {
-        try {
-            $today = $this->requestHistoricalToday();
-            $week = $this->requestHistoricalWeek();
-            $month = $this->requestHistoricalMonth();
-            $quarter = $this->requestHistoricalQuarter();
-            $year = $this->requestHistoricalYear();
-            $total = $this->requestHistoricalTotal();
-
-            $response = [
-                'today' => $today,
-                'week' => $week,
-                'month' => $month,
-                'quarter' => $quarter,
-                'year' => $year,
-                'total' => $total,
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function userErrorHistorical($kingUserId) {
-        try {
-            $today = $this->userErrorHistoricalToday($kingUserId);
-            $week = $this->userErrorHistoricalWeek($kingUserId);
-            $month = $this->userErrorHistoricalMonth($kingUserId);
-            $quarter = $this->userErrorHistoricalQuarter($kingUserId);
-            $year = $this->userErrorHistoricalYear($kingUserId);
-            $total = $this->userErrorHistoricalTotal($kingUserId);
-
-            $response = [
-                'today' => $today,
-                'week' => $week,
-                'month' => $month,
-                'quarter' => $quarter,
-                'year' => $year,
-                'total' => $total,
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function errorHistorical() {
-        try {
-            $today = $this->errorHistoricalToday();
-            $week = $this->errorHistoricalWeek();
-            $month = $this->errorHistoricalMonth();
-            $quarter = $this->errorHistoricalQuarter();
-            $year = $this->errorHistoricalYear();
-            $total = $this->errorHistoricalTotal();
-
-            $response = [
-                'today' => $today,
-                'week' => $week,
-                'month' => $month,
-                'quarter' => $quarter,
-                'year' => $year,
-                'total' => $total,
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function historical() {
-        try {
-            $response = [
-                'request' => $this->requestHistorical(),
-                'errors' => $this->errorHistorical(),
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function userHistorical($kingUserId) {
-        try {
-            $response = [
-                'request' => $this->userRequestHistorical($kingUserId),
-                'errors' => $this->userErrorHistorical($kingUserId),
-            ];
-
-            return $response;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
+    public function historicalExceeded(): array
+    {
+        return [
+            'request' => $this->requestHistoricalExceeded(),
+            'errors'  => $this->errorHistoricalExceeded(),
+        ];
     }
 }

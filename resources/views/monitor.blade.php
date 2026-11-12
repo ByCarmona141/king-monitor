@@ -1,945 +1,683 @@
 @extends('king-monitor::layouts.app')
 
 @section('title')
-    {{ config('app.name', 'Monitor') }}
+    {{ config('app.name', 'KingMonitor') }} — Dashboard
 @endsection
 
-@section('header')
-    <header class="bg-white dark:bg-gray-800 shadow">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            {{ __('Monitor') }}
-        </div>
-    </header>
+@php
+    /* ─────────────────────────────────────────────
+     | Pre-process all chart data in PHP once.
+     | Using @json() instead of @foreach loops
+     | eliminates the large inline-JS problem.
+     ───────────────────────────────────────────── */
+
+    // Historical Total (years)
+    $reqTotal = collect($historical['request']['total']['details'] ?? []);
+    $errTotal = collect($historical['errors']['total']['details'] ?? []);
+
+    $yearsTotal = $reqTotal->pluck('year')
+        ->merge($errTotal->pluck('year'))
+        ->unique()->sort()->values();
+
+    $chartHistoricalTotal = [
+        'labels'  => $yearsTotal,
+        'request' => $yearsTotal->map(fn($y) => (int) ($reqTotal->firstWhere('year', $y)['total']  ?? 0))->values(),
+        'error'   => $yearsTotal->map(fn($y) => (int) ($errTotal->firstWhere('year',  $y)['total'] ?? 0))->values(),
+    ];
+
+    // Historical Year (months)
+    $reqYear = collect($historical['request']['year']['details'] ?? []);
+    $errYear = collect($historical['errors']['year']['details'] ?? []);
+
+    $monthsYear = $reqYear->pluck('month')
+        ->merge($errYear->pluck('month'))
+        ->unique()->sort()->values();
+
+    $chartHistoricalYear = [
+        'labels'  => $monthsYear,
+        'request' => $monthsYear->map(fn($m) => (int) ($reqYear->firstWhere('month', $m)['total'] ?? 0))->values(),
+        'error'   => $monthsYear->map(fn($m) => (int) ($errYear->firstWhere('month', $m)['total'] ?? 0))->values(),
+    ];
+
+    // Historical Exceeded Year (months)
+    $reqExcYear = collect($historicalExceeded['request']['year']['details'] ?? []);
+    $errExcYear = collect($historicalExceeded['errors']['year']['details'] ?? []);
+
+    $monthsExc = $reqExcYear->pluck('month')
+        ->merge($errExcYear->pluck('month'))
+        ->unique()->sort()->values();
+
+    $chartExceededYear = [
+        'labels'  => $monthsExc,
+        'request' => $monthsExc->map(fn($m) => (int) ($reqExcYear->firstWhere('month', $m)['total'] ?? 0))->values(),
+        'error'   => $monthsExc->map(fn($m) => (int) ($errExcYear->firstWhere('month', $m)['total'] ?? 0))->values(),
+    ];
+
+    // Method stats for year
+    $chartMethods = [
+        'labels'  => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+        'request' => [
+            $statistics['request']['year']['method']['GET']    ?? 0,
+            $statistics['request']['year']['method']['POST']   ?? 0,
+            $statistics['request']['year']['method']['PUT']    ?? 0,
+            $statistics['request']['year']['method']['PATCH']  ?? 0,
+            $statistics['request']['year']['method']['DELETE'] ?? 0,
+        ],
+        'error' => [
+            $statistics['errors']['year']['method']['GET']    ?? 0,
+            $statistics['errors']['year']['method']['POST']   ?? 0,
+            $statistics['errors']['year']['method']['PUT']    ?? 0,
+            $statistics['errors']['year']['method']['PATCH']  ?? 0,
+            $statistics['errors']['year']['method']['DELETE'] ?? 0,
+        ],
+    ];
+
+    // Doughnut: requests vs errors this year
+    $chartDoughnutYear = [
+        'request' => $statistics['request']['year']['total'] ?? 0,
+        'error'   => $statistics['errors']['year']['total']  ?? 0,
+    ];
+
+    // Summary numbers
+    $totalRequests    = $statistics['total']['request']['total']             ?? 0;
+    $totalErrors      = $statistics['total']['error']['total']               ?? 0;
+    $totalAlerts      = $statisticsAlert['total']                            ?? 0;
+    $topAlertIp       = $statisticsAlert['ip'][0]                            ?? 'N/A';
+    $totalExcReq      = $statisticsExceeded['request']['total']['total']     ?? 0;
+    $totalExcErr      = $statisticsExceeded['errors']['total']['total']      ?? 0;
+    $topRequest       = $statistics['request']['total']['method']['mostCommon'][0] ?? 'ANY';
+    $topError         = $statistics['errors']['total']['method']['mostCommon'][0]  ?? 'ANY';
+@endphp
+
+@section('style')
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:        #0a0d12;
+            --bg-card:   #111622;
+            --bg-hover:  #161d2e;
+            --border:    #1e2a3a;
+            --teal:      #00d4aa;
+            --teal-dim:  rgba(0,212,170,.12);
+            --rose:      #f43f5e;
+            --rose-dim:  rgba(244,63,94,.12);
+            --amber:     #f59e0b;
+            --amber-dim: rgba(245,158,11,.12);
+            --sky:       #38bdf8;
+            --sky-dim:   rgba(56,189,248,.12);
+            --text:      #e2e8f0;
+            --text-muted:#64748b;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Syne', sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            min-height: 100vh;
+        }
+
+        /* ── Layout ── */
+        .km-shell   { display: flex; flex-direction: column; min-height: 100vh; }
+        .km-topbar  {
+            position: sticky; top: 0; z-index: 50;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: .875rem 2rem;
+            background: rgba(10,13,18,.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+        .km-topbar-logo {
+            font-family: var(--mono); font-weight: 700; font-size: 1.1rem;
+            color: var(--teal); letter-spacing: .05em;
+            display: flex; align-items: center; gap: .5rem;
+        }
+        .km-topbar-logo span { color: var(--text-muted); font-weight: 400; }
+        .km-topbar-nav { display: flex; gap: .25rem; }
+        .km-topbar-nav a {
+            font-family: var(--mono); font-size: .75rem; font-weight: 600;
+            letter-spacing: .08em; text-transform: uppercase;
+            padding: .375rem .875rem; border-radius: 6px;
+            color: var(--text-muted); text-decoration: none;
+            border: 1px solid transparent;
+            transition: all .15s;
+        }
+        .km-topbar-nav a:hover, .km-topbar-nav a.active {
+            color: var(--teal); border-color: var(--border); background: var(--bg-card);
+        }
+
+        .km-page { padding: 2rem; max-width: 1600px; margin: 0 auto; }
+
+        /* ── Section title ── */
+        .km-section-label {
+            font-family: var(--mono); font-size: .65rem; font-weight: 600;
+            letter-spacing: .18em; text-transform: uppercase;
+            color: var(--text-muted); margin-bottom: 1rem;
+            display: flex; align-items: center; gap: .5rem;
+        }
+        .km-section-label::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+
+        /* ── Stat Cards ── */
+        .km-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem; margin-bottom: 2rem;
+        }
+        .km-stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            position: relative; overflow: hidden;
+            transition: border-color .2s, background .2s;
+        }
+        .km-stat:hover { border-color: #2d3f56; background: var(--bg-hover); }
+        .km-stat__accent {
+            position: absolute; top: 0; left: 0;
+            width: 3px; height: 100%; border-radius: 10px 0 0 10px;
+        }
+        .km-stat__label {
+            font-family: var(--mono); font-size: .65rem; font-weight: 600;
+            letter-spacing: .12em; text-transform: uppercase;
+            color: var(--text-muted); margin-bottom: .5rem;
+        }
+        .km-stat__value {
+            font-family: var(--mono); font-size: 1.75rem; font-weight: 700;
+            line-height: 1; letter-spacing: -.02em;
+        }
+        .km-stat__sub {
+            font-family: var(--mono); font-size: .7rem;
+            color: var(--text-muted); margin-top: .35rem;
+        }
+        .color-teal  { color: var(--teal); }
+        .color-rose  { color: var(--rose); }
+        .color-amber { color: var(--amber); }
+        .color-sky   { color: var(--sky); }
+        .bg-teal     { background: var(--teal); }
+        .bg-rose     { background: var(--rose); }
+        .bg-amber    { background: var(--amber); }
+        .bg-sky      { background: var(--sky); }
+
+        /* ── Chart Cards ── */
+        .km-charts-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1rem; margin-bottom: 2rem;
+        }
+        .km-chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        .km-chart-card--6  { grid-column: span 6; }
+        .km-chart-card--4  { grid-column: span 4; }
+        .km-chart-card--3  { grid-column: span 3; }
+        .km-chart-card--8  { grid-column: span 8; }
+        @media (max-width: 1200px) {
+            .km-chart-card--6, .km-chart-card--4,
+            .km-chart-card--3, .km-chart-card--8 { grid-column: span 12; }
+        }
+        @media (min-width: 1201px) and (max-width: 1400px) {
+            .km-chart-card--3 { grid-column: span 6; }
+            .km-chart-card--4 { grid-column: span 6; }
+        }
+
+        .km-chart-header {
+            padding: 1rem 1.25rem .75rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .km-chart-title {
+            font-family: var(--mono); font-size: .72rem; font-weight: 600;
+            letter-spacing: .1em; text-transform: uppercase; color: var(--text);
+        }
+        .km-chart-badge {
+            font-family: var(--mono); font-size: .62rem; font-weight: 600;
+            padding: .2rem .6rem; border-radius: 4px;
+            letter-spacing: .06em; text-transform: uppercase;
+        }
+        .km-chart-badge--teal { background: var(--teal-dim); color: var(--teal); }
+        .km-chart-badge--rose { background: var(--rose-dim); color: var(--rose); }
+        .km-chart-badge--amber { background: var(--amber-dim); color: var(--amber); }
+
+        .km-chart-body {
+            padding: 1.25rem;
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            min-height: 240px; position: relative;
+        }
+        .km-chart-body canvas { max-height: 260px; width: 100% !important; }
+
+        /* ── Skeleton loader ── */
+        .km-skeleton {
+            position: absolute; inset: 1.25rem;
+            background: linear-gradient(90deg, var(--border) 25%, #1e2d3f 50%, var(--border) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.6s infinite;
+            border-radius: 6px; opacity: .6;
+        }
+        @keyframes shimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .km-chart-body canvas { opacity: 0; transition: opacity .4s; }
+        .km-chart-body.loaded canvas { opacity: 1; }
+        .km-chart-body.loaded .km-skeleton { display: none; }
+
+        /* ── Legend ── */
+        .km-legend {
+            display: flex; gap: 1rem; flex-wrap: wrap;
+            padding: 0 1.25rem 1rem;
+        }
+        .km-legend-item {
+            display: flex; align-items: center; gap: .35rem;
+            font-family: var(--mono); font-size: .65rem;
+            color: var(--text-muted);
+        }
+        .km-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+        /* ── Tabs ── */
+        .km-tabs {
+            display: flex; gap: .25rem;
+            border-bottom: 1px solid var(--border);
+            padding: .5rem 1.25rem 0;
+        }
+        .km-tab {
+            font-family: var(--mono); font-size: .65rem; font-weight: 600;
+            letter-spacing: .1em; text-transform: uppercase;
+            padding: .375rem .7rem; border-radius: 6px 6px 0 0;
+            background: none; border: none; cursor: pointer;
+            color: var(--text-muted);
+            border: 1px solid transparent; border-bottom: none;
+            margin-bottom: -1px;
+            transition: color .15s, background .15s, border-color .15s;
+        }
+        .km-tab.active {
+            color: var(--teal); background: var(--bg-card);
+            border-color: var(--border); border-bottom-color: var(--bg-card);
+        }
+        .km-tab:hover:not(.active) { color: var(--text); }
+
+        /* ── Divider row ── */
+        .km-divider { height: 1px; background: var(--border); margin: .5rem 0 1.5rem; }
+    </style>
 @endsection
 
 @section('content')
-    <div class="py-12">
-        <div class="max-w-screen-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <div class="mt-4">
-                        <div class="flex flex-wrap -mx-6">
-                            <div class="w-full px-6 sm:w-1/2 xl:w-1/4">
-                                <div class="flex items-center px-5 py-6 dark:bg-gray-900 rounded-md shadow-sm">
-                                    <div class="p-3 bg-gradient-to-tl from-gray-900 to-gray-700 shadow-soft-2xl rounded-full">
-                                        <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 -960 960 960" width="36px" fill="#FFFFFF">
-                                            <path d="m438-240 226-226-58-58-169 169-84-84-57 57 142 142ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z"/>
-                                        </svg>
-                                    </div>
+    <div class="km-shell">
 
-                                    <div class="mx-5">
-                                        <h4 class="text-2xl font-semibold text-white">
-                                            {{$statistics['request']['total']['total']}}
-                                        </h4>
-                                        <div class="text-gray-500">Total Request</div>
-                                    </div>
-                                </div>
-                            </div>
+        {{-- ── Topbar ── --}}
+        <nav class="km-topbar">
+            <div class="km-topbar-logo">
+                ◈ KING<span>MONITOR</span>
+            </div>
+            <div class="km-topbar-nav">
+                <a href="{{ route('monitor.index') }}" class="active">Dashboard</a>
+                <a href="{{ route('monitor.errors') }}">Errors</a>
+                <a href="{{ route('monitor.requests') }}">Requests</a>
+            </div>
+        </nav>
 
-                            <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/4 sm:mt-0 md:mt-0 xl:mt-0">
-                                <div class="flex items-center px-5 py-6 dark:bg-gray-900 rounded-md shadow-sm">
-                                    <div class="p-3 bg-gradient-to-tl from-gray-900 to-gray-700 shadow-soft-2xl rounded-full">
-                                        <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 0 24 24" width="36px" fill="#FFFFFF">
-                                            <path d="M24 24H0V0h24v24z" fill="none" opacity=".87"/><path d="M4.5 11h-2V9H1v6h1.5v-2.5h2V15H6V9H4.5v2zm2.5-.5h1.5V15H10v-4.5h1.5V9H7v1.5zm5.5 0H14V15h1.5v-4.5H17V9h-4.5v1.5zm9-1.5H18v6h1.5v-2h2c.8 0 1.5-.7 1.5-1.5v-1c0-.8-.7-1.5-1.5-1.5zm0 2.5h-2v-1h2v1z"/>
-                                        </svg>
-                                    </div>
+        {{-- ── Page content ── --}}
+        <div class="km-page">
 
-                                    <div class="mx-5">
-                                        <h4 class="text-2xl font-semibold text-white">
-                                            @if ($statistics['request']['total']['method']['mostCommon'] !== NULL)
-                                                {{$statistics['request']['total']['method']['mostCommon'][0]}}
-                                            @else
-                                                ANY
-                                            @endif
-                                        </h4>
-                                        <div class="text-gray-500">Request</div>
-                                    </div>
-                                </div>
-                            </div>
+            {{-- ── Summary Stats ── --}}
+            <p class="km-section-label">Overview · All time</p>
 
-                            <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/4 sm:mt-6 md:mt-6 xl:mt-0">
-                                <div class="flex items-center px-5 py-6 dark:bg-gray-900 rounded-md shadow-sm">
-                                    <div class="p-3 bg-gradient-to-tl from-gray-900 to-gray-700 shadow-soft-2xl rounded-full">
-                                        <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 -960 960 960" width="36px" fill="#FFFFFF">
-                                            <path d="m336-280 144-144 144 144 56-56-144-144 144-144-56-56-144 144-144-144-56 56 144 144-144 144 56 56ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/>
-                                        </svg>
-                                    </div>
-
-                                    <div class="mx-5">
-                                        <h4 class="text-2xl font-semibold text-white">{{$statistics['errors']['total']['total']}}</h4>
-                                        <div class="text-gray-500">Total Errors</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/4 xl:mt-0">
-                                <div class="flex items-center px-5 py-6 dark:bg-gray-900 rounded-md shadow-sm">
-                                    <div class="p-3 bg-gradient-to-tl from-gray-900 to-gray-700 shadow-soft-2xl rounded-full">
-                                        <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 0 24 24" width="36px" fill="#FFFFFF">
-                                            <path d="M24 24H0V0h24v24z" fill="none" opacity=".87"/><path d="M4.5 11h-2V9H1v6h1.5v-2.5h2V15H6V9H4.5v2zm2.5-.5h1.5V15H10v-4.5h1.5V9H7v1.5zm5.5 0H14V15h1.5v-4.5H17V9h-4.5v1.5zm9-1.5H18v6h1.5v-2h2c.8 0 1.5-.7 1.5-1.5v-1c0-.8-.7-1.5-1.5-1.5zm0 2.5h-2v-1h2v1z"/>
-                                        </svg>
-                                    </div>
-
-                                    <div class="mx-5">
-                                        <h4 class="text-2xl font-semibold text-white">
-                                            @if ($statistics['errors']['total']['method']['mostCommon'] !== NULL)
-                                                {{$statistics['errors']['total']['method']['mostCommon'][0]}}
-                                            @else
-                                                ANY
-                                            @endif
-                                        </h4>
-                                        <div class="text-gray-500">Error</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Creacion de la grafica del historico total --}}
-                    <div class="grid grid-cols-1 pt-4 space-y-8 lg:gap-8 lg:space-y-0 lg:grid-cols-4">
-                        <div class="col-span-2 bg-white rounded-md dark:bg-gray-900">
-                            <div class="text-center p-4 border-b dark:border-primary">
-                                <h4 class="text-lg font-semibold text-white dark:text-light">Historical Total</h4>
-                            </div>
-                            <div class="flex justify-center items-center p-4 h-72">
-                                <canvas id="historical-total" width="400" height="100"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="col-span-2 bg-white rounded-md dark:bg-gray-900">
-                            <!-- Card header -->
-                            <div class="text-center p-4 border-b dark:border-primary">
-                                <h4 class="text-lg font-semibold text-white dark:text-light">Total Method</h4>
-                            </div>
-                            <!-- Chart -->
-                            <div class="flex justify-center items-center p-4 h-72">
-                                <canvas id="total-method" width="400" height="100"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Creacion de la grafica del historico year --}}
-                    <div class="grid grid-cols-1 pt-4 space-y-8 lg:gap-8 lg:space-y-0 lg:grid-cols-4">
-                        <div class="col-span-1 bg-white rounded-md dark:bg-gray-900">
-                            <div class="text-center p-4 border-b dark:border-primary">
-                                <h4 class="text-lg font-semibold text-white dark:text-light">Historical Year</h4>
-                            </div>
-                            <div class="flex justify-center items-center p-4 h-72">
-                                <canvas id="historical-year" width="400" height="100"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="col-span-1 bg-white rounded-md dark:bg-gray-900">
-                            <!-- Card header -->
-                            <div class="text-center p-4 border-b dark:border-primary">
-                                <h4 class="text-lg font-semibold text-white dark:text-light">Year</h4>
-                            </div>
-                            <!-- Chart -->
-                            <div class="flex justify-center items-center p-4 h-72">
-                                <canvas id="year" width="379" height="256" style="display: block; width: 379px; height: 256px;" class="chartjs-render-monitor"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="col-span-2 bg-white rounded-md dark:bg-gray-900">
-                            <div class="text-center p-4 border-b dark:border-primary">
-                                <h4 class="text-lg font-semibold text-white dark:text-light">Historical Exceeded Year</h4>
-                            </div>
-                            <div class="flex justify-center items-center p-4 h-72">
-                                <canvas id="historical-exceeded-year" width="400" height="100"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <div class="flex flex-wrap -mx-6">
-                            <div class="w-full px-6 sm:w-1/2 xl:w-1/4">
-                                <div class="flex items-center px-5 py-6 dark:bg-gray-900 rounded-md shadow-sm">
-                                    <div class="p-3 bg-gradient-to-tl from-gray-900 to-gray-700 shadow-soft-2xl rounded-full">
-                                        <svg height="36px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M20 7C20 8.65685 18.6569 10 17 10C15.3431 10 14 8.65685 14 7C14 5.34315 15.3431 4 17 4C18.6569 4 20 5.34315 20 7Z" fill="currentColor"/>
-                                            <path d="M12 6H4V20H18V12H16V18H6V8H12V6Z" fill="currentColor"/>
-                                        </svg>
-                                    </div>
-
-                                    <div class="mx-5">
-                                        <h4 class="text-2xl font-semibold text-white">
-                                            {{$statisticsAlert['total']}}
-                                        </h4>
-                                        <div class="text-gray-500">Total Alert</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/4 sm:mt-0 md:mt-0 xl:mt-0">
-                                <div class="flex items-center px-5 py-6 dark:bg-gray-900 rounded-md shadow-sm">
-                                    <div class="p-3 bg-gradient-to-tl from-gray-900 to-gray-700 shadow-soft-2xl rounded-full">
-                                        <svg height="36px" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="32" cy="24" r="16" fill="none"/>
-                                            <path d="M32 4c-11.05 0-20 8.95-20 20 0 14 20 36 20 36s20-22 20-36c0-11.05-8.95-20-20-20zm0 28c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" fill="currentColor"/>
-                                        </svg>
-                                    </div>
-
-                                    <div class="mx-5">
-                                        <h4 class="text-2xl font-semibold text-white">
-                                            @if ($statisticsAlert['ip'] !== NULL)
-                                                {{$statisticsAlert['ip'][0]}}
-                                            @else
-                                                ANY
-                                            @endif
-                                        </h4>
-                                        <div class="text-gray-500">IP</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/4 xl:mt-0">
-                                <div class="flex items-center px-5 py-6 dark:bg-gray-900 rounded-md shadow-sm">
-                                    <div class="p-3 bg-gradient-to-tl from-gray-900 to-gray-700 shadow-soft-2xl rounded-full">
-                                        <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 -960 960 960" width="36px" fill="#FFFFFF">
-                                            <path d="m438-240 226-226-58-58-169 169-84-84-57 57 142 142ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z"/>
-                                        </svg>
-                                    </div>
-
-                                    <div class="mx-5">
-                                        <h4 class="text-2xl font-semibold text-white">
-                                            {{$statisticsExceeded['request']['total']['total']}}
-                                        </h4>
-                                        <div class="text-gray-500">Total Exceeded Request</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/4 sm:mt-6 md:mt-6 xl:mt-0">
-                                <div class="flex items-center px-5 py-6 dark:bg-gray-900 rounded-md shadow-sm">
-                                    <div class="p-3 bg-gradient-to-tl from-gray-900 to-gray-700 shadow-soft-2xl rounded-full">
-                                        <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 -960 960 960" width="36px" fill="#FFFFFF">
-                                            <path d="m336-280 144-144 144 144 56-56-144-144 144-144-56-56-144 144-144-144-56 56 144 144-144 144 56 56ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/>
-                                        </svg>
-                                    </div>
-
-                                    <div class="mx-5">
-                                        <h4 class="text-2xl font-semibold text-white">{{$statisticsExceeded['errors']['total']['total']}}</h4>
-                                        <div class="text-gray-500">Total Exceeded Errors</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Card con las graficas de los metodos --}}
-{{--                    <div class="grid grid-cols-1 pt-4 space-y-8 lg:gap-8 lg:space-y-0 lg:grid-cols-3">--}}
-{{--                        <div class="grid grid-cols-1 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">--}}
-{{--                            <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 rounded-t-lg bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800" id="defaultTab" data-tabs-toggle="#defaultTabContent" role="tablist">--}}
-{{--                                <li class="me-2">--}}
-{{--                                    <button id="today-tab" data-tabs-target="#todayChart" type="button" role="tab" aria-controls="todayChart" aria-selected="true" class="inline-block p-4 text-blue-600 rounded-ss-lg hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-blue-500">Today</button>--}}
-{{--                                </li>--}}
-{{--                                <li class="me-2">--}}
-{{--                                    <button id="week-tab" data-tabs-target="#weekChart" type="button" role="tab" aria-controls="weekChart" aria-selected="false" class="inline-block p-4 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-300">Week</button>--}}
-{{--                                </li>--}}
-{{--                                <li class="me-2">--}}
-{{--                                    <button id="month-tab" data-tabs-target="#monthChart" type="button" role="tab" aria-controls="monthChart" aria-selected="false" class="inline-block p-4 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-300">Month</button>--}}
-{{--                                </li>--}}
-{{--                                <li class="me-2">--}}
-{{--                                    <button id="year-tab" data-tabs-target="#yearChart" type="button" role="tab" aria-controls="yearChart" aria-selected="false" class="inline-block p-4 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-300">Year</button>--}}
-{{--                                </li>--}}
-{{--                            </ul>--}}
-{{--                            <div id="defaultTabContent">--}}
-{{--                                <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="todayChart" role="tabpanel" aria-labelledby="today-tab">--}}
-{{--                                    <canvas id="today" width="379" height="256" style="display: block; width: 379px; height: 256px;" class="chartjs-render-monitor"></canvas>--}}
-{{--                                </div>--}}
-{{--                                <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="weekChart" role="tabpanel" aria-labelledby="week-tab">--}}
-{{--                                    <canvas id="week" width="379" height="256" style="display: block; width: 379px; height: 256px;" class="chartjs-render-monitor"></canvas>--}}
-{{--                                </div>--}}
-{{--                                <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="monthChart" role="tabpanel" aria-labelledby="month-tab">--}}
-{{--                                    <canvas id="month" width="379" height="256" style="display: block; width: 379px; height: 256px;" class="chartjs-render-monitor"></canvas>--}}
-{{--                                </div>--}}
-{{--                                <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="yearChart" role="tabpanel" aria-labelledby="year-tab">--}}
-{{--                                    <canvas id="year" width="379" height="256" style="display: block; width: 379px; height: 256px;" class="chartjs-render-monitor"></canvas>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-
-{{--                        <div class="col-span-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">--}}
-{{--                            <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 rounded-t-lg bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800" id="defaultTab" data-tabs-toggle="#defaultTabContent" role="tablist">--}}
-{{--                                <li class="me-2">--}}
-{{--                                    <button id="today-method-tab" data-tabs-target="#todayMethodChart" type="button" role="tab" aria-controls="todayMethodChart" aria-selected="true" class="inline-block p-4 text-blue-600 rounded-ss-lg hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-blue-500">Today</button>--}}
-{{--                                </li>--}}
-{{--                                <li class="me-2">--}}
-{{--                                    <button id="week-method-tab" data-tabs-target="#weekMethodChart" type="button" role="tab" aria-controls="weekMethodChart" aria-selected="false" class="inline-block p-4 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-300">Week</button>--}}
-{{--                                </li>--}}
-{{--                                <li class="me-2">--}}
-{{--                                    <button id="month-method-tab" data-tabs-target="#monthMethodChart" type="button" role="tab" aria-controls="monthMethodChart" aria-selected="false" class="inline-block p-4 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-300">Month</button>--}}
-{{--                                </li>--}}
-{{--                                <li class="me-2">--}}
-{{--                                    <button id="year-method-tab" data-tabs-target="#yearMethodChart" type="button" role="tab" aria-controls="yearMethodChart" aria-selected="false" class="inline-block p-4 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-300">Year</button>--}}
-{{--                                </li>--}}
-{{--                            </ul>--}}
-{{--                            <div id="defaultTabContent">--}}
-{{--                                <div class="hidden p-4 bg-white rounded-lg dark:bg-gray-800" id="todayMethodChart" role="tabpanel" aria-labelledby="today-method-tab">--}}
-{{--                                    <canvas id="today-method" width="379" height="256" style="display: block; width: 379px; height: 256px;" class="chartjs-render-monitor"></canvas>--}}
-{{--                                </div>--}}
-{{--                                <div class="hidden p-4 bg-white rounded-lg dark:bg-gray-800" id="weekMethodChart" role="tabpanel" aria-labelledby="week-method-tab">--}}
-{{--                                    <canvas id="week-method" width="379" height="256" style="display: block; width: 379px; height: 256px;" class="chartjs-render-monitor"></canvas>--}}
-{{--                                </div>--}}
-{{--                                <div class="hidden p-4 bg-white rounded-lg dark:bg-gray-800" id="monthMethodChart" role="tabpanel" aria-labelledby="month-method-tab">--}}
-{{--                                    <canvas id="month-method" width="379" height="256" style="display: block; width: 379px; height: 256px;" class="chartjs-render-monitor"></canvas>--}}
-{{--                                </div>--}}
-{{--                                <div class="hidden p-4 bg-white rounded-lg dark:bg-gray-800" id="yearMethodChart" role="tabpanel" aria-labelledby="year-method-tab">--}}
-{{--                                    <canvas id="year-method" width="379" height="256" style="display: block; width: 379px; height: 256px;" class="chartjs-render-monitor"></canvas>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-
-                    {{-- Creacion de la grafica de analisis de tablas --}}
-                    {{-- <div class="grid grid-cols-2 pt-4 space-y-8 lg:gap-8 lg:space-y-0 lg:grid-cols-4">
-                        <div class="col-span-2 bg-white rounded-md dark:bg-gray-900">
-                            <div class="text-center p-4 border-b dark:border-primary">
-                                <h4 class="text-lg font-semibold text-white dark:text-light">Tables</h4>
-                            </div>
-                            <div class="flex justify-center items-center p-4 h-72">
-                                <canvas id="tables"  class="w-100 h-100"></canvas>
-                            </div>
-                        </div>
-                        <div class="col-span-2 bg-white rounded-md dark:bg-gray-900">
-                            <div class="text-center p-4 border-b dark:border-primary">
-                                <h4 class="text-lg font-semibold text-white dark:text-light">Tables Today</h4>
-                            </div>
-                            <div class="flex justify-center items-center p-4 h-72">
-                                <canvas id="tables-today"  class="w-100 h-100"></canvas>
-                            </div>
-                        </div>
-                    </div> --}}
+            <div class="km-stats-grid">
+                <div class="km-stat">
+                    <div class="km-stat__accent bg-teal"></div>
+                    <div class="km-stat__label">Total Requests</div>
+                    <div class="km-stat__value color-teal">{{ number_format($totalRequests) }}</div>
+                    <div class="km-stat__sub">Most common: <strong>{{ $topRequest }}</strong></div>
+                </div>
+                <div class="km-stat">
+                    <div class="km-stat__accent bg-rose"></div>
+                    <div class="km-stat__label">Total Errors</div>
+                    <div class="km-stat__value color-rose">{{ number_format($totalErrors) }}</div>
+                    <div class="km-stat__sub">Most common: <strong>{{ $topError }}</strong></div>
+                </div>
+                <div class="km-stat">
+                    <div class="km-stat__accent bg-amber"></div>
+                    <div class="km-stat__label">Alerts</div>
+                    <div class="km-stat__value color-amber">{{ number_format($totalAlerts) }}</div>
+                    <div class="km-stat__sub">Top IP: <strong>{{ $topAlertIp }}</strong></div>
+                </div>
+                <div class="km-stat">
+                    <div class="km-stat__accent bg-sky"></div>
+                    <div class="km-stat__label">Exceeded Requests</div>
+                    <div class="km-stat__value color-sky">{{ number_format($totalExcReq) }}</div>
+                    <div class="km-stat__sub">Exceeded errors: <strong>{{ number_format($totalExcErr) }}</strong></div>
+                </div>
+                <div class="km-stat">
+                    <div class="km-stat__accent bg-teal"></div>
+                    <div class="km-stat__label">Requests · Year</div>
+                    <div class="km-stat__value color-teal">{{ number_format($statistics['request']['year']['total'] ?? 0) }}</div>
+                    <div class="km-stat__sub">This year</div>
+                </div>
+                <div class="km-stat">
+                    <div class="km-stat__accent bg-rose"></div>
+                    <div class="km-stat__label">Errors · Year</div>
+                    <div class="km-stat__value color-rose">{{ number_format($statistics['errors']['year']['total'] ?? 0) }}</div>
+                    <div class="km-stat__sub">This year</div>
+                </div>
+                <div class="km-stat">
+                    <div class="km-stat__accent bg-teal"></div>
+                    <div class="km-stat__label">Requests · Today</div>
+                    <div class="km-stat__value color-teal">{{ number_format($statistics['request']['today']['total'] ?? 0) }}</div>
+                    <div class="km-stat__sub">Since midnight</div>
+                </div>
+                <div class="km-stat">
+                    <div class="km-stat__accent bg-rose"></div>
+                    <div class="km-stat__label">Errors · Today</div>
+                    <div class="km-stat__value color-rose">{{ number_format($statistics['errors']['today']['total'] ?? 0) }}</div>
+                    <div class="km-stat__sub">Since midnight</div>
                 </div>
             </div>
-        </div>
-    </div>
+
+            {{-- ── Charts row 1 ── --}}
+            <p class="km-section-label">Historical trends</p>
+
+            <div class="km-charts-grid">
+
+                {{-- Historical Total --}}
+                <div class="km-chart-card km-chart-card--8">
+                    <div class="km-chart-header">
+                        <span class="km-chart-title">Requests vs Errors — All years</span>
+                        <span class="km-chart-badge km-chart-badge--teal">Line</span>
+                    </div>
+                    <div class="km-chart-body" data-chart="historicalTotal">
+                        <div class="km-skeleton"></div>
+                        <canvas id="chart-historical-total"></canvas>
+                    </div>
+                    <div class="km-legend">
+                        <div class="km-legend-item"><div class="km-legend-dot" style="background:var(--teal)"></div>Requests</div>
+                        <div class="km-legend-item"><div class="km-legend-dot" style="background:var(--rose)"></div>Errors</div>
+                    </div>
+                </div>
+
+                {{-- Doughnut year --}}
+                <div class="km-chart-card km-chart-card--4">
+                    <div class="km-chart-header">
+                        <span class="km-chart-title">Distribution · Year</span>
+                        <span class="km-chart-badge km-chart-badge--amber">Doughnut</span>
+                    </div>
+                    <div class="km-chart-body" data-chart="doughnutYear">
+                        <div class="km-skeleton"></div>
+                        <canvas id="chart-doughnut-year"></canvas>
+                    </div>
+                    <div class="km-legend">
+                        <div class="km-legend-item"><div class="km-legend-dot" style="background:var(--teal)"></div>Requests</div>
+                        <div class="km-legend-item"><div class="km-legend-dot" style="background:var(--rose)"></div>Errors</div>
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- ── Charts row 2 ── --}}
+            <div class="km-charts-grid">
+
+                {{-- Historical year (radar) --}}
+                <div class="km-chart-card km-chart-card--4">
+                    <div class="km-chart-header">
+                        <span class="km-chart-title">Monthly pattern · Year</span>
+                        <span class="km-chart-badge km-chart-badge--teal">Radar</span>
+                    </div>
+                    <div class="km-chart-body" data-chart="historicalYear">
+                        <div class="km-skeleton"></div>
+                        <canvas id="chart-historical-year"></canvas>
+                    </div>
+                    <div class="km-legend">
+                        <div class="km-legend-item"><div class="km-legend-dot" style="background:var(--teal)"></div>Requests</div>
+                        <div class="km-legend-item"><div class="km-legend-dot" style="background:var(--rose)"></div>Errors</div>
+                    </div>
+                </div>
+
+                {{-- Methods bar --}}
+                <div class="km-chart-card km-chart-card--4">
+                    <div class="km-chart-header">
+                        <span class="km-chart-title">HTTP Methods · Year</span>
+                        <span class="km-chart-badge km-chart-badge--rose">Bar</span>
+                    </div>
+                    <div class="km-chart-body" data-chart="methods">
+                        <div class="km-skeleton"></div>
+                        <canvas id="chart-methods"></canvas>
+                    </div>
+                    <div class="km-legend">
+                        <div class="km-legend-item"><div class="km-legend-dot" style="background:var(--teal)"></div>Requests</div>
+                        <div class="km-legend-item"><div class="km-legend-dot" style="background:var(--rose)"></div>Errors</div>
+                    </div>
+                </div>
+
+                {{-- Exceeded year --}}
+                <div class="km-chart-card km-chart-card--4">
+                    <div class="km-chart-header">
+                        <span class="km-chart-title">Limit exceeded · Year</span>
+                        <span class="km-chart-badge km-chart-badge--amber">Line</span>
+                    </div>
+                    <div class="km-chart-body" data-chart="exceededYear">
+                        <div class="km-skeleton"></div>
+                        <canvas id="chart-exceeded-year"></canvas>
+                    </div>
+                    <div class="km-legend">
+                        <div class="km-legend-item"><div class="km-legend-dot" style="background:var(--teal)"></div>Requests</div>
+                        <div class="km-legend-item"><div class="km-legend-dot" style="background:var(--rose)"></div>Errors</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>{{-- /km-page --}}
+    </div>{{-- /km-shell --}}
 @endsection
 
 @section('script')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-        const historicalTotal = document.getElementById('historical-total');
-        const historicalYear = document.getElementById('historical-year');
-        const year = document.getElementById('year');
-        const totalMethod = document.getElementById('total-method');
-        const historicalExceededYear = document.getElementById('historical-exceeded-year');
-        // const ctx3 = document.getElementById('today');
-        // const ctx4 = document.getElementById('today-method');
-        // const ctx5 = document.getElementById('tables');
-        // const ctx6 = document.getElementById('tables-today');
-        // const ctx7 = document.getElementById('week');
-        // const ctx8 = document.getElementById('week-method');
-        // const ctx9 = document.getElementById('month');
-        // const ctx10 = document.getElementById('month-method');
-        // const ctx11 = document.getElementById('year');
-        // const ctx12 = document.getElementById('year-method');
+        /**
+         * All chart data is prepared in PHP and passed as JSON — no foreach loops.
+         * Charts are initialised lazily via IntersectionObserver, so off-screen
+         * canvases never block the initial render.
+         */
 
-        let tag = new Set();
-        var request = [];
-        var error = [];
+        const DATA = {
+            historicalTotal: @json($chartHistoricalTotal),
+            historicalYear:  @json($chartHistoricalYear),
+            exceededYear:    @json($chartExceededYear),
+            methods:         @json($chartMethods),
+            doughnutYear:    @json($chartDoughnutYear),
+        };
 
-        @foreach ($historical['request']['total']['details'] as $request)
-            request.push({"year":"{{$request['year']}}", "total":"{{$request['total']}}"});
-        @endforeach
+        /* ── Design tokens ── */
+        const C = {
+            teal:     '#00d4aa',
+            tealFill: 'rgba(0,212,170,.15)',
+            rose:     '#f43f5e',
+            roseFill: 'rgba(244,63,94,.15)',
+            amber:    '#f59e0b',
+            sky:      '#38bdf8',
+            grid:     '#1e2a3a',
+            text:     '#64748b',
+            textMain: '#e2e8f0',
+        };
 
-        @foreach ($historical['errors']['total']['details'] as $error)
-            error.push({"year":"{{$error['year']}}", "total":"{{$error['total']}}"});
-        @endforeach
+        /* ── Shared Chart.js defaults ── */
+        Chart.defaults.color           = C.text;
+        Chart.defaults.borderColor     = C.grid;
+        Chart.defaults.font.family     = "'JetBrains Mono', monospace";
+        Chart.defaults.font.size       = 11;
+        Chart.defaults.animation.duration = 600;
 
-        // Obtenemos los años en cada arreglo
-        request.forEach(item => tag.add(item.year));
-        error.forEach(item => tag.add(item.year));
+        const tickOpts = { color: C.text, maxTicksLimit: 6 };
+        const gridOpts = { color: C.grid };
 
-        // Convertimos el set a un array
-        tag = Array.from(tag);
+        function lineDataset(label, data, color, fill = C.tealFill) {
+            return {
+                label, data,
+                borderColor: color,
+                backgroundColor: fill,
+                fill: true,
+                tension: .35,
+                pointRadius: 3,
+                pointBackgroundColor: color,
+                pointBorderColor: '#0a0d12',
+                pointBorderWidth: 2,
+                pointHoverRadius: 5,
+            };
+        }
 
-        // Agregamos el año y valor faltante al arreglo
-        tag.forEach(year => {
-            if (!request.some(item => item.year === year)) {
-                request.push({ year: year, total: 0 });
-            }
-        });
+        /* ── Chart factory functions ── */
+        const CHARTS = {
 
-        tag.forEach(year => {
-            if (!error.some(item => item.year === year)) {
-                error.push({ year: year, total: 0 });
-            }
-        });
-
-        // Ordenar los arreglos por año para mantenerlos organizados
-        request.sort((a, b) => a.year - b.year);
-        error.sort((a, b) => a.year - b.year);
-        tag.sort();
-
-        // Separar los totales de peticiones y errores
-        let totalRequest = request.map(item => item.total);
-        let totalError = error.map(item => item.total);
-
-        new Chart(historicalTotal, {
-            type: 'line',
-            data: {
-                labels: tag,
-                datasets: [{
-                    label: 'Request',
-                    data: totalRequest,
-                    fill: true,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgb(75, 192, 192)',
-                    pointBackgroundColor: 'rgb(75, 192, 192)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(75, 192, 192)'
-                }, {
-                    label: 'Error',
-                    data: totalError,
-                    fill: true,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    pointBackgroundColor: 'rgb(255, 99, 132)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(255, 99, 132)'
-                }]
+            historicalTotal(ctx) {
+                const d = DATA.historicalTotal;
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: d.labels,
+                        datasets: [
+                            lineDataset('Requests', d.request, C.teal, C.tealFill),
+                            lineDataset('Errors',   d.error,   C.rose, C.roseFill),
+                        ],
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { ticks: tickOpts, grid: gridOpts },
+                            y: { ticks: tickOpts, grid: gridOpts, beginAtZero: true },
+                        },
+                    },
+                });
             },
-            options: {
-                responsive: true,
-                elements: {
-                    line: {
-                        borderWidth: 3
-                    }
+
+            doughnutYear(ctx) {
+                const d = DATA.doughnutYear;
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Requests', 'Errors'],
+                        datasets: [{
+                            data: [d.request, d.error],
+                            backgroundColor: [C.tealFill, C.roseFill],
+                            borderColor:     [C.teal,     C.rose],
+                            borderWidth: 2,
+                            hoverOffset: 6,
+                        }],
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        cutout: '68%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: {
+                                    label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()}`
+                                }},
+                        },
+                    },
+                });
+            },
+
+            historicalYear(ctx) {
+                const d = DATA.historicalYear;
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: d.labels,
+                        datasets: [
+                            lineDataset('Requests', d.request, C.teal, C.tealFill),
+                            lineDataset('Errors',   d.error,   C.rose, C.roseFill),
+                        ],
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            r: {
+                                ticks: { ...tickOpts, backdropColor: 'transparent' },
+                                grid:  { color: C.grid },
+                                pointLabels: { color: C.textMain, font: { size: 11 } },
+                            },
+                        },
+                    },
+                });
+            },
+
+            methods(ctx) {
+                const d = DATA.methods;
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: d.labels,
+                        datasets: [
+                            { label: 'Requests', data: d.request, backgroundColor: C.tealFill, borderColor: C.teal, borderWidth: 1, borderRadius: 4 },
+                            { label: 'Errors',   data: d.error,   backgroundColor: C.roseFill, borderColor: C.rose, borderWidth: 1, borderRadius: 4 },
+                        ],
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { ticks: tickOpts, grid: { display: false } },
+                            y: { ticks: tickOpts, grid: gridOpts, beginAtZero: true },
+                        },
+                    },
+                });
+            },
+
+            exceededYear(ctx) {
+                const d = DATA.exceededYear;
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: d.labels,
+                        datasets: [
+                            lineDataset('Requests', d.request, C.amber, 'rgba(245,158,11,.12)'),
+                            lineDataset('Errors',   d.error,   C.rose,  C.roseFill),
+                        ],
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { ticks: tickOpts, grid: gridOpts },
+                            y: { ticks: tickOpts, grid: gridOpts, beginAtZero: true },
+                        },
+                    },
+                });
+            },
+        };
+
+        /* ── Lazy initialisation via IntersectionObserver ── */
+        function initChart(body) {
+            const key = body.dataset.chart;
+            if (!CHARTS[key]) return;
+
+            const canvas = body.querySelector('canvas');
+            CHARTS[key](canvas.getContext('2d'));
+            body.classList.add('loaded');
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    initChart(entry.target);
+                    observer.unobserve(entry.target);
                 }
-            }
-        });
+            });
+        }, { rootMargin: '80px' });
 
-        let tag2 = new Set();
-        let request2 = [];
-        let error2 = [];
-
-        @foreach ($historical['request']['year']['details'] as $request)
-            request2.push({"month":"{{$request['month']}}", "total":"{{$request['total']}}"});
-        @endforeach
-
-        @foreach ($historical['errors']['year']['details'] as $error)
-            error2.push({"month":"{{$error['month']}}", "total":"{{$error['total']}}"});
-        @endforeach
-
-        // Obtenemos los meses en cada arreglo
-        request2.forEach(item => tag2.add(item.month));
-        error2.forEach(item => tag2.add(item.month));
-
-        // Convertimos el set a un array
-        tag2 = Array.from(tag2);
-
-        // Agregamos el año y valor faltante al arreglo
-        tag2.forEach(month => {
-            if (!request2.some(item => item.month === month)) {
-                request2.push({ month: month, total: 0 });
-            }
-        });
-
-        tag2.forEach(month => {
-            if (!error2.some(item => item.month === month)) {
-                error2.push({ month: month, total: 0 });
-            }
-        });
-
-        // Ordenar los arreglos por año para mantenerlos organizados
-        request2.sort((a, b) => a.month - b.month);
-        error2.sort((a, b) => a.month - b.month);
-        tag2.sort();
-
-        // Separar los totales de peticiones y errores
-        let totalRequest2 = request2.map(item => item.total);
-        let totalError2 = error2.map(item => item.total);
-
-        new Chart(historicalYear, {
-            type: 'radar',
-            data: {
-                labels: tag2,
-                datasets: [{
-                    label: 'Request',
-                    data: totalRequest2,
-                    fill: true,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgb(75, 192, 192)',
-                    pointBackgroundColor: 'rgb(75, 192, 192)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(75, 192, 192)'
-                }, {
-                    label: 'Error',
-                    data: totalError2,
-                    fill: true,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    pointBackgroundColor: 'rgb(255, 99, 132)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(255, 99, 132)'
-                }]
-            },
-            options: {
-                responsive: true,
-                elements: {
-                    line: {
-                        borderWidth: 3
-                    }
-                }
-            }
-        });
-
-        new Chart(year, {
-            type: 'doughnut',
-            data: {
-                labels: ['Request', 'Errors'], // Etiquetas de datos
-                datasets: [{
-                    label: 'Year', // Etiqueta principal
-                    data: [ // Datos
-                        {{ $statistics['request']['year']['total'] }},
-                        {{ $statistics['errors']['year']['total'] }}
-                    ],
-                    backgroundColor: [ // Color del grafico
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(255, 99, 132, 0.2)',
-                    ],
-                    borderColor: [ // Color del borde
-                        'rgb(75, 192, 192)',
-                        'rgb(255, 99, 132)',
-                    ],
-                    borderWidth: 3
-                }]
-            },
-            options: {
-                responsive: true,
-            }
-        });
-
-        new Chart(totalMethod, {
-            type: 'bar',
-            data: {
-                labels: ['GET', 'POST', 'PUT', 'DELETE'],
-                datasets: [{
-                    label: 'Request',
-                    data: [
-                        {{ $statistics['request']['year']['method']['GET'] }},
-                        {{ $statistics['request']['year']['method']['POST'] }},
-                        {{ $statistics['request']['year']['method']['PUT'] }},
-                        {{ $statistics['request']['year']['method']['DELETE'] }},
-                    ],
-                    backgroundColor: [
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                    ],
-                    borderColor: [
-                        'rgb(75, 192, 192)',
-                        'rgb(75, 192, 192)',
-                        'rgb(75, 192, 192)',
-                        'rgb(75, 192, 192)',
-                    ],
-                    borderWidth: 3
-                }, {
-                    label: 'Error',
-                    data: [
-                        {{ $statistics['errors']['year']['method']['GET'] }},
-                        {{ $statistics['errors']['year']['method']['POST'] }},
-                        {{ $statistics['errors']['year']['method']['PUT'] }},
-                        {{ $statistics['errors']['year']['method']['DELETE'] }},
-                    ],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(255, 99, 132, 0.2)',
-                    ],
-                    borderColor: [
-                        'rgb(255, 99, 132)',
-                        'rgb(255, 99, 132)',
-                        'rgb(255, 99, 132)',
-                        'rgb(255, 99, 132)',
-                    ],
-                    borderWidth: 3
-                }]
-            },
-            options: {
-                responsive: true,
-            }
-        });
-
-        let tag3 = new Set();
-        var request3 = [];
-        var error3 = [];
-
-        @foreach ($historicalExceeded['request']['year']['details'] as $request)
-            request3.push({"month":"{{$request['month']}}", "total":"{{$request['total']}}"});
-        @endforeach
-
-        @foreach ($historicalExceeded['errors']['year']['details'] as $error)
-            error3.push({"month":"{{$error['month']}}", "total":"{{$error['total']}}"});
-        @endforeach
-
-        // Obtenemos los meses en cada arreglo
-        request3.forEach(item => tag3.add(item.month));
-        error3.forEach(item => tag3.add(item.month));
-
-        // Convertimos el set a un array
-        tag3 = Array.from(tag3);
-
-        // Agregamos el mes y valor faltante al arreglo
-        tag3.forEach(month => {
-            if (!request3.some(item => item.month === month)) {
-                request3.push({ month: month, total: 0 });
-            }
-        });
-
-        tag3.forEach(month => {
-            if (!error3.some(item => item.month === month)) {
-                error3.push({ month: month, total: 0 });
-            }
-        });
-
-        // Ordenar los arreglos por año para mantenerlos organizados
-        request3.sort((a, b) => a.month - b.month);
-        error3.sort((a, b) => a.month - b.month);
-        tag3.sort();
-
-        // Separar los totales de peticiones y errores
-        let totalRequest3 = request3.map(item => item.total);
-        let totalError3 = error3.map(item => item.total);
-
-        new Chart(historicalExceededYear, {
-            type: 'line',
-            data: {
-                labels: tag3,
-                datasets: [{
-                    label: 'Request',
-                    data: totalRequest3,
-                    fill: true,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgb(75, 192, 192)',
-                    pointBackgroundColor: 'rgb(75, 192, 192)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(75, 192, 192)'
-                }, {
-                    label: 'Error',
-                    data: totalError3,
-                    fill: true,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    pointBackgroundColor: 'rgb(255, 99, 132)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(255, 99, 132)'
-                }]
-            },
-            options: {
-                responsive: true,
-                elements: {
-                    line: {
-                        borderWidth: 3
-                    }
-                }
-            }
-        });
-
-        {{--new Chart(ctx3, {--}}
-        {{--    type: 'doughnut',--}}
-        {{--    data: {--}}
-        {{--        labels: ['Request', 'Last Minute'], // Etiquetas de datos--}}
-        {{--        datasets: [{--}}
-        {{--            label: 'Total', // Etiqueta principal--}}
-        {{--            data: [ // Datos--}}
-        {{--                {{ $statistics['request']['today']['total'] }},--}}
-        {{--                {{ $statistics['request']['today']['total'] }}--}}
-        {{--            ],--}}
-        {{--            backgroundColor: [ // Conlor del grafico--}}
-        {{--                'rgba(75, 192, 192, 0.2)',--}}
-        {{--                'rgba(255, 99, 132, 0.2)',--}}
-        {{--            ],--}}
-        {{--            borderColor: [ // Color del borde--}}
-        {{--                'rgb(75, 192, 192)',--}}
-        {{--                'rgb(255, 99, 132)',--}}
-        {{--            ],--}}
-        {{--            borderWidth: 3--}}
-        {{--        }]--}}
-        {{--    },--}}
-        {{--    options: {--}}
-        {{--        responsive: true,--}}
-        {{--    }--}}
-        {{--});--}}
-
-        {{--new Chart(ctx4, {--}}
-        {{--    type: 'bar',--}}
-        {{--    data: {--}}
-        {{--        labels: ['GET', 'POST', 'PUT', 'DELETE'],--}}
-        {{--        datasets: [{--}}
-        {{--            label: 'Request',--}}
-        {{--            data: [--}}
-        {{--                {{ $statistics['request']['today']['method']['GET'] }},--}}
-        {{--                {{ $statistics['request']['today']['method']['POST'] }},--}}
-        {{--                {{ $statistics['request']['today']['method']['PUT'] }},--}}
-        {{--                {{ $statistics['request']['today']['method']['DELETE'] }},--}}
-        {{--            ],--}}
-        {{--            backgroundColor: [--}}
-        {{--                'rgba(153, 102, 255, 0.2)',--}}
-        {{--                'rgba(75, 192, 192, 0.2)',--}}
-        {{--                'rgba(54, 162, 235, 0.2)',--}}
-        {{--                'rgba(255, 99, 132, 0.2)',--}}
-        {{--            ],--}}
-        {{--            borderColor: [--}}
-        {{--                'rgb(153, 102, 255)',--}}
-        {{--                'rgb(75, 192, 192)',--}}
-        {{--                'rgb(54, 162, 235)',--}}
-        {{--                'rgb(255, 99, 132)',--}}
-        {{--            ],--}}
-        {{--            borderWidth: 3--}}
-        {{--        }]--}}
-        {{--    },--}}
-        {{--    options: {--}}
-        {{--        responsive: true,--}}
-        {{--    }--}}
-        {{--});--}}
-
-        let labels = [];
-        let count = [];
-        let countToday = [];
-        let method = [];
-
-        // new Chart(ctx5, {
-        //     type: 'line',
-        //     data: {
-        //         labels: labels, // Etiquetas de datos
-        //         datasets: [{
-        //             label: 'Total', // Etiqueta principal
-        //             data: count,
-        //             backgroundColor: [ // Conlor del grafico
-        //                 'rgba(153, 102, 255, 0.2)',
-        //                 'rgba(255, 99, 132, 0.2)',
-        //             ],
-        //             borderColor: [ // Color del borde
-        //                 'rgb(153, 102, 255)',
-        //                 'rgb(255, 99, 132)',
-        //             ],
-        //             borderWidth: 3
-        //         }]
-        //     },
-        //     options: {
-        //         responsive: true,
-        //         indexAxis: 'x',
-        //         scales: {
-        //             y: {
-        //                 beginAtZero: true
-        //             }
-        //         }
-        //     }
-        // });
-
-        // new Chart(ctx6, {
-        //     type: 'line',
-        //     data: {
-        //         labels: labels, // Etiquetas de datos
-        //         datasets: [{
-        //             label: 'Today', // Etiqueta principal
-        //             data: countToday,
-        //             backgroundColor: [ // Conlor del grafico
-        //                 'rgba(153, 102, 255, 0.2)',
-        //                 'rgba(255, 99, 132, 0.2)',
-        //             ],
-        //             borderColor: [ // Color del borde
-        //                 'rgb(153, 102, 255)',
-        //                 'rgb(255, 99, 132)',
-        //             ],
-        //             borderWidth: 3
-        //         }]
-        //     },
-        //     options: {
-        //         responsive: true,
-        //         indexAxis: 'x',
-        //         scales: {
-        //             y: {
-        //                 beginAtZero: true
-        //             }
-        //         },
-        //     }
-        // });
-
-        {{--new Chart(ctx7, {--}}
-        {{--    type: 'doughnut',--}}
-        {{--    data: {--}}
-        {{--        labels: ['Request', 'Errors'], // Etiquetas de datos--}}
-        {{--        datasets: [{--}}
-        {{--            label: 'Total', // Etiqueta principal--}}
-        {{--            data: [ // Datos--}}
-        {{--                {{ $statistics['request']['week']['total'] }},--}}
-        {{--                {{ $statistics['errors']['week']['total'] }}--}}
-        {{--            ],--}}
-        {{--            backgroundColor: [ // Conlor del grafico--}}
-        {{--                'rgba(75, 192, 192, 0.2)',--}}
-        {{--                'rgba(255, 99, 132, 0.2)',--}}
-        {{--            ],--}}
-        {{--            borderColor: [ // Color del borde--}}
-        {{--                'rgb(75, 192, 192)',--}}
-        {{--                'rgb(255, 99, 132)',--}}
-        {{--            ],--}}
-        {{--            borderWidth: 3--}}
-        {{--        }]--}}
-        {{--    },--}}
-        {{--    options: {--}}
-        {{--        responsive: true,--}}
-        {{--    }--}}
-        {{--});--}}
-
-        {{--new Chart(ctx8, {--}}
-        {{--    type: 'bar',--}}
-        {{--    data: {--}}
-        {{--        labels: ['GET', 'POST', 'PUT', 'DELETE'],--}}
-        {{--        datasets: [{--}}
-        {{--            label: 'Request',--}}
-        {{--            data: [--}}
-        {{--                {{ $statistics['request']['week']['method']['GET'] }},--}}
-        {{--                {{ $statistics['request']['week']['method']['POST'] }},--}}
-        {{--                {{ $statistics['request']['week']['method']['PUT'] }},--}}
-        {{--                {{ $statistics['request']['week']['method']['DELETE'] }},--}}
-        {{--            ],--}}
-        {{--            backgroundColor: [--}}
-        {{--                'rgba(153, 102, 255, 0.2)',--}}
-        {{--                'rgba(75, 192, 192, 0.2)',--}}
-        {{--                'rgba(54, 162, 235, 0.2)',--}}
-        {{--                'rgba(255, 99, 132, 0.2)',--}}
-        {{--            ],--}}
-        {{--            borderColor: [--}}
-        {{--                'rgb(153, 102, 255)',--}}
-        {{--                'rgb(75, 192, 192)',--}}
-        {{--                'rgb(54, 162, 235)',--}}
-        {{--                'rgb(255, 99, 132)',--}}
-        {{--            ],--}}
-        {{--            borderWidth: 3--}}
-        {{--        }]--}}
-        {{--    },--}}
-        {{--    options: {--}}
-        {{--        responsive: true,--}}
-        {{--    }--}}
-        {{--});--}}
-
-        {{--new Chart(ctx9, {--}}
-        {{--    type: 'doughnut',--}}
-        {{--    data: {--}}
-        {{--        labels: ['Request', 'Errors'], // Etiquetas de datos--}}
-        {{--        datasets: [{--}}
-        {{--            label: 'Total', // Etiqueta principal--}}
-        {{--            data: [ // Datos--}}
-        {{--                {{ $statistics['request']['month']['total'] }},--}}
-        {{--                {{ $statistics['errors']['month']['total'] }}--}}
-        {{--            ],--}}
-        {{--            backgroundColor: [ // Conlor del grafico--}}
-        {{--                'rgba(75, 192, 192, 0.2)',--}}
-        {{--                'rgba(255, 99, 132, 0.2)',--}}
-        {{--            ],--}}
-        {{--            borderColor: [ // Color del borde--}}
-        {{--                'rgb(75, 192, 192)',--}}
-        {{--                'rgb(255, 99, 132)',--}}
-        {{--            ],--}}
-        {{--            borderWidth: 3--}}
-        {{--        }]--}}
-        {{--    },--}}
-        {{--    options: {--}}
-        {{--        responsive: true,--}}
-        {{--    }--}}
-        {{--});--}}
-
-        {{--new Chart(ctx10, {--}}
-        {{--    type: 'bar',--}}
-        {{--    data: {--}}
-        {{--        labels: ['GET', 'POST', 'PUT', 'DELETE'],--}}
-        {{--        datasets: [{--}}
-        {{--            label: 'Request',--}}
-        {{--            data: [--}}
-        {{--                {{ $statistics['request']['month']['method']['GET'] }},--}}
-        {{--                {{ $statistics['request']['month']['method']['POST'] }},--}}
-        {{--                {{ $statistics['request']['month']['method']['PUT'] }},--}}
-        {{--                {{ $statistics['request']['month']['method']['DELETE'] }},--}}
-        {{--            ],--}}
-        {{--            backgroundColor: [--}}
-        {{--                'rgba(153, 102, 255, 0.2)',--}}
-        {{--                'rgba(75, 192, 192, 0.2)',--}}
-        {{--                'rgba(54, 162, 235, 0.2)',--}}
-        {{--                'rgba(255, 99, 132, 0.2)',--}}
-        {{--            ],--}}
-        {{--            borderColor: [--}}
-        {{--                'rgb(153, 102, 255)',--}}
-        {{--                'rgb(75, 192, 192)',--}}
-        {{--                'rgb(54, 162, 235)',--}}
-        {{--                'rgb(255, 99, 132)',--}}
-        {{--            ],--}}
-        {{--            borderWidth: 3--}}
-        {{--        }]--}}
-        {{--    },--}}
-        {{--    options: {--}}
-        {{--        responsive: true,--}}
-        {{--    }--}}
-        {{--});--}}
-
-        {{--new Chart(ctx11, {--}}
-        {{--    type: 'doughnut',--}}
-        {{--    data: {--}}
-        {{--        labels: ['Request', 'Errors'], // Etiquetas de datos--}}
-        {{--        datasets: [{--}}
-        {{--            label: 'Total', // Etiqueta principal--}}
-        {{--            data: [ // Datos--}}
-        {{--                {{ $statistics['request']['year']['total'] }},--}}
-        {{--                {{ $statistics['errors']['year']['total'] }}--}}
-        {{--            ],--}}
-        {{--            backgroundColor: [ // Conlor del grafico--}}
-        {{--                'rgba(75, 192, 192, 0.2)',--}}
-        {{--                'rgba(255, 99, 132, 0.2)',--}}
-        {{--            ],--}}
-        {{--            borderColor: [ // Color del borde--}}
-        {{--                'rgb(75, 192, 192)',--}}
-        {{--                'rgb(255, 99, 132)',--}}
-        {{--            ],--}}
-        {{--            borderWidth: 3--}}
-        {{--        }]--}}
-        {{--    },--}}
-        {{--    options: {--}}
-        {{--        responsive: true,--}}
-        {{--    }--}}
-        {{--});--}}
-
-        {{--new Chart(ctx12, {--}}
-        {{--    type: 'bar',--}}
-        {{--    data: {--}}
-        {{--        labels: ['GET', 'POST', 'PUT', 'DELETE'],--}}
-        {{--        datasets: [{--}}
-        {{--            label: 'Request',--}}
-        {{--            data: [--}}
-        {{--                {{ $statistics['request']['year']['method']['GET'] }},--}}
-        {{--                {{ $statistics['request']['year']['method']['POST'] }},--}}
-        {{--                {{ $statistics['request']['year']['method']['PUT'] }},--}}
-        {{--                {{ $statistics['request']['year']['method']['DELETE'] }},--}}
-        {{--            ],--}}
-        {{--            backgroundColor: [--}}
-        {{--                'rgba(153, 102, 255, 0.2)',--}}
-        {{--                'rgba(75, 192, 192, 0.2)',--}}
-        {{--                'rgba(54, 162, 235, 0.2)',--}}
-        {{--                'rgba(255, 99, 132, 0.2)',--}}
-        {{--            ],--}}
-        {{--            borderColor: [--}}
-        {{--                'rgb(153, 102, 255)',--}}
-        {{--                'rgb(75, 192, 192)',--}}
-        {{--                'rgb(54, 162, 235)',--}}
-        {{--                'rgb(255, 99, 132)',--}}
-        {{--            ],--}}
-        {{--            borderWidth: 3--}}
-        {{--        }]--}}
-        {{--    },--}}
-        {{--    options: {--}}
-        {{--        responsive: true,--}}
-        {{--    }--}}
-        {{--});--}}
-
+        document.querySelectorAll('[data-chart]').forEach(el => observer.observe(el));
     </script>
 @endsection

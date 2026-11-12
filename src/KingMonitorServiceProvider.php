@@ -2,67 +2,88 @@
 
 namespace ByCarmona141\KingMonitor;
 
-use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
-use ByCarmona141\KingMonitor\Middleware\MonitorAuth;
-
-use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use ByCarmona141\KingMonitor\Services\KingMonitorErrorService;
 use ByCarmona141\KingMonitor\Console\Commands\KingMonitorCommand;
 
-class KingMonitorServiceProvider extends ServiceProvider {
-    public function register() {
-        $this->app->bind('king-monitor', function() {
-            return new KingMonitor;
-        });
+class KingMonitorServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        // Binding requerido por la Facade KingMonitor
+        $this->app->bind('king-monitor', fn () => new KingMonitor());
 
-        // Carga de configuracion
+        $this->app->singleton(KingMonitorErrorService::class);
+
         $this->mergeConfigFrom($this->basePath('config/king-monitor.php'), 'king-monitor');
     }
 
-    public function boot() {
-        // Registro de rutas
+    public function boot(): void
+    {
         $this->loadRoutesFrom($this->basePath('routes/web.php'));
         $this->loadRoutesFrom($this->basePath('routes/api.php'));
+        $this->loadViewsFrom($this->basePath('resources/views/'), 'king-monitor');
+        $this->loadMigrationsFrom($this->basePath('database/migrations'));
 
-        // Publicar Middleware
-        $this->app->make(Kernel::class)->pushMiddleware(MonitorAuth::class);
+        $this->commands([KingMonitorCommand::class]);
 
-        // Registro de vistas
-        $this->loadViewsFrom(
-            $this->basePath('resources/views/'),
-            'king-monitor'
+        $this->registerExceptionReporter();
+        $this->registerPublishables();
+    }
+
+    private function registerExceptionReporter(): void
+    {
+        $this->app->afterResolving(
+            ExceptionHandler::class,
+            function (ExceptionHandler $handler, $app) {
+                if ($app->bound('king.monitor.reporter.registered')) {
+                    return;
+                }
+
+                $app->instance('king.monitor.reporter.registered', true);
+
+                if (method_exists($handler, 'stopIgnoring')) {
+                    $handler->stopIgnoring(AuthenticationException::class);
+                }
+
+                $handler->reportable(function (\Throwable $e) use ($app) {
+                    rescue(
+                        fn () => $app->make(KingMonitorErrorService::class)->handle($e),
+                        report: false
+                    );
+                });
+
+                $handler->renderable(function (\Exception $e) use ($app) {
+                    rescue(
+                        fn () => $app->make(KingMonitorErrorService::class)->handle($e),
+                        report: false
+                    );
+                });
+            }
         );
+    }
 
-        // Registro de migraciones
-        $this->loadMigrationsFrom(
-            $this->basePath('database/migrations')
-        );
-
-        // Registro de comandos
-        $this->commands([
-            KingMonitorCommand::class
-        ]);
-
-        // Publicar rutas
+    private function registerPublishables(): void
+    {
         $this->publishes(
             [$this->basePath('routes/web.php') => base_path('routes/king-monitor.php')],
             'king-monitor-routes'
         );
-
-        // Publicar vistas
         $this->publishes(
             [$this->basePath('resources/views/') => resource_path('views/vendor/king-monitor')],
             'king-monitor-views'
         );
-
-        // Publicar configuracion
         $this->publishes(
             [$this->basePath('config/king-monitor.php') => config_path('king-monitor.php')],
             'king-monitor-config'
         );
     }
 
-    protected function basePath($path = '') {
+    protected function basePath(string $path = ''): string
+    {
         return __DIR__ . '/../' . $path;
     }
 }

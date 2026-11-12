@@ -2,20 +2,17 @@
 
 namespace ByCarmona141\KingMonitor\Models;
 
-use Exception;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
+use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
-class KingMonitorAlert extends Model {
+class KingMonitorAlert extends Model
+{
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'king_user_id',
         'token',
@@ -23,452 +20,226 @@ class KingMonitorAlert extends Model {
         'description',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
     protected $casts = [
-        'id' => 'integer',
+        'id'           => 'integer',
         'king_user_id' => 'integer',
     ];
 
-    // Obtenemos la ultima alerta del dia del usuario
-    public function lastAlertToday() {
-        try {
-            return kingMonitorAlert::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', auth()->user()->id)->latest()->first();
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    /****************************************************************** QUERY SCOPES ******************************************************************/
+
+    public function scopeForPeriod(Builder $query, string $period, ?int $userId = null): Builder
+    {
+        $query = match ($period) {
+            'today'   => $query->whereDate('created_at', today()),
+            'week'    => $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]),
+            'month'   => $query->whereYear('created_at', now()->year)->whereMonth('created_at', now()->month),
+            'quarter' => $query->whereBetween('created_at', [Carbon::now()->startOfQuarter(), Carbon::now()->endOfQuarter()]),
+            'year'    => $query->whereYear('created_at', now()->year),
+            default   => $query, // total
+        };
+
+        return $userId ? $query->where('king_user_id', $userId) : $query;
     }
 
-    // Alertas del día, si no se manda el dia se obtienen las alertas del día
-//    public function kingDay(Request $request): KingMonitorAlertCollection {
-//        $response = NULL;
-//
-//        if ($request->data['attributes']['day'] === NULL) {
-//            $response = KingMonitorAlertCollection::make(KingMonitorAlert::whereDate('created_at', '=', today())->get());
-//        } else {
-//            $response = KingMonitorAlertCollection::make(KingMonitorAlert::whereDate('created_at', '=', $request->data['attributes']['day'])->get());
-//        }
-//
-//        // Guardamos la accion en el monitor
-//        $kingMonitor = new KingMonitor();
-//        $kingMonitor->monitor($response);
-//
-//        return $response;
-//    }
+    /****************************************************************** LAST ALERT ******************************************************************/
+
+    public function lastAlertToday(): ?self
+    {
+        return self::whereDate('created_at', today())
+            ->where('king_user_id', auth()->id())
+            ->latest()
+            ->first();
+    }
+
+    /****************************************************************** PRIVATE HELPERS ******************************************************************/
+
+    private function buildStatistics(string $period, ?int $userId = null): array
+    {
+        $query = fn() => self::forPeriod($period, $userId);
+
+        return [
+            'total' => $query()->count(),
+            'ip'    => $query()->whereNotNull('ip')->pluck('ip')->mode(),
+        ];
+    }
+
+    private function buildGlobalStatistics(string $period): array
+    {
+        $query = fn() => self::forPeriod($period);
+
+        return [
+            'total' => $query()->count(),
+            'user'  => $query()->whereNotNull('king_user_id')->pluck('king_user_id')->mode(),
+            'ip'    => $query()->whereNotNull('ip')->pluck('ip')->mode(),
+        ];
+    }
+
+    private function buildHistorical(string $period, ?int $userId = null): array
+    {
+        $groupFormat = $this->groupFormatForPeriod($period);
+        $alias       = $this->aliasForPeriod($period);
+
+        $query = self::forPeriod($period, $userId)
+            ->select(
+                DB::raw("DATE_FORMAT(created_at, '{$groupFormat}') as {$alias}"),
+                DB::raw('count(*) as total')
+            )
+            ->groupBy($alias)
+            ->orderBy($alias);
+
+        return [
+            'total'   => self::forPeriod($period, $userId)->count(),
+            'details' => $query->get(),
+        ];
+    }
+
+    private function groupFormatForPeriod(string $period): string
+    {
+        return match ($period) {
+            'today'           => '%H',
+            'week', 'month',
+            'quarter'         => '%d',
+            'year'            => '%M',
+            default           => '%Y',
+        };
+    }
+
+    private function aliasForPeriod(string $period): string
+    {
+        return match ($period) {
+            'today'           => 'hour',
+            'week', 'month',
+            'quarter'         => 'day',
+            'year'            => 'month',
+            default           => 'year',
+        };
+    }
 
     /****************************************************************** USER STATISTICS ******************************************************************/
-    // Estadisticas de alertas del usuario (today)
-    public function userStatisticsToday($kingUserId) {
-        $response = [
-            'total' => KingMonitorAlert::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de alertas del usuario
-            'ip' => KingMonitorAlert::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
-        ];
 
-        return $response;
+    public function userStatisticsAlertToday(int $userId): array
+    {
+        return $this->buildStatistics('today', $userId);
     }
 
-    // Estadisticas de alertas del usuario (week)
-    public function userStatisticsWeek($kingUserId) {
-        $response = [
-            'total' => KingMonitorAlert::whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de alertas del usuario
-            'ip' => KingMonitorAlert::whereBetween('created_at', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
-        ];
-
-        return $response;
+    public function userStatisticsAlertWeek(int $userId): array
+    {
+        return $this->buildStatistics('week', $userId);
     }
 
-    // Estadisticas de alertas del usuario (month)
-    public function userStatisticsMonth($kingUserId) {
-        $response = [
-            'total' => KingMonitorAlert::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de alertas del usuario
-            'ip' => KingMonitorAlert::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
-        ];
-
-        return $response;
+    public function userStatisticsAlertMonth(int $userId): array
+    {
+        return $this->buildStatistics('month', $userId);
     }
 
-    // Estadisticas de alertas del usuario (quarter)
-    public function userStatisticsQuarter($kingUserId) {
-        $response = [
-            'total' => KingMonitorAlert::whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de alertas del usuario
-            'ip' => KingMonitorAlert::whereBetween('created_at', [
-                Carbon::now()->startOfQuarter(),
-                Carbon::now()->endOfQuarter()
-            ])->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
-        ];
-
-        return $response;
+    public function userStatisticsAlertQuarter(int $userId): array
+    {
+        return $this->buildStatistics('quarter', $userId);
     }
 
-    // Estadisticas de alertas del usuario (year)
-    public function userStatisticsYear($kingUserId) {
-        $response = [
-            'total' => KingMonitorAlert::whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Cantidad de alertas del usuario
-            'ip' => KingMonitorAlert::whereYear('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
-        ];
-
-        return $response;
+    public function userStatisticsAlertYear(int $userId): array
+    {
+        return $this->buildStatistics('year', $userId);
     }
 
-    // Estadisticas de alertas del usuario (total)
-    public function userStatisticsTotal($kingUserId) {
-        $response = [
-            'total' => KingMonitorAlert::where('king_user_id', '=', $kingUserId)->count(), // Cantidad de alertas del usuario
-            'ip' => KingMonitorAlert::where('king_user_id', '=', $kingUserId)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
-        ];
-
-        return $response;
+    public function userStatisticsAlertTotal(int $userId): array
+    {
+        return $this->buildStatistics('total', $userId);
     }
 
     /****************************************************************** STATISTICS ******************************************************************/
-    // Total de alertas (today)
-    public function statisticsToday() {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereDate('created_at', '=', date('Y-m-d'))->count(),
-                'user' => KingMonitorAlert::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de alertas
-                'ip' => KingMonitorAlert::whereDate('created_at', '=', date('Y-m-d'))->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
-            ];
 
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function statisticsAlertToday(): array
+    {
+        return $this->buildGlobalStatistics('today');
     }
 
-    // Total de alertas (week)
-    public function statisticsWeek() {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->count(),
-                'user' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de alertas
-                'ip' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function statisticsAlertWeek(): array
+    {
+        return $this->buildGlobalStatistics('week');
     }
 
-    // Total de alertas (month)
-    public function statisticsMonth() {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
-                'user' => KingMonitorAlert::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de alertas
-                'ip' => KingMonitorAlert::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function statisticsAlertMonth(): array
+    {
+        return $this->buildGlobalStatistics('month');
     }
 
-    // Total de alertas (quarter)
-    public function statisticsQuarter() {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->count(),
-                'user' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de alertas
-                'ip' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function statisticsAlertQuarter(): array
+    {
+        return $this->buildGlobalStatistics('quarter');
     }
 
-    // Total de alertas (year)
-    public function statisticsYear() {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereYear('created_at', '=', now())->count(),
-                'user' => KingMonitorAlert::whereYear('created_at', '=', now())->where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de alertas
-                'ip' => KingMonitorAlert::whereYear('created_at', '=', now())->where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de alertas
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function statisticsAlertYear(): array
+    {
+        return $this->buildGlobalStatistics('year');
     }
 
-    // Total de alertas (total)
-    public function statisticsTotal() {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::all()->count(),
-                'user' => KingMonitorAlert::where('king_user_id', '!=', NULL)->pluck('king_user_id')->mode(), // Usuario con la mayor cantidad de excesos de alertas
-                'ip' => KingMonitorAlert::where('ip', '!=', NULL)->pluck('ip')->mode(), // IP del usuario con la mayor cantidad de excesos de alertas
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function statisticsAlertTotal(): array
+    {
+        return $this->buildGlobalStatistics('total');
     }
 
     /****************************************************************** USER HISTORICAL ******************************************************************/
-    // Historico de alertas del usuario (today)
-    public function userHistoricalToday($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->count(), // Total de alertas del usuario
-                'details' => KingMonitorAlert::whereDate('created_at', '=', date('Y-m-d'))->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
-                    DB::raw('count(*) as total')
-                )->groupBy('hour')->orderBy('hour')->get()
-            ];
 
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function userHistoricalAlertToday(int $userId): array
+    {
+        return $this->buildHistorical('today', $userId);
     }
 
-    // Historico de alertas del usuario (week)
-    public function userHistoricalWeek($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de alertas del usuario
-                'details' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function userHistoricalAlertWeek(int $userId): array
+    {
+        return $this->buildHistorical('week', $userId);
     }
 
-    // Historico de alertas del usuario (month)
-    public function userHistoricalMonth($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->count(), // Total de alertas del usuario
-                'details' => KingMonitorAlert::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function userHistoricalAlertMonth(int $userId): array
+    {
+        return $this->buildHistorical('month', $userId);
     }
 
-    // Historico de alertas del usuario (quarter)
-    public function userHistoricalQuarter($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->count(), // Total de alertas del usuario
-                'details' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->where('king_user_id', '=', $kingUserId)->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function userHistoricalAlertQuarter(int $userId): array
+    {
+        return $this->buildHistorical('quarter', $userId);
     }
 
-    // Historico de alertas del usuario (year)
-    public function userHistoricalYear($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereYear('created_at', '=', now())->count(), // Total de alertas del usuario
-                'details' => KingMonitorAlert::whereYear('created_at', '=', now())->select(
-                    DB::raw('DATE_FORMAT(created_at, "%M") as month'),
-                    DB::raw('count(*) as total')
-                )->groupBy('month')->orderBy('month')->get(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function userHistoricalAlertYear(int $userId): array
+    {
+        return $this->buildHistorical('year', $userId);
     }
 
-    // Historico de alertas del usuario (total)
-    public function userHistoricalTotal($kingUserId) {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::all()->count(), // Total de alertas del usuario
-                'details' => KingMonitorAlert::select(
-                    DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
-                    DB::raw('count(*) as total')
-                )->groupBy('year')->orderBy('year')->get(),
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function userHistoricalAlertTotal(int $userId): array
+    {
+        return $this->buildHistorical('total', $userId);
     }
 
     /****************************************************************** HISTORICAL ******************************************************************/
-    // Total de alertas (today)
-    public function historicalToday() {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereDate('created_at', '=', date('Y-m-d'))->count(),
-                'details' => KingMonitorAlert::whereDate('created_at', '=', date('Y-m-d'))->select(
-                    DB::raw('DATE_FORMAT(created_at, "%H") as hour'),
-                    DB::raw('count(*) as total')
-                )->groupBy('hour')->orderBy('hour')->get()
-            ];
 
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function historicalAlertToday(): array
+    {
+        return $this->buildHistorical('today');
     }
 
-    // Total de alertas (week)
-    public function historicalWeek() {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->count(),
-                'details' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function historicalAlertWeek(): array
+    {
+        return $this->buildHistorical('week');
     }
 
-    // Total de alertas (month)
-    public function historicalMonth() {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->count(),
-                'details' => KingMonitorAlert::whereYear('created_at', '=', now())->whereMonth('created_at', '=', now())->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function historicalAlertMonth(): array
+    {
+        return $this->buildHistorical('month');
     }
 
-    // Total de alertas (quarter)
-    public function historicalQuarter() {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->count(),
-                'details' => KingMonitorAlert::whereBetween('created_at', [
-                    Carbon::now()->startOfQuarter(),
-                    Carbon::now()->endOfQuarter()
-                ])->select(
-                    DB::raw('DATE_FORMAT(created_at, "%d") as day'),
-                    DB::raw('count(*) as total')
-                )->groupBy('day')->orderBy('day')->get()
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function historicalAlertQuarter(): array
+    {
+        return $this->buildHistorical('quarter');
     }
 
-    // Total de alertas (year)
-    public function historicalYear() {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::whereYear('created_at', '=', now())->count(),
-                'details' => KingMonitorAlert::whereYear('created_at', '=', now())->select(
-                    DB::raw('DATE_FORMAT(created_at, "%M") as month'),
-                    DB::raw('count(*) as total')
-                )->groupBy('month')->orderBy('month')->get()
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function historicalAlertYear(): array
+    {
+        return $this->buildHistorical('year');
     }
 
-    // Total de alertas (total)
-    public function historicalTotal() {
-        try {
-            $response = [
-                'total' => KingMonitorAlert::all()->count(),
-                'details' => KingMonitorAlert::select(
-                    DB::raw('DATE_FORMAT(created_at, "%Y") as year'),
-                    DB::raw('count(*) as total')
-                )->groupBy('year')->orderBy('year')->get()
-            ];
-
-            return $response;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+    public function historicalAlertTotal(): array
+    {
+        return $this->buildHistorical('total');
     }
 }
-

@@ -12,7 +12,7 @@ return [
     ],
 
     'response' => [
-        'size' => env('RESPONSE_SIZE_LIMIT', 500000),
+        'size' => env('RESPONSE_SIZE_LIMIT', 10240),
     ],
 
     'alerts' => [
@@ -29,4 +29,9 @@ return [
         'endpoint_statistics' => [],
         'endpoint_protected' => []
     ],
+
+    'data_sensitivity' => [
+        'params_keys' => env('PARAMS_KEYS', ['password', 'password_confirmation', 'token', 'secret']),
+        'headers_keys' => env('HEADERS_KEYS', ['authorization', 'cookie', 'x-api-key', 'x-auth-token']),
+    ]
 ];

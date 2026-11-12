@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->string('ip', 255)->comment('ip de la accion');
             $table->longText('params')->nullable()->comment('Datos enviados para la accion');
             $table->string('code', 255)->comment('Codigo de la respuesta');
-            $table->string('error', 255)->comment('Codigo de Error');
+            $table->string('error', 255)->nullable()->comment('Codigo de Error');
             $table->longText('message')->comment('Mensaje del error');
             $table->timestamps();
         });
