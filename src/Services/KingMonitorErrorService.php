@@ -50,10 +50,6 @@ class KingMonitorErrorService
     {
         $this->registerExceeded();
 
-        if (!config('king-monitor.alerts.monitor_alert')) {
-            return;
-        }
-
         $this->mailer->sendAlertUnauthenticated();
         $this->saveAlert();
     }
@@ -61,10 +57,6 @@ class KingMonitorErrorService
     private function processLimitExceeded(): void
     {
         $this->registerExceeded();
-
-        if (!config('king-monitor.alerts.monitor_alert')) {
-            return;
-        }
 
         $lastAlert = KingMonitorAlert::query()
             ->whereDate('created_at', today())

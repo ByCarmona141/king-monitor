@@ -16,7 +16,6 @@ return [
     ],
 
     'alerts' => [
-        'monitor_alert' => env('MONITOR_ALERT', true),
         'user_between_alert' => env('USER_BETWEEN_ALERT', 3600),
         'emails' => [
             'to' => [],

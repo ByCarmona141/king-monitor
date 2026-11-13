@@ -94,9 +94,7 @@ class KingMonitorError extends Model
         $this->save();
 
         // Siempre enviar alerta para errores de autenticación
-        if (config('king-monitor.alerts.monitor_alert')) {
-            app(MonitorAlertService::class)->sendUnauthenticatedAlert();
-        }
+        app(MonitorAlertService::class)->sendUnauthenticatedAlert();
 
         return $this;
     }

@@ -14,9 +14,7 @@ class MonitorAlertService
     {
         $this->recordExceeded($type);
 
-        if (config('king-monitor.alerts.monitor_alert')) {
-            $this->sendAlertIfNeeded($type);
-        }
+        $this->sendAlertIfNeeded($type);
     }
 
     /**
